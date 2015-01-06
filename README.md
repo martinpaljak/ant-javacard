@@ -20,7 +20,16 @@
   </cap>
 </jcpro>
 ```
-
+(which results in output similar to this)
+```
+target:
+    [jcpro] JavaCard 2.x SDK detected in ../jc221_kit
+      [cap] Setting package name to testapplets
+      [cap] Building CAP with 1 applet(s) from package testapplets
+      [cap] testapplets.Empty 0102030405060708
+  [compile] Compiling 1 source file to /var/folders/l7/h99c5w6j0y1b8_qbsth_9v4r0000gn/T/jcpro1449623494114549040104042558432715
+      [cap] CAP saved to /Users/martin/projects/ant-jcpro/Empty221.cap
+```
 * Supports all recent JavaCard SDK versions:
  * 2.2.1
  * 2.2.2
