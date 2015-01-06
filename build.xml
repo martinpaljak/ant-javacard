@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="dist" name="pro.javacard.ant.JCPro demo build">
+  <!-- Build and load the ProBuild task -->
+  <target name="jcpro">
+    <tempfile property="jcpro.tmp" destdir="${java.io.tmpdir}" prefix="jcpro" deleteonexit="true"/>
+    <mkdir dir="${jcpro.tmp}"/>
+    <javac srcdir="src/pro/javacard/ant" destdir="${jcpro.tmp}" includeantruntime="true">
+      <compilerarg value="-Werror"/>
+      <compilerarg value="-Xlint:all"/>
+    </javac>
+    <!-- Load the fresh task -->
+    <taskdef name="jcpro" classname="pro.javacard.ant.JCPro" classpath="${jcpro.tmp}"/>
+  </target>
+  <!-- Package it into a JAR -->
+  <target name="dist" depends="jcpro">
+    <jar destfile="ant-jcpro.jar" basedir="${jcpro.tmp}"/>
+    <!-- Now this JAR can be used in your build.xml by placing the jar to -->
+    <!-- lib folder and having the following in your target: -->
+    <!-- <taskdef name="jcpro" classname="pro.javacard.ant.JCPro" classpath="lib/ant-jcpro.jar"/> -->
+  </target>
+  <!-- Some handy things -->
+  <property name="OP20" value="../op20_kit"/>
+  <property name="JC221" value="../jc221_kit"/>
+  <property name="JC222" value="../jc222_kit"/>
+  <property name="JC303" value="../jc303_kit"/>
+  <property name="JC304" value="../jc304_kit"/>
+  <!-- build test applets -->
+  <target name="tests" depends="jcpro">
+    <jcpro>
+      <cap jckit="${JC221}" output="Empty221.cap" sources="src/testapplets">
+        <applet class="testapplets.Empty" aid="0102030405060708"/>
+      </cap>
+      <cap jckit="${JC222}" output="Empty222.cap" sources="src/testapplets">
+        <applet class="testapplets.Empty" aid="0102030405060708"/>
+      </cap>
+      <cap jckit="${JC303}" output="Empty303.cap" sources="src/testapplets">
+        <applet class="testapplets.Empty" aid="0102030405060708"/>
+      </cap>
+      <cap jckit="${JC304}" output="Empty304.cap" sources="src/testapplets">
+        <applet class="testapplets.Empty" aid="0102030405060708"/>
+      </cap>
+    </jcpro>
+  </target>
+</project>
