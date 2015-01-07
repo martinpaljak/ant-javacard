@@ -16,7 +16,7 @@
  * Now you can create applets within your Ant targets like this:
 ```xml
 <jcpro>
-  <cap jckit="/path/to/jckit_dir" cap="0102030405" output="MyApplet.cap" sources="src/myapplet">
+  <cap jckit="/path/to/jckit_dir" aid="0102030405" output="MyApplet.cap" sources="src/myapplet">
     <applet class="myapplet.MyApplet" aid="0102030405060708"/>
   </cap>
 </jcpro>
@@ -30,6 +30,15 @@ target:
       [cap] testapplets.Empty 0102030405060708
   [compile] Compiling 1 source file to /var/folders/l7/h99c5w6j0y1b8_qbsth_9v4r0000gn/T/jcpro1449623494114549040104042558432715
       [cap] CAP saved to /Users/martin/projects/ant-jcpro/Empty221.cap
+```
+ * Full sample:
+```xml
+<jcpro jckit="/path/to/jckit_dir1">
+  <cap jckit="/path/to/jckit_dir2" aid="0102030405" package="package.name" output="MyApplet.cap" sources="src/myapplet" classes="path/to/classes">
+    <applet class="myapplet.MyApplet" aid="0102030405060708"/>
+    <import exps="path/to/exps" jar="/path/to/lib.jar"/>
+  </cap>
+</jcpro>
 ```
 ## Features
  * Supports all recent JavaCard SDK versions: 2.2.1, 2.2.2, 3.0.3 and 3.0.4
