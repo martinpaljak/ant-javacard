@@ -1,7 +1,7 @@
 # Building JavaCard applets with Apache Ant
  * Easy to us Ant task for building JavaCard CAP files in a declarative way
- * Do What I Mean - omitted parameters are figured out
- * Minimal dependencies, no extra downloads
+ * Do What I Mean - omitted parameters are automagically filled out
+ * Minimal dependencies, no extra or unrelated downloads
  * Can be easily be integrated into continuous integration workflow
 
 ## Download
@@ -55,7 +55,11 @@ target:
  * standard JavaCard SDK Ant tasks
   * :( as cumbersome to use as the command line utilities
   * :( not declarative enough
-
+ * JCOP Tools
+  * :( not open source
+ * NetBeans IDE
+  * :( not possible to integrate into CI
+  * :( JavaCard 3.0 only
 ## License
  * MIT
 
