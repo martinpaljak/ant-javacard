@@ -3,7 +3,7 @@
  * [DWIM](http://en.wikipedia.org/wiki/DWIM) - Do What I Mean
  * Minimal (no) dependencies, no extra or unrelated downloads
  * Almost everything integrates or works with Ant
-  * Can be easily be integrated into continuous integration workflow
+  * Can be easily integrated into continuous integration workflows
  
 ## Download
  * Head to [release area](https://github.com/martinpaljak/ant-jcpro/releases)
