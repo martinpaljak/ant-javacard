@@ -1,13 +1,13 @@
 # Building JavaCard applet CAP files with Ant
- * Easy to us Ant task for building JavaCard CAP files in a declarative way
- * [DWIM](http://en.wikipedia.org/wiki/DWIM) - Do What I Mean
- * Minimal (no) dependencies, no extra or unrelated downloads
- * Almost everything integrates or works with Ant
+ * **Easy to use** Ant task for building JavaCard CAP files in a declarative way
+ * [DWIM](http://en.wikipedia.org/wiki/DWIM) - **Do What I Mean**
+ * **No dependencies**, no extra or unrelated downloads
+ * Almost **everything integrates** or works with Ant
   * Can be easily integrated into continuous integration workflows
- * Works on all platforms: Windows, OSX, Linux
+ * **Works on all platforms**: Windows, OSX, Linux
  
 ## Download
- * Head to [release area](https://github.com/martinpaljak/ant-jcpro/releases)
+ * Head to [release area](https://github.com/martinpaljak/ant-javacard/releases)
 
 ## Use
  * Download ```ant-jcpro.jar``` file and put it into the library folder of your project.
@@ -44,7 +44,7 @@ Sample:
   </cap>
 </jcpro>
 ```
-
+Details:
  * ```jcpro``` tag - generic task
    * ```jckit``` attribute - path to the JavaCard SDK that is used if individual ```cap``` does not specify one. Optional if ```cap``` defines one, required otherwise.
  * ```cap``` tag - construct a CAP file
@@ -94,4 +94,4 @@ Sample:
  * MIT
 
 ## Contact
- * martin@martinpaljak.net
+ * See [javacard.pro](http://javacard.pro)
