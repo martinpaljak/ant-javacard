@@ -3,7 +3,7 @@
  * **[Do What I Mean](http://en.wikipedia.org/wiki/DWIM)** 
  * **No dependencies**, no extra or unrelated downloads
  * Almost **everything integrates** or works with Ant
-  * Can be easily integrated into continuous integration workflows
+  * Can be easily integrated into **continuous integration** workflows
  * **Works on all platforms**: Windows, OSX, Linux
  
 ## Download
