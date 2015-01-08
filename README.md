@@ -4,6 +4,7 @@
  * Minimal (no) dependencies, no extra or unrelated downloads
  * Almost everything integrates or works with Ant
   * Can be easily integrated into continuous integration workflows
+ * Works on all platforms: Windows, OSX, Linux
  
 ## Download
  * Head to [release area](https://github.com/martinpaljak/ant-jcpro/releases)
