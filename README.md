@@ -1,9 +1,10 @@
 # Building JavaCard applets with Apache Ant
  * Easy to us Ant task for building JavaCard CAP files in a declarative way
- * Do What I Mean - omitted parameters are automagically filled out
- * Minimal dependencies, no extra or unrelated downloads
- * Can be easily be integrated into continuous integration workflow
-
+ * [DWIM](http://en.wikipedia.org/wiki/DWIM) - Do What I Mean
+ * Minimal (no) dependencies, no extra or unrelated downloads
+ * Almost everything integrates or works with Ant
+  * Can be easily be integrated into continuous integration workflow
+ 
 ## Download
  * Head to [release area](https://github.com/martinpaljak/ant-jcpro/releases)
 
@@ -68,18 +69,25 @@ Sample:
  * Use different JavaCard SDK-s for different CAP files within the same target
 
 ## Similar projects
+ * standard JavaCard SDK Ant tasks
+  * :( as cumbersome to use as the command line utilities
+  * :( not declarative/DWIM enough
  * gradle-javacard (Apache 2.0) - https://github.com/fidesmo/gradle-javacard
   * :) nice declarative interface
   * :( requires gradle (40M download) 
   * :( only supports JC2.2.2
- * standard JavaCard SDK Ant tasks
-  * :( as cumbersome to use as the command line utilities
-  * :( not declarative enough
+ * EclipseJCDE (Eclipse 1.0) - http://eclipse-jcde.sourceforge.net/
+  * :( only supports JC2.2.2
+  * :( not possible to integrate in CI - depends on eclipse
+  * :( essentially an Eclipse GUI wrapper for JC SDK
  * JCOP Tools
   * :( not open source
- * NetBeans IDE
+ * NetBeans IDE JC support
   * :( not possible to integrate into CI
   * :( JavaCard 3.0 only
+  * :( Netbeans, not cross platform
+ * Ant script files and templates
+  * :( XML is a *very* bad programming environment 
 
 ## License
  * MIT
