@@ -1,6 +1,6 @@
 # Building JavaCard applet CAP files with Ant
  * **Easy to use** Ant task for building JavaCard CAP files in a declarative way
- * [DWIM](http://en.wikipedia.org/wiki/DWIM) - **Do What I Mean**
+ * **[Do What I Mean**](http://en.wikipedia.org/wiki/DWIM)** 
  * **No dependencies**, no extra or unrelated downloads
  * Almost **everything integrates** or works with Ant
   * Can be easily integrated into continuous integration workflows
