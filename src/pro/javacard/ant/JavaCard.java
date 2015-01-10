@@ -254,17 +254,28 @@ public class JavaCard extends Task {
 			}
 		}
 
-		private void compile() throws IOException {
+		private File makeTmpFolder(String key) {
+			try {
+				File tmp;
+				tmp = File.createTempFile(key, Long.toString(System.nanoTime()));
+				tmp.delete();
+				tmp.mkdir();
+				tmp.deleteOnExit();
+				return tmp;
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+
+		}
+
+		private void compile() {
 			Javac j = new Javac();
 			j.setProject(getProject());
 			j.setTaskName("compile");
 
 			j.setSrcdir(new Path(getProject(), sources_path));
 			// Generate temporary folder
-			File tmp = File.createTempFile("jcpro", Long.toString(System.nanoTime()));
-			tmp.delete();
-			tmp.mkdir();
-			tmp.deleteOnExit();
+			File tmp = makeTmpFolder("classes");
 			j.setDestdir(new File(new Path(getProject(), tmp.getAbsolutePath()).toString()));
 
 			// TODO: detect
@@ -282,6 +293,7 @@ public class JavaCard extends Task {
 			// TODO: crate attribute for debug
 			j.createCompilerArg().setValue("-Xlint");
 			j.createCompilerArg().setValue("-Xlint:-options");
+			j.createCompilerArg().setValue("-Xlint:-serial");
 			j.setFailonerror(true);
 			j.setFork(true);
 			// set classpath
@@ -307,11 +319,7 @@ public class JavaCard extends Task {
 
 			// Compile first.
 			if (classes_path == null) {
-				try {
-					compile();
-				} catch (IOException e) {
-					throw new BuildException("Compilation failed", e);
-				}
+				compile();
 			}
 			// construct the Java task that executes converter
 			Java j = new Java(this);
@@ -336,7 +344,9 @@ public class JavaCard extends Task {
 				cp.append(jarpath);
 			}
 
+			File applet_folder = makeTmpFolder("applet");
 			j.createArg().setLine("-classdir '" + classes_path + "'");
+			j.createArg().setLine("-d '" + applet_folder.getAbsolutePath() + "'");
 
 			// Construct exportpath
 			String exps = Paths.get(jckit_path, "api_export_files").toString();
@@ -364,6 +374,10 @@ public class JavaCard extends Task {
 				jchome.setKey("jc.home");
 				jchome.setValue(jckit_path);
 				j.addSysproperty(jchome);
+				// TODO: make it configurable
+				// j.createArg().setLine("-i");
+				j.createArg().setLine("-useproxyclass");
+
 			}
 			j.setFailonerror(true);
 			j.setFork(true);
@@ -377,7 +391,7 @@ public class JavaCard extends Task {
 				if (ln.lastIndexOf(".") != -1) {
 					ln = ln.substring(ln.lastIndexOf(".") + 1);
 				}
-				File cap = Paths.get(classes_path, package_name.replace(".", File.separator), "javacard", ln + ".cap").toFile();
+				File cap = Paths.get(applet_folder.getAbsolutePath(), package_name.replace(".", File.separator), "javacard", ln + ".cap").toFile();
 				if (!cap.exists()) {
 					throw new BuildException("Can not find CAP in " + cap.toString());
 				}
