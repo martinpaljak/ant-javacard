@@ -9,14 +9,14 @@
       <compilerarg value="-Xlint:all"/>
     </javac>
     <!-- Load the fresh task -->
-    <taskdef name="jcpro" classname="pro.javacard.ant.JCPro" classpath="${jcpro.tmp}"/>
+    <taskdef name="javacard" classname="pro.javacard.ant.JavaCard" classpath="${jcpro.tmp}"/>
   </target>
   <!-- Package it into a JAR -->
   <target name="dist" depends="jcpro">
     <jar destfile="ant-jcpro.jar" basedir="${jcpro.tmp}"/>
     <!-- Now this JAR can be used in your build.xml by placing the jar to -->
     <!-- lib folder and having the following in your target: -->
-    <!-- <taskdef name="jcpro" classname="pro.javacard.ant.JCPro" classpath="lib/ant-jcpro.jar"/> -->
+    <!-- <taskdef name="JavaCard" classname="pro.javacard.ant.JavaCard" classpath="lib/ant-javacard.jar"/> -->
   </target>
   <!-- Some handy things -->
   <property name="OP20" value="../op20_kit"/>
@@ -26,7 +26,7 @@
   <property name="JC304" value="../jc304_kit"/>
   <!-- build test applets -->
   <target name="tests" depends="jcpro">
-    <jcpro>
+    <javacard>
       <cap jckit="${JC221}" output="Empty221.cap" sources="src/testapplets">
         <applet class="testapplets.Empty" aid="0102030405060708"/>
       </cap>
@@ -39,6 +39,6 @@
       <cap jckit="${JC304}" output="Empty304.cap" sources="src/testapplets">
         <applet class="testapplets.Empty" aid="0102030405060708"/>
       </cap>
-    </jcpro>
+    </javacard>
   </target>
 </project>
