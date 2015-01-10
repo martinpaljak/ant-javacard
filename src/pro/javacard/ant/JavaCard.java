@@ -351,9 +351,9 @@ public class JavaCard extends Task {
 			// Construct exportpath
 			String exps = Paths.get(jckit_path, "api_export_files").toString();
 			for (JCImport imp : raw_imports) {
-				exps = exps + ":" + Paths.get(imp.exps).toAbsolutePath().toString();
+				exps = exps + File.pathSeparatorChar + Paths.get(imp.exps).toAbsolutePath().toString();
 			}
-			j.createArg().setLine("-exportpath " + exps);
+			j.createArg().setLine("-exportpath '" + exps + "'");
 			// j.createArg().setLine("-nowarn");
 			j.createArg().setLine("-verbose");
 			j.createArg().setLine("-nobanner");
