@@ -1,11 +1,17 @@
 # Building JavaCard applet CAP files with Ant
- * **Easy to use** Ant task for building JavaCard CAP files in a declarative way
+
+**Easy to use** Ant task for building JavaCard CAP files in a declarative way
+
+## Features
  * **[Do What I Mean](http://en.wikipedia.org/wiki/DWIM)** 
  * **No dependencies**, no extra or unrelated downloads
- * Almost **everything integrates** or works with Ant
-  * Can be easily integrated into **continuous integration** workflows
+ * Support **all JavaCard SDK versions**: 2.2.1, 2.2.2, 3.0.3 and 3.0.4
  * **Works on all platforms**: Windows, OSX, Linux
- 
+ * Almost **everything integrates** or works with Ant
+ * Can be easily integrated into **continuous integration** workflows
+ * Generates CAP files from **sources** or **pre-compiled** class files
+ * "import" *external libraries* (```.exp``` files and ```.jar``` libraries)
+
 ## Download
  * Head to [release area](https://github.com/martinpaljak/ant-javacard/releases)
 
@@ -62,23 +68,18 @@ Details:
    * ```exps``` attribute - path to the folder keeping ```.exp``` files. Required
    * ```jar``` attribute - path to the JAR file for compilation. Optional - only required if using ```sources``` mode and not necessary with ```classes``` mode if java code is already compiled
 
-## Features
- * Supports all recent JavaCard SDK versions: 2.2.1, 2.2.2, 3.0.3 and 3.0.4
- * Automagically adjusts to used SDK version
- * Generate CAP files from sources or pre-compiled class files
- * "import" external libraries (```.exp``` files and ```.jar``` libraries)
- * Use different JavaCard SDK-s for different CAP files within the same target
 
 ## Similar projects
  * standard JavaCard SDK Ant tasks
   * :( as cumbersome to use as the command line utilities
   * :( not declarative/DWIM enough
+  * :) very explicit interface with all details exposed
  * gradle-javacard (Apache 2.0) - https://github.com/fidesmo/gradle-javacard
   * :) nice declarative interface
   * :( requires gradle (40M download) 
-  * :( only supports JC2.2.2
+  * :( JavaCard 2.2.2 only
  * EclipseJCDE (Eclipse 1.0) - http://eclipse-jcde.sourceforge.net/
-  * :( only supports JC2.2.2
+  * :( JavaCard 2.2.2 only
   * :( not possible to integrate in CI - depends on eclipse
   * :( essentially an Eclipse GUI wrapper for JC SDK
  * JCOP Tools
@@ -87,8 +88,11 @@ Details:
   * :( not possible to integrate into CI
   * :( JavaCard 3.0 only
   * :( Netbeans, not cross platform
- * Ant script files and templates
-  * :( XML is a *very* bad programming environment 
+ * Maven2 task from FedICT (LGPL3) - https://code.google.com/p/eid-quick-key-toolset
+  * :( Maven downloads half the internet before even simple tasks
+  * :( JavaCard 2.2.2 only
+ * Ant script files with templates
+  * :( XML is a *very* bad and verbose programming environment
 
 ## License
  * MIT
