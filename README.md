@@ -16,18 +16,18 @@
  * Head to [release area](https://github.com/martinpaljak/ant-javacard/releases)
 
 ## Use
- * Download ```ant-jcpro.jar``` file and put it into the library folder of your project.
+ * Download ```ant-javacard.jar``` file and put it into the library folder of your project.
  * Then add the following to you ```build.xml``` file:
 ```xml
-<taskdef name="jcpro" classname="pro.javacard.ant.JCPro" classpath="lib/ant-jcpro.jar"/>
+<taskdef name="javacard" classname="pro.javacard.ant.JavaCard" classpath="lib/ant-javacard.jar"/>
 ```
  * Now you can create applets within your Ant targets like this:
 ```xml
-<jcpro>
+<javacard>
   <cap jckit="/path/to/jckit_dir" aid="0102030405" output="MyApplet.cap" sources="src/myapplet">
     <applet class="myapplet.MyApplet" aid="0102030405060708"/>
   </cap>
-</jcpro>
+</javacard>
 ```
 (which results in output similar to this)
 ```
@@ -43,18 +43,18 @@ target:
 Sample:
 
 ```xml
-<jcpro jckit="/path/to/jckit_dir1">
+<javacard jckit="/path/to/jckit_dir1">
   <cap jckit="/path/to/jckit_dir2" aid="0102030405" package="package.name" version="0.1" output="MyApplet.cap" sources="src/myapplet" classes="path/to/classes">
     <applet class="myapplet.MyApplet" aid="0102030405060708"/>
     <import exps="path/to/exps" jar="/path/to/lib.jar"/>
   </cap>
-</jcpro>
+</javacard>
 ```
 Details:
- * ```jcpro``` tag - generic task
+ * ```javacard``` tag - generic task
    * ```jckit``` attribute - path to the JavaCard SDK that is used if individual ```cap``` does not specify one. Optional if ```cap``` defines one, required otherwise.
  * ```cap``` tag - construct a CAP file
-   * ```jckit``` attribute - path to the JavaCard SDK to be used for this CAP. Optional if ```jcpro``` defines one, required otherwise. 
+   * ```jckit``` attribute - path to the JavaCard SDK to be used for this CAP. Optional if ```javacard``` defines one, required otherwise. 
    * ```sources``` attribute - path to Java source code, to be compiled against the current JavaCard SDK. Either ```sources``` or ```classes``` is required.
    * ```classes``` attribute - path to pre-compiled class files to be assembled into a CAP file.
    * ```package``` attribute - name of the package of the CAP file. Optional - set to the parent package of the applet class if left unspecified.

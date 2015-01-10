@@ -37,7 +37,7 @@ import org.apache.tools.ant.taskdefs.Javac;
 import org.apache.tools.ant.types.Environment.Variable;
 import org.apache.tools.ant.types.Path;
 
-public class JCPro extends Task {
+public class JavaCard extends Task {
 	private static enum JC {
 		V2, V3
 	}
@@ -255,17 +255,9 @@ public class JCPro extends Task {
 		}
 
 		private void compile() throws IOException {
-			// System.out.println("Compiling from " + so + " to " +
-			// bin);
 			Javac j = new Javac();
 			j.setProject(getProject());
 			j.setTaskName("compile");
-			// Path srcdir = new Path(getProject());
-			// srcdir.setLocation(new File(src));
-			// System.out.println("or " + srcdir);
-			// for (String s : srcdir.list()) {
-			// System.out.println("d " + s);
-			// }
 
 			j.setSrcdir(new Path(getProject(), sources_path));
 			// Generate temporary folder
@@ -278,11 +270,16 @@ public class JCPro extends Task {
 			// TODO: detect
 			// 2.2.1 max 1.2
 			// 2.2.2 max 1.3
-			// 3.0.3 max 1.6
-			j.setTarget("1.2");
-			j.setSource("1.2");
+			// 3.0.3 max 1.6. Overrides come in 1.5
+			if (build_type == JC.V2) {
+				j.setTarget("1.2");
+				j.setSource("1.2");
+			} else if (build_type == JC.V3) {
+				j.setTarget("1.5");
+				j.setSource("1.5");
+			}
 			j.setIncludeantruntime(false);
-			// TODO: crate attribute
+			// TODO: crate attribute for debug
 			j.createCompilerArg().setValue("-Xlint");
 			j.createCompilerArg().setValue("-Xlint:-options");
 			j.setFailonerror(true);
@@ -301,19 +298,6 @@ public class JCPro extends Task {
 			}
 			j.execute();
 
-			// JCBuild b = new JCBuild();
-			// b.setProject(getProject());
-			// b.setSrc(sources_path);
-			// File tmp = File.createTempFile("prob",
-			// Long.toString(System.nanoTime()));
-			// tmp.delete();
-			// tmp.mkdir();
-			// tmp.deleteOnExit();
-			// b.setBin(tmp.getAbsolutePath());
-			// for (JCImport i : raw_imports) {
-			// b.createImport().setJar(i.jar);
-			// }
-			// b.execute();
 			classes_path = tmp.getAbsolutePath();
 		}
 
