@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>JCPro Ant task</name>
-	<comment></comment>
+	<name>ant-javacard</name>
+	<comment>javacard.pro ant task</comment>
 	<projects>
 	</projects>
 	<buildSpec>
