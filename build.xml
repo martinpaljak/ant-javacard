@@ -5,7 +5,6 @@
     <tempfile property="jcpro.tmp" destdir="${java.io.tmpdir}" prefix="jcpro" deleteonexit="true"/>
     <mkdir dir="${jcpro.tmp}"/>
     <javac srcdir="src/pro/javacard/ant" destdir="${jcpro.tmp}" includeantruntime="true" target="1.7" source="1.7">
-      <compilerarg value="-Werror"/>
       <compilerarg value="-Xlint:all"/>
     </javac>
     <!-- Load the fresh task -->
