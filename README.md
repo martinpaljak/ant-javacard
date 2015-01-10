@@ -1,16 +1,17 @@
 # Building JavaCard applet CAP files with Ant
 
-**Easy to use** Ant task for building JavaCard CAP files in a declarative way
+**Easy to use** Ant task for building JavaCard CAP files in a declarative way.
 
 ## Features
- * **[Do What I Mean](http://en.wikipedia.org/wiki/DWIM)** 
- * **No dependencies**, no extra or unrelated downloads
- * Support **all JavaCard SDK versions**: 2.2.1, 2.2.2, 3.0.3 and 3.0.4
- * **Works on all platforms**: Windows, OSX, Linux
- * Almost **everything integrates** or works with Ant
- * Can be easily integrated into **continuous integration** workflows
- * Generates CAP files from **sources** or **pre-compiled** class files
- * "import" *external libraries* (```.exp``` files and ```.jar``` libraries)
+ * **[Do What I Mean](http://en.wikipedia.org/wiki/DWIM)**.
+ * **No dependencies**, no extra or unrelated downloads. Just a 10KB jar.
+ * Supports **all JavaCard SDK versions**: 2.2.1, 2.2.2, 3.0.3 and 3.0.4.
+ * **Works on all platforms**: Windows, OSX, Linux.
+ * Almost **everything integrates** or works with Ant.
+ * Can be easily integrated into **continuous integration** workflows.
+ * Generates CAP files from **sources** or **pre-compiled** class files.
+ * "import" *external libraries*:```.exp``` files and ```.jar``` libraries.
+ * **No restrictions** on project source folder layout.
 
 ## Download
  * Head to [release area](https://github.com/martinpaljak/ant-javacard/releases)
