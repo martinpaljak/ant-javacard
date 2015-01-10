@@ -374,10 +374,6 @@ public class JavaCard extends Task {
 				jchome.setKey("jc.home");
 				jchome.setValue(jckit_path);
 				j.addSysproperty(jchome);
-				// TODO: make it configurable
-				// j.createArg().setLine("-i");
-				j.createArg().setLine("-useproxyclass");
-
 			}
 			j.setFailonerror(true);
 			j.setFork(true);
