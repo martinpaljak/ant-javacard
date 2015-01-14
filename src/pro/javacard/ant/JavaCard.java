@@ -266,6 +266,10 @@ public class JavaCard extends Task {
 				throw new HelpingBuildException("Must specify package AID");
 			}
 
+			// Check output file
+			if (output_file == null) {
+				throw new HelpingBuildException("Must specify output file");
+			}
 			// Nice info
 			log("Building CAP with " + applet_counter + " applet(s) from package " + package_name, Project.MSG_INFO);
 			for (JCApplet app : raw_applets) {
