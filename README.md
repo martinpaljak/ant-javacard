@@ -57,7 +57,7 @@ Details:
  * ```cap``` tag - construct a CAP file
    * ```jckit``` attribute - path to the JavaCard SDK to be used for this CAP. Optional if ```javacard``` defines one, required otherwise. 
    * ```sources``` attribute - path to Java source code, to be compiled against the current JavaCard SDK. Either ```sources``` or ```classes``` is required.
-   * ```classes``` attribute - path to pre-compiled class files to be assembled into a CAP file.
+   * ```classes``` attribute - path to pre-compiled class files to be assembled into a CAP file. If both ```classes``` and ```sources``` are specified, compiled class files will be put to ```classes``` folder, which is created if missing.
    * ```package``` attribute - name of the package of the CAP file. Optional - set to the parent package of the applet class if left unspecified.
    * ```version``` attribute - version of the package. Optional - defaults to 0.0 if left unspecified.
    * ```aid``` attribute - AID of the package. Recommended - or set to the 5 first bytes of the applet AID if left unspecified.
@@ -69,6 +69,8 @@ Details:
    * ```exps``` attribute - path to the folder keeping ```.exp``` files. Required
    * ```jar``` attribute - path to the JAR file for compilation. Optional - only required if using ```sources``` mode and not necessary with ```classes``` mode if java code is already compiled
 
+Notes:
+ * ```jckit``` path of ```cap``` tag has highest precendence, followed by path in ```javacard```, followed by ```JC_HOME``` environment variable.
 
 ## Similar projects
  * standard JavaCard SDK Ant tasks
