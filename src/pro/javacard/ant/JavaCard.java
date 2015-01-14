@@ -173,13 +173,27 @@ public class JavaCard extends Task {
 
 		// Check that arguments are sufficient and do some DWIM
 		private void check() {
-			if (jckit_path == null && master_jckit_path == null) {
-				throw new BuildException("Must specify JavaCard SDK path");
-			}
-			if (jckit_path == null) {
-				jckit_path = master_jckit_path;
+			String jckit_env = System.getenv("JC_HOME");
+			if (jckit_path == null && master_jckit_path == null && jckit_env == null) {
+				throw new BuildException("Must specify JavaCard SDK path or set JC_HOME");
 			}
 
+			if (jckit_path == null) {
+				// if master file is specified but does not exist, override
+				// with environment, variable, if specified.
+				if (master_jckit_path != null && !new File(master_jckit_path).exists() && jckit_env != null) {
+					log("INFO: using JC_HOME because " + master_jckit_path + " does not exist", Project.MSG_INFO);
+					jckit_path = jckit_env;
+				} else if (master_jckit_path == null && jckit_env != null) {
+					jckit_path = jckit_env;
+				} else {
+					jckit_path = master_jckit_path;
+				}
+			}
+
+			if (jckit_path == null) {
+				throw new BuildException("No usable JavaCard SDK referenced");
+			}
 			build_type = detectSDK(jckit_path);
 
 			// sources or classes must be set
@@ -256,16 +270,12 @@ public class JavaCard extends Task {
 
 		private File makeTmpFolder(String key) {
 			try {
-				File tmp;
-				tmp = File.createTempFile(key, Long.toString(System.nanoTime()));
-				tmp.delete();
-				tmp.mkdir();
-				tmp.deleteOnExit();
-				return tmp;
+				File t = Files.createTempDirectory("antjc").toFile();
+				t.deleteOnExit();
+				return t;
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
-
 		}
 
 		private void compile() {
