@@ -111,6 +111,11 @@ public class JavaCard extends Task {
 		}
 	}
 
+	public class HelpingBuildException extends BuildException {
+		public HelpingBuildException(String msg) {
+			super(msg + "\n\nPLEASE READ https://github.com/martinpaljak/ant-javacard#syntax");
+		}
+	}
 	public class JCCap extends Task {
 		private JC build_type = JC.V2;
 		private String classes_path = null;
@@ -175,7 +180,7 @@ public class JavaCard extends Task {
 		private void check() {
 			String jckit_env = System.getenv("JC_HOME");
 			if (jckit_path == null && master_jckit_path == null && jckit_env == null) {
-				throw new BuildException("Must specify JavaCard SDK path or set JC_HOME");
+				throw new HelpingBuildException("Must specify JavaCard SDK path or set JC_HOME");
 			}
 
 			if (jckit_path == null) {
@@ -192,20 +197,20 @@ public class JavaCard extends Task {
 			}
 
 			if (jckit_path == null) {
-				throw new BuildException("No usable JavaCard SDK referenced");
+				throw new HelpingBuildException("No usable JavaCard SDK referenced");
 			}
 			build_type = detectSDK(jckit_path);
 
 			// sources or classes must be set
 			if (sources_path == null && classes_path == null) {
-				throw new BuildException("Must specify sources or classes");
+				throw new HelpingBuildException("Must specify sources or classes");
 			}
 			// Check package version
 			if (package_version == null) {
 				package_version = "0.0";
 			} else {
 				if (!package_version.matches("^[0-9].[0-9]$")) {
-					throw new BuildException("Incorrect package version: " + package_version);
+					throw new HelpingBuildException("Incorrect package version: " + package_version);
 				}
 			}
 
@@ -217,14 +222,14 @@ public class JavaCard extends Task {
 				applet_counter = applet_counter + 1;
 
 				if (a.klass == null) {
-					throw new BuildException("Applet class is missing");
+					throw new HelpingBuildException("Applet class is missing");
 				}
 				// If package name is present, must match the applet
 				if (package_name != null) {
 					if (!a.klass.contains(".")) {
 						a.klass = package_name + "." + a.klass;
 					} else if (!a.klass.startsWith(package_name)) {
-						throw new BuildException("Applet class " + a.klass + " is not in package " + package_name);
+						throw new HelpingBuildException("Applet class " + a.klass + " is not in package " + package_name);
 					}
 				} else {
 					String pkgname = a.klass.substring(0, a.klass.lastIndexOf("."));
@@ -237,7 +242,7 @@ public class JavaCard extends Task {
 					if (a.aid != null) {
 						// RID-s must match
 						if (!Arrays.equals(Arrays.copyOf(package_aid, 5), Arrays.copyOf(a.aid, 5))) {
-							throw new BuildException("Package RID does not match Applet RID");
+							throw new HelpingBuildException("Package RID does not match Applet RID");
 						}
 					} else {
 						// make "magic" applet AID from package_aid + counter
@@ -251,14 +256,14 @@ public class JavaCard extends Task {
 					if (a.aid != null) {
 						package_aid = Arrays.copyOf(a.aid, 5);
 					} else {
-						throw new BuildException("Both package AID and applet AID are missing!");
+						throw new HelpingBuildException("Both package AID and applet AID are missing!");
 					}
 				}
 			}
 
 			// Check package AID
 			if (package_aid == null) {
-				throw new BuildException("Must specify package AID");
+				throw new HelpingBuildException("Must specify package AID");
 			}
 
 			// Nice info
@@ -284,9 +289,20 @@ public class JavaCard extends Task {
 			j.setTaskName("compile");
 
 			j.setSrcdir(new Path(getProject(), sources_path));
-			// Generate temporary folder
-			File tmp = makeTmpFolder("classes");
-			j.setDestdir(new File(new Path(getProject(), tmp.getAbsolutePath()).toString()));
+
+			File tmp;
+			if (classes_path != null) {
+				tmp = new File(classes_path);
+				if (!tmp.exists()) {
+					tmp.mkdir();
+				}
+			} else {
+				// Generate temporary folder
+				tmp = makeTmpFolder("classes");
+				classes_path = tmp.getAbsolutePath();
+			}
+
+			j.setDestdir(tmp);
 
 			// TODO: detect
 			// 2.2.1 max 1.2
@@ -319,16 +335,14 @@ public class JavaCard extends Task {
 				cp.append(new Path(getProject(), i.jar));
 			}
 			j.execute();
-
-			classes_path = tmp.getAbsolutePath();
 		}
 
 		public void execute() {
 			// Convert
 			check();
 
-			// Compile first.
-			if (classes_path == null) {
+			// Compile first if necessary
+			if (sources_path != null) {
 				compile();
 			}
 			// construct the Java task that executes converter
@@ -409,7 +423,7 @@ public class JavaCard extends Task {
 					Files.copy(cap.toPath(), new FileOutputStream(opf));
 					log("CAP saved to " + opf.getAbsolutePath(), Project.MSG_INFO);
 				} catch (IOException e) {
-					throw new BuildException("Can not copy output CAP");
+					throw new BuildException("Can not copy output CAP", e);
 				}
 			}
 		}
