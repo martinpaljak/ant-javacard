@@ -111,6 +111,7 @@ public class JavaCard extends Task {
 		}
 	}
 
+	@SuppressWarnings("serial")
 	public class HelpingBuildException extends BuildException {
 		public HelpingBuildException(String msg) {
 			super(msg + "\n\nPLEASE READ https://github.com/martinpaljak/ant-javacard#syntax");
