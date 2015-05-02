@@ -42,7 +42,17 @@ import org.apache.tools.ant.types.Path;
 
 public class JavaCard extends Task {
 	private static enum JC {
-		NONE, V221, V2, V3
+		NONE, V221, V222, V3;
+
+		public String toString() {
+			if (this.equals(V3))
+				return "v3.x";
+			if (this.equals(V222))
+				return "v2.2.2";
+			if (this.equals(V221))
+				return "v2.x";
+			return "unknown";
+		}
 	}
 
 	private class JavaCardKit {
@@ -89,11 +99,9 @@ public class JavaCard extends Task {
 		detected.path = real_path;
 		// Identify jckit type
 		if (Paths.get(detected.path, "lib", "tools.jar").toFile().exists()) {
-			log("JavaCard 3.x SDK detected in " + detected.path, Project.MSG_INFO);
+			log("JavaCard 3.x SDK detected in " + detected.path, Project.MSG_VERBOSE);
 			detected.version = JC.V3;
 		} else if (Paths.get(detected.path, "lib", "converter.jar").toFile().exists()) {
-			detected.version = JC.V221;
-			log("JavaCard 2.x SDK detected in " + detected.path, Project.MSG_INFO);
 			// Detect if 2.2.1 or 2.2.2
 			File api = Paths.get(detected.path, "lib", "api.jar").toFile();
 			try (ZipInputStream zip = new ZipInputStream(new FileInputStream(api))) {
@@ -103,12 +111,18 @@ public class JavaCard extends Task {
 						break;
 					}
 					if (entry.getName().equals("javacardx/apdu/ExtendedLength.class")) {
-						detected.version = JC.V2;
-						log("JavaCard 2.2.2 SDK detected in " + detected.path, Project.MSG_INFO);
+						detected.version = JC.V222;
+						log("JavaCard 2.2.2 SDK detected in " + detected.path, Project.MSG_VERBOSE);
 					}
 				}
 			} catch (IOException e) {
 				log("Could not parse api.jar", Project.MSG_DEBUG);
+			} finally {
+				// Assume older SDK if jar parsing fails.
+				if (detected.version == JC.NONE) {
+					detected.version = JC.V221;
+					log("JavaCard 2.x SDK detected in " + detected.path, Project.MSG_VERBOSE);
+				}
 			}
 		} else {
 			log("Could not detect a JavaCard SDK in " + Paths.get(path).toAbsolutePath(), Project.MSG_WARN);
@@ -224,31 +238,38 @@ public class JavaCard extends Task {
 		// Check that arguments are sufficient and do some DWIM
 		private void check() {
 			JavaCardKit env = detectSDK(System.getenv("JC_HOME"));
+			JavaCardKit prop = detectSDK(getProject().getProperty("jc.home"));
 			JavaCardKit master = detectSDK(master_jckit_path);
 			JavaCardKit current = detectSDK(jckit_path);
 
-			if (current.version == JC.NONE && master.version == JC.NONE && env.version == JC.NONE) {
-				throw new HelpingBuildException("Must specify usable JavaCard SDK path in build.xml or set JC_HOME");
+			if (current.version == JC.NONE && master.version == JC.NONE && env.version == JC.NONE && prop.version == JC.NONE) {
+				throw new HelpingBuildException("Must specify usable JavaCard SDK path in build.xml or set JC_HOME or jc.home");
 			}
 
 
 			if (current.version == JC.NONE) {
-				// if master path is specified but does not usable,
+				// if master path is specified but is not usable,
 				// override with environment, variable, if usable
-				if (master.version == JC.NONE && env.version != JC.NONE) {
+				if (prop.version != JC.NONE) {
+					jckit = prop;
+				} else if (master.version == JC.NONE && env.version != JC.NONE) {
 					jckit = env;
 				} else {
 					jckit = master;
 				}
 			} else {
-				jckit = current;
+				if (prop.version != JC.NONE) {
+					jckit = prop;
+				} else {
+					jckit = current;
+				}
 			}
 
 			// Sanity check
 			if (jckit == null || jckit.version == JC.NONE) {
 				throw new HelpingBuildException("No usable JavaCard SDK referenced");
 			} else {
-				log("INFO: using JavaCard SDK in " + jckit.path, Project.MSG_INFO);
+				log("INFO: using JavaCard " + jckit.version + " SDK in " + jckit.path, Project.MSG_INFO);
 			}
 
 			// sources or classes must be set
