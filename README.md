@@ -1,6 +1,6 @@
 # Building JavaCard applet CAP files with Ant
 
-**Easy to use** Ant task for building JavaCard CAP files in a declarative way.
+**Easy to use** [Ant](https://ant.apache.org/) task for building JavaCard CAP files in a declarative way.
 
 ## Features
  * **[Do What I Mean](http://en.wikipedia.org/wiki/DWIM)**.
@@ -33,12 +33,13 @@
 (which results in output similar to this)
 ```
 target:
-    [jcpro] JavaCard 2.x SDK detected in ../jc221_kit
+      [cap] INFO: using JavaCard v2.2.2 SDK in ../jc222_kit
       [cap] Setting package name to testapplets
-      [cap] Building CAP with 1 applet(s) from package testapplets
+      [cap] Building CAP with 1 applet from package testapplets
       [cap] testapplets.Empty 0102030405060708
-  [compile] Compiling 1 source file to /var/folders/l7/h99c5w6j0y1b8_qbsth_9v4r0000gn/T/jcpro1449623494114549040104042558432715
-      [cap] CAP saved to /Users/martin/projects/ant-jcpro/Empty221.cap
+  [compile] Compiling 1 source file to /var/folders/l7/h99c5w6j0y1b8_qbsth_9v4r0000gn/T/antjc4506897175807383834
+      [cap] CAP saved to /Users/martin/projects/ant-javacard/Empty222.cap
+
 ```
 ## Syntax
 Sample:
@@ -70,7 +71,7 @@ Details:
    * ```jar``` attribute - path to the JAR file for compilation. Optional - only required if using ```sources``` mode and not necessary with ```classes``` mode if java code is already compiled
 
 Notes:
- * ```jckit``` path of ```cap``` tag has highest precendence, followed by path in ```javacard```, followed by ```JC_HOME``` environment variable.
+ * ```jc.home``` property has the highest precedence, followed by ```jckit``` path of ```cap```, followed by path in ```javacard```, followed by ```JC_HOME``` environment variable. SDK must be valid to be considered for use.
 
 ## Similar projects
  * standard JavaCard SDK Ant tasks
