@@ -22,12 +22,15 @@
 package pro.javacard.ant;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Vector;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
@@ -39,7 +42,7 @@ import org.apache.tools.ant.types.Path;
 
 public class JavaCard extends Task {
 	private static enum JC {
-		NONE, V2, V3
+		NONE, V221, V2, V3
 	}
 
 	private class JavaCardKit {
@@ -89,8 +92,24 @@ public class JavaCard extends Task {
 			log("JavaCard 3.x SDK detected in " + detected.path, Project.MSG_INFO);
 			detected.version = JC.V3;
 		} else if (Paths.get(detected.path, "lib", "converter.jar").toFile().exists()) {
+			detected.version = JC.V221;
 			log("JavaCard 2.x SDK detected in " + detected.path, Project.MSG_INFO);
-			detected.version = JC.V2;
+			// Detect if 2.2.1 or 2.2.2
+			File api = Paths.get(detected.path, "lib", "api.jar").toFile();
+			try (ZipInputStream zip = new ZipInputStream(new FileInputStream(api))) {
+				while (true) {
+					ZipEntry entry = zip.getNextEntry();
+					if (entry == null) {
+						break;
+					}
+					if (entry.getName().equals("javacardx/apdu/ExtendedLength.class")) {
+						detected.version = JC.V2;
+						log("JavaCard 2.2.2 SDK detected in " + detected.path, Project.MSG_INFO);
+					}
+				}
+			} catch (IOException e) {
+				log("Could not parse api.jar", Project.MSG_DEBUG);
+			}
 		} else {
 			log("Could not detect a JavaCard SDK in " + Paths.get(path).toAbsolutePath(), Project.MSG_WARN);
 		}
@@ -327,7 +346,7 @@ public class JavaCard extends Task {
 
 			File tmp;
 			if (classes_path != null) {
-				tmp = new File(classes_path);
+				tmp = getProject().resolveFile(classes_path);
 				if (!tmp.exists()) {
 					tmp.mkdir();
 				}
@@ -339,14 +358,10 @@ public class JavaCard extends Task {
 
 			j.setDestdir(tmp);
 
-			// TODO: detect
-			// 2.2.1 max 1.2
-			// 2.2.2 max 1.3
-			// 3.0.3 max 1.6. Overrides come in 1.5
-			if (jckit.version == JC.V2) {
+			if (jckit.version == JC.V221) {
 				j.setTarget("1.2");
 				j.setSource("1.2");
-			} else if (jckit.version == JC.V3) {
+			} else {
 				j.setTarget("1.5");
 				j.setSource("1.5");
 			}
@@ -362,7 +377,7 @@ public class JavaCard extends Task {
 			String api = null;
 			if (jckit.version == JC.V3) {
 				api = Paths.get(jckit.path, "lib", "api_classic.jar").toAbsolutePath().toString();
-			} else if (jckit.version == JC.V2) {
+			} else { // V2.X
 				api = Paths.get(jckit.path, "lib", "api.jar").toAbsolutePath().toString();
 			}
 			cp.append(new Path(getProject(), api));
@@ -386,7 +401,12 @@ public class JavaCard extends Task {
 			Path cp = j.createClasspath();
 			// converter
 			File jar = null;
-			if (jckit.version == JC.V2) {
+			if (jckit.version == JC.V3) {
+				jar = Paths.get(jckit.path, "lib", "tools.jar").toFile();
+				Path jarpath = new Path(getProject());
+				jarpath.setLocation(jar);
+				cp.append(jarpath);
+			} else {
 				// XXX: this should be with less lines ?
 				jar = Paths.get(jckit.path, "lib", "converter.jar").toFile();
 				Path jarpath = new Path(getProject());
@@ -394,11 +414,6 @@ public class JavaCard extends Task {
 				cp.append(jarpath);
 				jar = Paths.get(jckit.path, "lib", "offcardverifier.jar").toFile();
 				jarpath = new Path(getProject());
-				jarpath.setLocation(jar);
-				cp.append(jarpath);
-			} else if (jckit.version == JC.V3) {
-				jar = Paths.get(jckit.path, "lib", "tools.jar").toFile();
-				Path jarpath = new Path(getProject());
 				jarpath.setLocation(jar);
 				cp.append(jarpath);
 			}
@@ -424,15 +439,15 @@ public class JavaCard extends Task {
 			j.createArg().setLine(package_name + " " + hexAID(package_aid) + " " + package_version);
 
 			// Call converter
-			if (jckit.version == JC.V2) {
-				j.setClassname("com.sun.javacard.converter.Converter");
-			} else if (jckit.version == JC.V3) {
+			if (jckit.version == JC.V3) {
 				j.setClassname("com.sun.javacard.converter.Main");
 				// XXX: See https://community.oracle.com/message/10452555
 				Variable jchome = new Variable();
 				jchome.setKey("jc.home");
 				jchome.setValue(jckit.path);
 				j.addSysproperty(jchome);
+			} else {
+				j.setClassname("com.sun.javacard.converter.Converter");
 			}
 			j.setFailonerror(true);
 			j.setFork(true);
