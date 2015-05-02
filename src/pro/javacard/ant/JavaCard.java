@@ -39,9 +39,13 @@ import org.apache.tools.ant.types.Path;
 
 public class JavaCard extends Task {
 	private static enum JC {
-		V2, V3
+		NONE, V2, V3
 	}
 
+	private class JavaCardKit {
+		JC version = JC.NONE;
+		String path = null;
+	}
 	private String master_jckit_path = null;
 	private Vector<JCCap> packages = new Vector<>();
 
@@ -60,20 +64,37 @@ public class JavaCard extends Task {
 		master_jckit_path = msg;
 	}
 
-	public JC detectSDK(String jckit_path) {
+	/**
+	 * Given a path, return a meta-info object about possible JavaCard SDK in that path.
+	 *
+	 * @param path raw string as present in build.xml or environment, or <code>null</code>
+	 *
+	 * @return a {@link JavaCardKit} instance
+	 */
+	public JavaCardKit detectSDK(String path) {
+		JavaCardKit detected = new JavaCardKit();
+		if (path == null || path.trim() == "") {
+			return detected;
+		}
+		// Expand user
+		String real_path = path.replaceFirst("^~", System.getProperty("user.home"));
+		// Check if path is OK
+		if (!new File(real_path).exists()) {
+			log("JavaCard SDK folder " + path + " does not exist!", Project.MSG_WARN);
+			return detected;
+		}
+		detected.path = real_path;
 		// Identify jckit type
-		if (!new File(jckit_path).exists()) {
-			throw new BuildException("JavaCard SDK folder " + jckit_path + " does not exist!");
-		}
-		if (Paths.get(jckit_path, "lib", "tools.jar").toFile().exists()) {
-			log("JavaCard 3.x SDK detected in " + jckit_path, Project.MSG_INFO);
-			return JC.V3;
-		} else if (Paths.get(jckit_path, "lib", "converter.jar").toFile().exists()) {
-			log("JavaCard 2.x SDK detected in " + jckit_path, Project.MSG_INFO);
-			return JC.V2;
+		if (Paths.get(detected.path, "lib", "tools.jar").toFile().exists()) {
+			log("JavaCard 3.x SDK detected in " + detected.path, Project.MSG_INFO);
+			detected.version = JC.V3;
+		} else if (Paths.get(detected.path, "lib", "converter.jar").toFile().exists()) {
+			log("JavaCard 2.x SDK detected in " + detected.path, Project.MSG_INFO);
+			detected.version = JC.V2;
 		} else {
-			throw new BuildException("Could not detect a JavaCard SDK in " + Paths.get(jckit_path).toAbsolutePath());
+			log("Could not detect a JavaCard SDK in " + Paths.get(path).toAbsolutePath(), Project.MSG_WARN);
 		}
+		return detected;
 	}
 
 	public JCCap createCap() {
@@ -118,7 +139,7 @@ public class JavaCard extends Task {
 		}
 	}
 	public class JCCap extends Task {
-		private JC build_type = JC.V2;
+		private JavaCardKit jckit = null;
 		private String classes_path = null;
 		private String sources_path = null;
 		private String package_name = null;
@@ -130,6 +151,10 @@ public class JavaCard extends Task {
 		private String jckit_path = null;
 
 		public JCCap() {
+		}
+
+		public void setJCKit(String msg) {
+			jckit_path = msg;
 		}
 
 		public void setOutput(String msg) {
@@ -179,28 +204,33 @@ public class JavaCard extends Task {
 
 		// Check that arguments are sufficient and do some DWIM
 		private void check() {
-			String jckit_env = System.getenv("JC_HOME");
-			if (jckit_path == null && master_jckit_path == null && jckit_env == null) {
-				throw new HelpingBuildException("Must specify JavaCard SDK path or set JC_HOME");
+			JavaCardKit env = detectSDK(System.getenv("JC_HOME"));
+			JavaCardKit master = detectSDK(master_jckit_path);
+			JavaCardKit current = detectSDK(jckit_path);
+
+			if (current.version == JC.NONE && master.version == JC.NONE && env.version == JC.NONE) {
+				throw new HelpingBuildException("Must specify usable JavaCard SDK path in build.xml or set JC_HOME");
 			}
 
-			if (jckit_path == null) {
-				// if master file is specified but does not exist, override
-				// with environment, variable, if specified.
-				if (master_jckit_path != null && !new File(master_jckit_path).exists() && jckit_env != null) {
-					log("INFO: using JC_HOME because " + master_jckit_path + " does not exist", Project.MSG_INFO);
-					jckit_path = jckit_env;
-				} else if (master_jckit_path == null && jckit_env != null) {
-					jckit_path = jckit_env;
+
+			if (current.version == JC.NONE) {
+				// if master path is specified but does not usable,
+				// override with environment, variable, if usable
+				if (master.version == JC.NONE && env.version != JC.NONE) {
+					jckit = env;
 				} else {
-					jckit_path = master_jckit_path;
+					jckit = master;
 				}
+			} else {
+				jckit = current;
 			}
 
-			if (jckit_path == null) {
+			// Sanity check
+			if (jckit == null || jckit.version == JC.NONE) {
 				throw new HelpingBuildException("No usable JavaCard SDK referenced");
+			} else {
+				log("INFO: using JavaCard SDK in " + jckit.path, Project.MSG_INFO);
 			}
-			build_type = detectSDK(jckit_path);
 
 			// sources or classes must be set
 			if (sources_path == null && classes_path == null) {
@@ -272,7 +302,7 @@ public class JavaCard extends Task {
 				throw new HelpingBuildException("Must specify output file");
 			}
 			// Nice info
-			log("Building CAP with " + applet_counter + " applet(s) from package " + package_name, Project.MSG_INFO);
+			log("Building CAP with " + applet_counter + " applet" + (applet_counter > 1 ? "s" : "") + " from package " + package_name, Project.MSG_INFO);
 			for (JCApplet app : raw_applets) {
 				log(app.klass + " " + encodeHexString(app.aid), Project.MSG_INFO);
 			}
@@ -313,10 +343,10 @@ public class JavaCard extends Task {
 			// 2.2.1 max 1.2
 			// 2.2.2 max 1.3
 			// 3.0.3 max 1.6. Overrides come in 1.5
-			if (build_type == JC.V2) {
+			if (jckit.version == JC.V2) {
 				j.setTarget("1.2");
 				j.setSource("1.2");
-			} else if (build_type == JC.V3) {
+			} else if (jckit.version == JC.V3) {
 				j.setTarget("1.5");
 				j.setSource("1.5");
 			}
@@ -330,10 +360,10 @@ public class JavaCard extends Task {
 			// set classpath
 			Path cp = j.createClasspath();
 			String api = null;
-			if (build_type == JC.V3) {
-				api = Paths.get(jckit_path, "lib", "api_classic.jar").toAbsolutePath().toString();
-			} else if (build_type == JC.V2) {
-				api = Paths.get(jckit_path, "lib", "api.jar").toAbsolutePath().toString();
+			if (jckit.version == JC.V3) {
+				api = Paths.get(jckit.path, "lib", "api_classic.jar").toAbsolutePath().toString();
+			} else if (jckit.version == JC.V2) {
+				api = Paths.get(jckit.path, "lib", "api.jar").toAbsolutePath().toString();
 			}
 			cp.append(new Path(getProject(), api));
 			for (JCImport i : raw_imports) {
@@ -356,18 +386,18 @@ public class JavaCard extends Task {
 			Path cp = j.createClasspath();
 			// converter
 			File jar = null;
-			if (build_type == JC.V2) {
+			if (jckit.version == JC.V2) {
 				// XXX: this should be with less lines ?
-				jar = Paths.get(jckit_path, "lib", "converter.jar").toFile();
+				jar = Paths.get(jckit.path, "lib", "converter.jar").toFile();
 				Path jarpath = new Path(getProject());
 				jarpath.setLocation(jar);
 				cp.append(jarpath);
-				jar = Paths.get(jckit_path, "lib", "offcardverifier.jar").toFile();
+				jar = Paths.get(jckit.path, "lib", "offcardverifier.jar").toFile();
 				jarpath = new Path(getProject());
 				jarpath.setLocation(jar);
 				cp.append(jarpath);
-			} else if (build_type == JC.V3) {
-				jar = Paths.get(jckit_path, "lib", "tools.jar").toFile();
+			} else if (jckit.version == JC.V3) {
+				jar = Paths.get(jckit.path, "lib", "tools.jar").toFile();
 				Path jarpath = new Path(getProject());
 				jarpath.setLocation(jar);
 				cp.append(jarpath);
@@ -378,7 +408,7 @@ public class JavaCard extends Task {
 			j.createArg().setLine("-d '" + applet_folder.getAbsolutePath() + "'");
 
 			// Construct exportpath
-			String exps = Paths.get(jckit_path, "api_export_files").toString();
+			String exps = Paths.get(jckit.path, "api_export_files").toString();
 			for (JCImport imp : raw_imports) {
 				exps = exps + File.pathSeparatorChar + Paths.get(imp.exps).toAbsolutePath().toString();
 			}
@@ -394,14 +424,14 @@ public class JavaCard extends Task {
 			j.createArg().setLine(package_name + " " + hexAID(package_aid) + " " + package_version);
 
 			// Call converter
-			if (build_type == JC.V2) {
+			if (jckit.version == JC.V2) {
 				j.setClassname("com.sun.javacard.converter.Converter");
-			} else if (build_type == JC.V3) {
+			} else if (jckit.version == JC.V3) {
 				j.setClassname("com.sun.javacard.converter.Main");
 				// XXX: See https://community.oracle.com/message/10452555
 				Variable jchome = new Variable();
 				jchome.setKey("jc.home");
-				jchome.setValue(jckit_path);
+				jchome.setValue(jckit.path);
 				j.addSysproperty(jchome);
 			}
 			j.setFailonerror(true);
@@ -433,9 +463,6 @@ public class JavaCard extends Task {
 			}
 		}
 
-		public void setJCKit(String msg) {
-			jckit_path = msg;
-		}
 	}
 
 	public class JCImport {
