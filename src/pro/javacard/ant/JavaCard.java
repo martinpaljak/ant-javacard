@@ -488,7 +488,7 @@ public class JavaCard extends Task {
 				}
 
 				try {
-					File opf = new File(output_file);
+					File opf = getProject().resolveFile(output_file);
 					if (!opf.exists())
 						opf.createNewFile();
 					Files.copy(cap.toPath(), new FileOutputStream(opf));
