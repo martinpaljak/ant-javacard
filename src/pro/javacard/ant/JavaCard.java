@@ -25,8 +25,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
@@ -35,6 +37,7 @@ import java.util.zip.ZipInputStream;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
+import org.apache.tools.ant.taskdefs.Jar;
 import org.apache.tools.ant.taskdefs.Java;
 import org.apache.tools.ant.taskdefs.Javac;
 import org.apache.tools.ant.types.Environment.Variable;
@@ -180,7 +183,8 @@ public class JavaCard extends Task {
 		private String package_version = null;
 		private Vector<JCApplet> raw_applets = new Vector<>();
 		private Vector<JCImport> raw_imports = new Vector<>();
-		private String output_file = null;
+		private String output_cap = null;
+		private String output_exp = null;
 		private String jckit_path = null;
 
 		public JCCap() {
@@ -191,7 +195,11 @@ public class JavaCard extends Task {
 		}
 
 		public void setOutput(String msg) {
-			output_file = msg;
+			output_cap = msg;
+		}
+
+		public void setExp(String msg) {
+			output_exp = msg;
 		}
 
 		public void setPackage(String msg) {
@@ -338,7 +346,7 @@ public class JavaCard extends Task {
 			}
 
 			// Check output file
-			if (output_file == null) {
+			if (output_cap == null) {
 				throw new HelpingBuildException("Must specify output file");
 			}
 			// Nice info
@@ -476,25 +484,59 @@ public class JavaCard extends Task {
 			log("cmdline: " + j.getCommandLine(), Project.MSG_VERBOSE);
 			j.execute();
 
-			// Copy result to output
-			if (output_file != null) {
+			// Copy results
+			if (output_cap != null || output_exp != null) {
+				// Last component of the package
 				String ln = package_name;
 				if (ln.lastIndexOf(".") != -1) {
 					ln = ln.substring(ln.lastIndexOf(".") + 1);
 				}
-				File cap = Paths.get(applet_folder.getAbsolutePath(), package_name.replace(".", File.separator), "javacard", ln + ".cap").toFile();
-				if (!cap.exists()) {
-					throw new BuildException("Can not find CAP in " + cap.toString());
+				// JavaCard folder
+				java.nio.file.Path jcsrc = applet_folder.toPath().resolve(package_name.replace(".", File.separator)).resolve("javacard");
+				// Interesting paths inside the JC folder
+				java.nio.file.Path cap = jcsrc.resolve(ln + ".cap");
+				java.nio.file.Path exp = jcsrc.resolve(ln + ".exp");
+
+				if (!cap.toFile().exists() || !exp.toFile().exists()) {
+					throw new BuildException("Can not find CAP/EXP in " + jcsrc);
 				}
 
 				try {
-					File opf = getProject().resolveFile(output_file);
-					if (!opf.exists())
-						opf.createNewFile();
-					Files.copy(cap.toPath(), new FileOutputStream(opf));
+					// Resolve output file
+					File opf = getProject().resolveFile(output_cap);
+					// Copy CAP
+					Files.copy(cap, opf.toPath(), StandardCopyOption.REPLACE_EXISTING);
 					log("CAP saved to " + opf.getAbsolutePath(), Project.MSG_INFO);
+					// Copy exp file
+					if (output_exp != null) {
+						setTaskName("export");
+						// output_exp is the folder name
+						opf = getProject().resolveFile(output_exp);
+
+						// Get the folder under the output folder
+						java.nio.file.Path exp_path = opf.toPath().resolve(package_name.replace(".", File.separator)).resolve("javacard");
+
+						// Create the output folder
+						if (!exp_path.toFile().exists()) {
+							if (!exp_path.toFile().mkdirs()) {
+								throw new HelpingBuildException("Can not make path for EXP output: " + opf.getAbsolutePath());
+							}
+						}
+
+						// Copy output
+						Files.copy(exp, exp_path.resolve(exp.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+						log("EXP saved to " + exp_path.resolve(exp.getFileName()), Project.MSG_INFO);
+						// Make Jar for the export
+						Jar jarz = new Jar();
+						jarz.setProject(getProject());
+						jarz.setTaskName("export");
+						jarz.setBasedir(getProject().resolveFile(classes_path));
+						jarz.setDestFile(opf.toPath().resolve(ln + ".jar").toFile());
+						jarz.execute();
+					}
 				} catch (IOException e) {
-					throw new BuildException("Can not copy output CAP", e);
+					e.printStackTrace();
+					throw new BuildException("Can not copy output CAP or EXP", e);
 				}
 			}
 		}
