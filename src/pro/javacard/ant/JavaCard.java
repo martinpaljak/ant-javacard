@@ -198,7 +198,7 @@ public class JavaCard extends Task {
 			output_cap = msg;
 		}
 
-		public void setExp(String msg) {
+		public void setExport(String msg) {
 			output_exp = msg;
 		}
 
