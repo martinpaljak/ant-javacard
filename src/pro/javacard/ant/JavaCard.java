@@ -27,8 +27,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
@@ -358,8 +361,41 @@ public class JavaCard extends Task {
 
 		private File makeTmpFolder(String key) {
 			try {
-				File t = Files.createTempDirectory("antjc").toFile();
-				t.deleteOnExit();
+				final java.nio.file.Path path = Files.createTempDirectory("antjc");
+				File t = path.toFile();
+				/* File.deleteOnExit() will not delete non-empty directories,
+				 * so let's reimplement it. */
+				Runtime.getRuntime().addShutdownHook(new Thread() {
+					@Override
+					public void run() {
+						try {
+							Files.walkFileTree(path, new SimpleFileVisitor<java.nio.file.Path>() {
+								@Override
+								public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs)
+								throws IOException
+								{
+									Files.delete(file);
+									return FileVisitResult.CONTINUE;
+								}
+
+								@Override
+								public FileVisitResult postVisitDirectory(java.nio.file.Path dir, IOException e)
+								throws IOException
+								{
+									if (e == null) {
+										Files.delete(dir);
+										return FileVisitResult.CONTINUE;
+									} else {
+										// directory iteration failed
+										throw e;
+									}
+								}
+							});
+						} catch (IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				});
 				return t;
 			} catch (IOException e) {
 				throw new RuntimeException(e);
