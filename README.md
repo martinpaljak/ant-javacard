@@ -64,6 +64,7 @@ Details:
    * ```aid``` attribute - AID of the package. Recommended - or set to the 5 first bytes of the applet AID if left unspecified.
    * ```output``` attribute - path where to save the generated CAP file. Optional.
    * ```export``` attribtue - path (folder) where to place the JAR and generated EXP file. Optional.
+   * ```jca``` attribute - path where to save the generated JavaCard Assembly (JCA) file. Optional.
  * ```applet``` tag - for creating an applet inside the CAP
    * ```class``` attribute - class of the Applet where install() method is defined. Required.
    * ```aid``` attribute - AID of the applet. Recommended - or set to package ```aid```+```i``` where ```i``` is index of the applet definition in the build.xml instruction

@@ -185,6 +185,7 @@ public class JavaCard extends Task {
 		private Vector<JCImport> raw_imports = new Vector<>();
 		private String output_cap = null;
 		private String output_exp = null;
+		private String output_jca = null;
 		private String jckit_path = null;
 
 		public JCCap() {
@@ -200,6 +201,10 @@ public class JavaCard extends Task {
 
 		public void setExport(String msg) {
 			output_exp = msg;
+		}
+
+		public void setJca(String msg) {
+			output_jca = msg;
 		}
 
 		public void setPackage(String msg) {
@@ -461,7 +466,7 @@ public class JavaCard extends Task {
 			j.createArg().setLine("-verbose");
 			j.createArg().setLine("-nobanner");
 
-			j.createArg().setLine("-out CAP EXP");
+			j.createArg().setLine("-out CAP EXP JCA");
 			for (JCApplet app : raw_applets) {
 				j.createArg().setLine("-applet " + hexAID(app.aid) + " " + app.klass);
 			}
@@ -485,7 +490,7 @@ public class JavaCard extends Task {
 			j.execute();
 
 			// Copy results
-			if (output_cap != null || output_exp != null) {
+			if (output_cap != null || output_exp != null || output_jca != null) {
 				// Last component of the package
 				String ln = package_name;
 				if (ln.lastIndexOf(".") != -1) {
@@ -496,9 +501,10 @@ public class JavaCard extends Task {
 				// Interesting paths inside the JC folder
 				java.nio.file.Path cap = jcsrc.resolve(ln + ".cap");
 				java.nio.file.Path exp = jcsrc.resolve(ln + ".exp");
+				java.nio.file.Path jca = jcsrc.resolve(ln + ".jca");
 
-				if (!cap.toFile().exists() || !exp.toFile().exists()) {
-					throw new BuildException("Can not find CAP/EXP in " + jcsrc);
+				if (!cap.toFile().exists() || !exp.toFile().exists() || !jca.toFile().exists()) {
+					throw new BuildException("Can not find CAP/EXP/JCA in " + jcsrc);
 				}
 
 				try {
@@ -534,9 +540,16 @@ public class JavaCard extends Task {
 						jarz.setDestFile(opf.toPath().resolve(ln + ".jar").toFile());
 						jarz.execute();
 					}
+					// Copy JCA
+					if (output_jca != null) {
+						setTaskName("jca");
+						opf = getProject().resolveFile(output_jca);
+						Files.copy(jca, opf.toPath(), StandardCopyOption.REPLACE_EXISTING);
+						log("JCA saved to " + opf.getAbsolutePath(), Project.MSG_INFO);
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
-					throw new BuildException("Can not copy output CAP or EXP", e);
+					throw new BuildException("Can not copy output CAP, EXP or JCA", e);
 				}
 			}
 		}
