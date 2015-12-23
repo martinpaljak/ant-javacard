@@ -23,9 +23,7 @@ package pro.javacard.ant;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Paths;
@@ -48,7 +46,7 @@ import org.apache.tools.ant.types.Path;
 
 public class JavaCard extends Task {
 	private static enum JC {
-		NONE, V221, V222, V3;
+		NONE, V212, V221, V222, V3;
 
 		public String toString() {
 			if (this.equals(V3))
@@ -56,7 +54,9 @@ public class JavaCard extends Task {
 			if (this.equals(V222))
 				return "v2.2.2";
 			if (this.equals(V221))
-				return "v2.x";
+				return "v2.2.1";
+			if (this.equals(V212))
+				return "v2.1.x";
 			return "unknown";
 		}
 	}
@@ -107,6 +107,9 @@ public class JavaCard extends Task {
 		if (Paths.get(detected.path, "lib", "tools.jar").toFile().exists()) {
 			log("JavaCard 3.x SDK detected in " + detected.path, Project.MSG_VERBOSE);
 			detected.version = JC.V3;
+		} else if (Paths.get(detected.path, "lib", "api21.jar").toFile().exists()) {
+			detected.version = JC.V212;
+			log("JavaCard 2.1.x SDK detected in " + detected.path, Project.MSG_VERBOSE);
 		} else if (Paths.get(detected.path, "lib", "converter.jar").toFile().exists()) {
 			// Detect if 2.2.1 or 2.2.2
 			File api = Paths.get(detected.path, "lib", "api.jar").toFile();
@@ -427,8 +430,13 @@ public class JavaCard extends Task {
 			}
 
 			j.setDestdir(tmp);
-
-			if (jckit.version == JC.V221) {
+			if (jckit.version == JC.V212) {
+				j.setTarget("1.1");
+				j.setSource("1.1");
+				// Always set debug to disable "contains local variables, 
+				// but not local variable table." messages
+				j.setDebug(true);
+			} else if (jckit.version == JC.V221) {
 				j.setTarget("1.2");
 				j.setSource("1.2");
 			} else {
@@ -436,7 +444,7 @@ public class JavaCard extends Task {
 				j.setSource("1.5");
 			}
 			j.setIncludeantruntime(false);
-			// TODO: crate attribute for debug
+			// TODO: create attribute for debug
 			j.createCompilerArg().setValue("-Xlint");
 			j.createCompilerArg().setValue("-Xlint:-options");
 			j.createCompilerArg().setValue("-Xlint:-serial");
@@ -447,7 +455,9 @@ public class JavaCard extends Task {
 			String api = null;
 			if (jckit.version == JC.V3) {
 				api = Paths.get(jckit.path, "lib", "api_classic.jar").toAbsolutePath().toString();
-			} else { // V2.X
+			} else if (jckit.version == JC.V212) { // V2.1.X
+				api = Paths.get(jckit.path, "lib", "api21.jar").toAbsolutePath().toString();
+			} else { // V2.2.X
 				api = Paths.get(jckit.path, "lib", "api.jar").toAbsolutePath().toString();
 			}
 			cp.append(new Path(getProject(), api));
@@ -492,8 +502,13 @@ public class JavaCard extends Task {
 			j.createArg().setLine("-classdir '" + classes_path + "'");
 			j.createArg().setLine("-d '" + applet_folder.getAbsolutePath() + "'");
 
+			String exps = "";
 			// Construct exportpath
-			String exps = Paths.get(jckit.path, "api_export_files").toString();
+			if (jckit.version == JC.V212) {
+				exps = Paths.get(jckit.path, "api21_export_files").toString();
+			} else {
+				exps = Paths.get(jckit.path, "api_export_files").toString();
+			}
 			for (JCImport imp : raw_imports) {
 				exps = exps + File.pathSeparatorChar + Paths.get(imp.exps).toAbsolutePath().toString();
 			}
