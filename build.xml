@@ -24,7 +24,7 @@
   <property name="JC303" value="sdks/jc303_kit"/>
   <property name="JC304" value="sdks/jc304_kit"/>
   <!-- Build test applets -->
-  <target name="tests" depends="jcpro">
+  <target name="test" depends="jcpro">
     <javacard>
       <cap jckit="${JC212}" output="Empty212.cap" sources="src/testapplets">
         <applet class="testapplets.Empty" aid="0102030405060708"/>
