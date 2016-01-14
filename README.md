@@ -1,24 +1,26 @@
 # Building JavaCard applet CAP files with Ant
 
-**Easy to use** [Ant](https://ant.apache.org/) task for building JavaCard CAP files in a declarative way.
+**Easy to use [Ant](https://ant.apache.org/) task** for building JavaCard CAP files in a declarative way.
+
+![Build status](https://travis-ci.org/martinpaljak/apdu4j.svg?branch=master)
 
 ## Features
  * **[Do What I Mean](http://en.wikipedia.org/wiki/DWIM)**.
- * **No dependencies**, no extra or unrelated downloads. Just a 10KB jar.
+ * **No dependencies**, no extra or unrelated downloads. Just a 14KB jar.
  * Supports **all JavaCard SDK versions**: 2.1.2, 2.2.1, 2.2.2, 3.0.3, 3.0.4 and 3.0.5
  * **Works on all platforms**: Windows, OSX, Linux.
  * Almost **everything integrates** or works with Ant.
  * Can be easily integrated into **continuous integration** workflows.
  * Generates CAP files from **sources** or **pre-compiled** class files.
- * "import" *external libraries*:```.exp``` files and ```.jar``` libraries.
- * **No restrictions** on project source folder layout.
+ * Import *external libraries*: natural use of `.exp` files and `.jar` libraries.
+ * **No restrictions** on project folder layout.
 
 ## Download
- * Head to [release area](https://github.com/martinpaljak/ant-javacard/releases)
+ * Get the [latest version](https://github.com/martinpaljak/ant-javacard/releases/latest) from [release area](https://github.com/martinpaljak/ant-javacard/releases)
 
 ## Use
- * Download ```ant-javacard.jar``` file and put it into the library folder of your project.
- * Then add the following to you ```build.xml``` file:
+ * Download [`ant-javacard.jar`](https://github.com/martinpaljak/ant-javacard/releases/latest/ant-javacard.jar) and put it into the library folder of your project.
+ * Then add the following to your `build.xml` file:
 ```xml
 <taskdef name="javacard" classname="pro.javacard.ant.JavaCard" classpath="lib/ant-javacard.jar"/>
 ```
@@ -39,7 +41,6 @@ target:
       [cap] testapplets.Empty 0102030405060708
   [compile] Compiling 1 source file to /var/folders/l7/h99c5w6j0y1b8_qbsth_9v4r0000gn/T/antjc4506897175807383834
       [cap] CAP saved to /Users/martin/projects/ant-javacard/Empty222.cap
-
 ```
 ## Syntax
 Sample:
@@ -53,27 +54,27 @@ Sample:
 </javacard>
 ```
 Details:
- * ```javacard``` tag - generic task
-   * ```jckit``` attribute - path to the JavaCard SDK that is used if individual ```cap``` does not specify one. Optional if ```cap``` defines one, required otherwise.
- * ```cap``` tag - construct a CAP file
-   * ```jckit``` attribute - path to the JavaCard SDK to be used for this CAP. Optional if ```javacard``` defines one, required otherwise. 
-   * ```sources``` attribute - path to Java source code, to be compiled against the current JavaCard SDK. Either ```sources``` or ```classes``` is required.
-   * ```classes``` attribute - path to pre-compiled class files to be assembled into a CAP file. If both ```classes``` and ```sources``` are specified, compiled class files will be put to ```classes``` folder, which is created if missing.
-   * ```package``` attribute - name of the package of the CAP file. Optional - set to the parent package of the applet class if left unspecified.
-   * ```version``` attribute - version of the package. Optional - defaults to 0.0 if left unspecified.
-   * ```aid``` attribute - AID of the package. Recommended - or set to the 5 first bytes of the applet AID if left unspecified.
-   * ```output``` attribute - path where to save the generated CAP file. Required.
-   * ```export``` attribtue - path (folder) where to place the JAR and generated EXP file. Optional.
-   * ```jca``` attribute - path where to save the generated JavaCard Assembly (JCA) file. Optional.
- * ```applet``` tag - for creating an applet inside the CAP
-   * ```class``` attribute - class of the Applet where install() method is defined. Required.
-   * ```aid``` attribute - AID of the applet. Recommended - or set to package ```aid```+```i``` where ```i``` is index of the applet definition in the build.xml instruction
- * ```import``` tag - for linking against external components/libraries, like ```GPSystem``` or ```OPSystem```
-   * ```exps``` attribute - path to the folder keeping ```.exp``` files. Required
-   * ```jar``` attribute - path to the JAR file for compilation. Optional - only required if using ```sources``` mode and not necessary with ```classes``` mode if java code is already compiled
+ * `javacard` tag - generic task
+   * `jckit` attribute - path to the JavaCard SDK that is used if individual `cap` does not specify one. Optional if `cap` defines one, required otherwise.
+ * `cap` tag - construct a CAP file
+   * `jckit` attribute - path to the JavaCard SDK to be used for this CAP. Optional if `javacard` defines one, required otherwise. 
+   * `sources` attribute - path to Java source code, to be compiled against the current JavaCard SDK. Either `sources` or `classes` is required.
+   * `classes` attribute - path to pre-compiled class files to be assembled into a CAP file. If both `classes` and `sources` are specified, compiled class files will be put to `classes` folder, which is created if missing.
+   * `package` attribute - name of the package of the CAP file. Optional - set to the parent package of the applet class if left unspecified.
+   * `versi` attribute - version of the package. Optional - defaults to 0.0 if left unspecified.
+   * `aid``` attribute - AID (hex) of the package. Recommended - or set to the 5 first bytes of the applet AID if left unspecified.
+   * `output` attribute - path where to save the generated CAP file. Required.
+   * `export` attribtue - path (folder) where to place the JAR and generated EXP file. Optional.
+   * `jca` attribute - path where to save the generated JavaCard Assembly (JCA) file. Optional.
+ * `applet` tag - for creating an applet inside the CAP
+   * `class` attribute - class of the Applet where install() method is defined. Required.
+   * `aid` attribute - AID (hex) of the applet. Recommended - or set to package `aid`+`i` where `i` is index of the applet definition in the build.xml instruction
+ * `import` tag - for linking against external components/libraries, like `GPSystem` or `OPSystem`
+   * `exps` attribute - path to the folder keeping `.exp` files. Required
+   * `jar` attribute - path to the JAR file for compilation. Optional - only required if using `sources` mode and not necessary with `classes` mode if java code is already compiled
 
 Notes:
- * ```jc.home``` property has the highest precedence, followed by ```jckit``` path of ```cap```, followed by path in ```javacard```, followed by ```JC_HOME``` environment variable. SDK must be valid to be considered for use.
+ * `jc.home` property has the highest precedence, followed by `jckit` path of `cap`, followed by path in `javacard`, followed by `JC_HOME` environment variable. SDK must be valid to be considered for use.
 
 ## Similar projects
  * standard JavaCard SDK Ant tasks
@@ -101,7 +102,7 @@ Notes:
   * :( XML is a *very* bad and verbose programming environment
 
 ## License
- * MIT
+ * [MIT](./LICENSE)
 
 ## Contact
  * See [javacard.pro](http://javacard.pro)
