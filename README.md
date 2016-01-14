@@ -14,7 +14,7 @@
  * Generates CAP files from **sources** or **pre-compiled** class files.
  * Import *external libraries*: natural use of `.exp` files and `.jar` libraries.
  * **No restrictions** on project folder layout.
- * Loading JavaCard applets is equally pleasing with [GlobalPlatformPro](https://github.com/martinpaljak/GlobalPlatformPro)
+ * Loading JavaCard applets is equally pleasing with **[GlobalPlatformPro](https://github.com/martinpaljak/GlobalPlatformPro)**
 
 ## Download
  * Get the [latest version](https://github.com/martinpaljak/ant-javacard/releases/latest) from [release area](https://github.com/martinpaljak/ant-javacard/releases).
