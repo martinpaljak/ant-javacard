@@ -4,7 +4,7 @@
   <target name="jcpro">
     <tempfile property="jcpro.tmp" destdir="${java.io.tmpdir}" prefix="jcpro" deleteonexit="true"/>
     <mkdir dir="${jcpro.tmp}"/>
-    <javac srcdir="src/pro/javacard/ant" destdir="${jcpro.tmp}" includeantruntime="true" target="1.7" source="1.7">
+    <javac srcdir="src/pro/javacard/ant" destdir="${jcpro.tmp}" includeantruntime="true">
       <compilerarg value="-Xlint:all"/>
     </javac>
     <!-- Load the fresh task -->
@@ -18,14 +18,17 @@
     <!-- <taskdef name="javacard" classname="pro.javacard.ant.JavaCard" classpath="lib/ant-javacard.jar"/> -->
   </target>
   <!-- Some handy things -->
-  <property name="OP20" value="../op20_kit"/>
-  <property name="JC221" value="../jc221_kit"/>
-  <property name="JC222" value="../jc222_kit"/>
-  <property name="JC303" value="../jc303_kit"/>
-  <property name="JC304" value="../jc304_kit"/>
+  <property name="JC212" value="sdks/jc212_kit"/>
+  <property name="JC221" value="sdks/jc221_kit"/>
+  <property name="JC222" value="sdks/jc222_kit"/>
+  <property name="JC303" value="sdks/jc303_kit"/>
+  <property name="JC304" value="sdks/jc304_kit"/>
   <!-- Build test applets -->
   <target name="tests" depends="jcpro">
     <javacard>
+      <cap jckit="${JC212}" output="Empty212.cap" sources="src/testapplets">
+        <applet class="testapplets.Empty" aid="0102030405060708"/>
+      </cap>
       <cap jckit="${JC221}" output="Empty221.cap" sources="src/testapplets">
         <applet class="testapplets.Empty" aid="0102030405060708"/>
       </cap>

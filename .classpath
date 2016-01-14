@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="/Users/martin/eclipse-luna/plugins/org.apache.ant_1.9.2.v201404171502/lib/ant.jar"/>
-	<classpathentry kind="lib" path="/Users/martin/projects/vJCRE/vjcre.jar"/>
+	<classpathentry kind="lib" path="lib/ant.jar"/>
+	<classpathentry kind="lib" path="sdks/jc222_kit/lib/api.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
