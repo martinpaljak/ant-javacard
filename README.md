@@ -20,10 +20,14 @@
  * Get the [latest version](https://github.com/martinpaljak/ant-javacard/releases/latest) from [release area](https://github.com/martinpaljak/ant-javacard/releases).
 
 ## Use
- * Download [`ant-javacard.jar`](https://github.com/martinpaljak/ant-javacard/releases/latest/ant-javacard.jar) and put it into the library folder of your project.
+ * Download [`ant-javacard.jar`](https://github.com/martinpaljak/ant-javacard/releases/download/v1.4/ant-javacard.jar).
+ * Or use the download task:
+```xml
+<get src="https://github.com/martinpaljak/ant-javacard/releases/download/v1.4/ant-javacard.jar" dest="."/>
+```
  * Then add the following to your `build.xml` file:
 ```xml
-<taskdef name="javacard" classname="pro.javacard.ant.JavaCard" classpath="lib/ant-javacard.jar"/>
+<taskdef name="javacard" classname="pro.javacard.ant.JavaCard" classpath="ant-javacard.jar"/>
 ```
  * Now you can create applets within your Ant targets like this:
 ```xml
