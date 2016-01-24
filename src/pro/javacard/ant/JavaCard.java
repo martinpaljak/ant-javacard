@@ -30,6 +30,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
@@ -193,6 +194,7 @@ public class JavaCard extends Task {
 		private String output_exp = null;
 		private String output_jca = null;
 		private String jckit_path = null;
+		private boolean verify = false;
 
 		public JCCap() {
 		}
@@ -227,6 +229,10 @@ public class JavaCard extends Task {
 
 		public void setSources(String arg) {
 			sources_path = arg;
+		}
+
+		public void setVerify(boolean arg) {
+			verify = arg;
 		}
 
 		public void setAID(String msg) {
@@ -380,7 +386,7 @@ public class JavaCard extends Task {
 							Files.walkFileTree(path, new SimpleFileVisitor<java.nio.file.Path>() {
 								@Override
 								public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs)
-								throws IOException
+										throws IOException
 								{
 									Files.delete(file);
 									return FileVisitResult.CONTINUE;
@@ -388,7 +394,7 @@ public class JavaCard extends Task {
 
 								@Override
 								public FileVisitResult postVisitDirectory(java.nio.file.Path dir, IOException e)
-								throws IOException
+										throws IOException
 								{
 									if (e == null) {
 										Files.delete(dir);
@@ -502,18 +508,25 @@ public class JavaCard extends Task {
 			j.createArg().setLine("-classdir '" + classes_path + "'");
 			j.createArg().setLine("-d '" + applet_folder.getAbsolutePath() + "'");
 
-			String exps = "";
+			ArrayList<String> exps = new ArrayList<>();
 			// Construct exportpath
 			if (jckit.version == JC.V212) {
-				exps = Paths.get(jckit.path, "api21_export_files").toString();
+				exps.add(Paths.get(jckit.path, "api21_export_files").toString());
 			} else {
-				exps = Paths.get(jckit.path, "api_export_files").toString();
+				exps.add(Paths.get(jckit.path, "api_export_files").toString());
 			}
+			// add imports
 			for (JCImport imp : raw_imports) {
-				exps = exps + File.pathSeparatorChar + Paths.get(imp.exps).toAbsolutePath().toString();
+				exps.add(Paths.get(imp.exps).toAbsolutePath().toString());
 			}
-			j.createArg().setLine("-exportpath '" + exps + "'");
-			// j.createArg().setLine("-nowarn");
+			// StringJoiner is 1.8+, we are 1.7+
+			String expstring = "";
+			for (String imp : exps) {
+				expstring = expstring + File.pathSeparatorChar + imp;
+			}
+
+
+			j.createArg().setLine("-exportpath '" + expstring + "'");
 			j.createArg().setLine("-verbose");
 			j.createArg().setLine("-nobanner");
 
@@ -614,6 +627,47 @@ public class JavaCard extends Task {
 					e.printStackTrace();
 					throw new BuildException("Can not copy output CAP, EXP or JCA", e);
 				}
+			}
+
+			if (verify) {
+				setTaskName("verify");
+				// construct the Java task that executes converter
+				j = new Java(this);
+				j.setClasspath(cp);
+				j.setClassname("com.sun.javacard.offcardverifier.Verifier");
+				// Find all expfiles
+				final ArrayList<String> expfiles = new ArrayList<>();
+				try {
+					for (String p: exps) {
+						Files.walkFileTree(Paths.get(p), new SimpleFileVisitor<java.nio.file.Path>() {
+							@Override
+							public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs)
+									throws IOException
+							{
+								if (file.toString().endsWith(".exp")) {
+									expfiles.add(file.toAbsolutePath().toString());
+								}
+								return FileVisitResult.CONTINUE;
+							}
+						});
+					}
+				} catch (IOException e) {
+					log("Could not find .exp files: " + e.getMessage(), Project.MSG_ERR);
+					return;
+				}
+
+				// Arguments to verifier
+				j.createArg().setLine("-nobanner");
+				//TODO j.createArg().setLine("-verbose");
+				for (String exp: expfiles) {
+					j.createArg().setLine(exp);
+				}
+				j.createArg().setLine(getProject().resolveFile(output_cap).toString());
+				j.setFailonerror(true);
+				j.setFork(true);
+
+				log("cmdline: " + j.getCommandLine(), Project.MSG_VERBOSE);
+				j.execute();
 			}
 		}
 
