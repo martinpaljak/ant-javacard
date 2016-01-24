@@ -66,11 +66,12 @@ Details:
    * `sources` attribute - path to Java source code, to be compiled against the current JavaCard SDK. Either `sources` or `classes` is required.
    * `classes` attribute - path to pre-compiled class files to be assembled into a CAP file. If both `classes` and `sources` are specified, compiled class files will be put to `classes` folder, which is created if missing.
    * `package` attribute - name of the package of the CAP file. Optional - set to the parent package of the applet class if left unspecified.
-   * `versi` attribute - version of the package. Optional - defaults to 0.0 if left unspecified.
+   * `version` attribute - version of the package. Optional - defaults to 0.0 if left unspecified.
    * `aid``` attribute - AID (hex) of the package. Recommended - or set to the 5 first bytes of the applet AID if left unspecified.
    * `output` attribute - path where to save the generated CAP file. Required.
    * `export` attribtue - path (folder) where to place the JAR and generated EXP file. Optional.
    * `jca` attribute - path where to save the generated JavaCard Assembly (JCA) file. Optional.
+   * `verify` attribute - if set to true, verifies the resulting CAP file with offcardevrifier
  * `applet` tag - for creating an applet inside the CAP
    * `class` attribute - class of the Applet where install() method is defined. Required.
    * `aid` attribute - AID (hex) of the applet. Recommended - or set to package `aid`+`i` where `i` is index of the applet definition in the build.xml instruction
