@@ -45,8 +45,6 @@ import org.apache.tools.ant.taskdefs.Java;
 import org.apache.tools.ant.taskdefs.Javac;
 import org.apache.tools.ant.types.Environment.Variable;
 
-import jdk.nashorn.internal.ir.CatchNode;
-
 import org.apache.tools.ant.types.Path;
 
 public class JavaCard extends Task {
