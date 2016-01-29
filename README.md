@@ -90,7 +90,7 @@ Notes:
  * You! Don't torture yourself with complexity, KISS!
 
 ## Contact
- * See [javacard.pro](http://javacard.pro)
+ * See [javacard.pro](https://javacard.pro)
 
 ## Similar projects
  * standard JavaCard SDK Ant tasks
