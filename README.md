@@ -79,6 +79,19 @@ Details:
 Notes:
  * `jc.home` property has the highest precedence, followed by `jckit` path of `cap`, followed by path in `javacard`, followed by `JC_HOME` environment variable. SDK must be valid to be considered for use.
 
+## License
+ * [MIT](./LICENSE)
+
+## Happy users
+ * [IsoApplet](https://github.com/philipWendland/IsoApplet) by [@philipWendland](https://github.com/philipWendland)
+ * [NdefApplet](https://github.com/promovicz/javacard-ndef) by [@promovicz](https://github.com/promovicz)
+ * [GidsApplet](https://github.com/vletoux/GidsApplet) by [@vletoux](https://github.com/vletoux)
+ * [LedgerWalletApplet](https://github.com/LedgerHQ/ledger-javacard) by [@LedgerHQ](https://github.com/LedgerHQ)
+ * You! Don't torture yourself with complexity, KISS!
+
+## Contact
+ * See [javacard.pro](http://javacard.pro)
+
 ## Similar projects
  * standard JavaCard SDK Ant tasks
   * :( as cumbersome to use as the command line utilities
@@ -103,9 +116,3 @@ Notes:
   * :( JavaCard 2.2.2 only
  * Ant script files with templates
   * :( XML is a *very* bad and verbose programming environment
-
-## License
- * [MIT](./LICENSE)
-
-## Contact
- * See [javacard.pro](http://javacard.pro)
