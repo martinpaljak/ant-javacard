@@ -68,7 +68,8 @@ Details:
    * `output` attribute - path where to save the generated CAP file. Required.
    * `export` attribtue - path (folder) where to place the JAR and generated EXP file. Optional.
    * `jca` attribute - path where to save the generated JavaCard Assembly (JCA) file. Optional.
-   * `verify` attribute - if set to true, verifies the resulting CAP file with offcardevrifier
+   * `verify` attribute - if set to false, disables verification of the resulting CAP file with offcardeverifier. Optional.
+   * `debug` attribute - if set to true, generates debug CAP components. Optional.
  * `applet` tag - for creating an applet inside the CAP
    * `class` attribute - class of the Applet where install() method is defined. Required.
    * `aid` attribute - AID (hex) of the applet. Recommended - or set to package `aid`+`i` where `i` is index of the applet definition in the build.xml instruction

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Martin Paljak
+ * Copyright (c) 2015-2016 Martin Paljak
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -51,6 +51,7 @@ public class JavaCard extends Task {
 	private static enum JC {
 		NONE, V212, V221, V222, V3;
 
+		@Override
 		public String toString() {
 			if (this.equals(V3))
 				return "v3.x";
@@ -148,6 +149,7 @@ public class JavaCard extends Task {
 		return pkg;
 	}
 
+	@Override
 	public void execute() {
 		for (JCCap p : packages) {
 			p.execute();
@@ -161,7 +163,7 @@ public class JavaCard extends Task {
 		public JCApplet() {
 		}
 
-		public void setCLass(String msg) {
+		public void setClass(String msg) {
 			klass = msg;
 		}
 
@@ -196,7 +198,8 @@ public class JavaCard extends Task {
 		private String output_exp = null;
 		private String output_jca = null;
 		private String jckit_path = null;
-		private boolean verify = false;
+		private boolean verify = true;
+		private boolean debug = false;
 		private List<java.nio.file.Path> temporary = new ArrayList<>();
 
 		public JCCap() {
@@ -236,6 +239,10 @@ public class JavaCard extends Task {
 
 		public void setVerify(boolean arg) {
 			verify = arg;
+		}
+
+		public void setDebug(boolean arg) {
+			debug = arg;
 		}
 
 		public void setAID(String msg) {
@@ -398,10 +405,13 @@ public class JavaCard extends Task {
 			}
 
 			j.setDestdir(tmp);
+			if (debug) {
+				j.setDebug(true);
+			}
 			if (jckit.version == JC.V212) {
 				j.setTarget("1.1");
 				j.setSource("1.1");
-				// Always set debug to disable "contains local variables, 
+				// Always set debug to disable "contains local variables,
 				// but not local variable table." messages
 				j.setDebug(true);
 			} else if (jckit.version == JC.V221) {
@@ -412,12 +422,13 @@ public class JavaCard extends Task {
 				j.setSource("1.5");
 			}
 			j.setIncludeantruntime(false);
-			// TODO: create attribute for debug
 			j.createCompilerArg().setValue("-Xlint");
 			j.createCompilerArg().setValue("-Xlint:-options");
 			j.createCompilerArg().setValue("-Xlint:-serial");
+
 			j.setFailonerror(true);
 			j.setFork(true);
+
 			// set classpath
 			Path cp = j.createClasspath();
 			String api = null;
@@ -435,6 +446,7 @@ public class JavaCard extends Task {
 			j.execute();
 		}
 
+		@Override
 		public void execute() {
 			// Convert
 			check();
@@ -491,10 +503,18 @@ public class JavaCard extends Task {
 					expstring = expstring + File.pathSeparatorChar + imp;
 				}
 
-
 				j.createArg().setLine("-exportpath '" + expstring + "'");
 				j.createArg().setLine("-verbose");
 				j.createArg().setLine("-nobanner");
+				if (debug) {
+					j.createArg().setLine("-debug");
+				}
+				if (!verify) {
+					j.createArg().setLine("-noverify");
+				}
+				if (jckit.version == JC.V3) {
+					j.createArg().setLine("-useproxyclass");
+				}
 
 				String outputs = "CAP";
 				if (output_exp != null) {
