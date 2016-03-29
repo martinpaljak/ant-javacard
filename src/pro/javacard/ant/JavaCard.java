@@ -498,12 +498,13 @@ public class JavaCard extends Task {
 					exps.add(Paths.get(imp.exps).toAbsolutePath().toString());
 				}
 				// StringJoiner is 1.8+, we are 1.7+
-				String expstring = "";
+				StringBuilder expstringbuilder = new StringBuilder();
 				for (String imp : exps) {
-					expstring = expstring + File.pathSeparatorChar + imp;
+					expstringbuilder.append(File.pathSeparatorChar);
+					expstringbuilder.append(imp);
 				}
 
-				j.createArg().setLine("-exportpath '" + expstring + "'");
+				j.createArg().setLine("-exportpath '" + expstringbuilder.toString() + "'");
 				j.createArg().setLine("-verbose");
 				j.createArg().setLine("-nobanner");
 				if (debug) {
