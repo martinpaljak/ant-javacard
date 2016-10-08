@@ -6,7 +6,7 @@
 
 ## Features
  * **[Do What I Mean](http://en.wikipedia.org/wiki/DWIM)**.
- * **No dependencies**, no extra or unrelated downloads. Just a 14KB jar.
+ * **No dependencies**, no extra or unrelated downloads. Just **a 14KB jar**.
  * Supports **all available JavaCard SDK versions**: 2.1.2, 2.2.1, 2.2.2, 3.0.3, 3.0.4 and 3.0.5
  * **Works on all platforms** with Java 1.7+: Windows, OSX, Linux.
  * Almost **everything integrates** or works with Ant.
