@@ -405,9 +405,8 @@ public class JavaCard extends Task {
 			}
 
 			j.setDestdir(tmp);
-			if (debug) {
-				j.setDebug(true);
-			}
+			j.setDebug(true);
+			j.setDebugLevel("lines,vars,source");
 			if (jckit.version == JC.V212) {
 				j.setTarget("1.1");
 				j.setSource("1.1");
