@@ -412,7 +412,7 @@ public class JavaCard extends Task {
 				j.setSource("1.1");
 				// Always set debug to disable "contains local variables,
 				// but not local variable table." messages
-				j.setDebug(true);
+				//j.setDebug(true);
 			} else if (jckit.version == JC.V221) {
 				j.setTarget("1.2");
 				j.setSource("1.2");
