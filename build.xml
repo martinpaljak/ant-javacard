@@ -26,20 +26,23 @@
   <!-- Build test applets -->
   <target name="test" depends="dist">
     <javacard>
-      <cap jckit="${JC212}" output="Empty212.cap" sources="src/testapplets">
-        <applet class="testapplets.Empty" aid="0102030405060708"/>
+      <cap jckit="${JC212}" output="Empty212.cap" sources="src/testapplets/empty">
+        <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
       </cap>
-      <cap jckit="${JC221}" output="Empty221.cap" sources="src/testapplets">
-        <applet class="testapplets.Empty" aid="0102030405060708"/>
+      <cap debug="true" jckit="${JC221}" output="Empty221.cap" sources="src/testapplets/empty">
+        <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
       </cap>
-      <cap jckit="${JC222}" output="Empty222.cap" sources="src/testapplets">
-        <applet class="testapplets.Empty" aid="0102030405060708"/>
+      <cap jckit="${JC222}" output="empty.Empty222.cap" sources="src/testapplets/empty">
+        <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
       </cap>
-      <cap jckit="${JC303}" output="Empty303.cap" sources="src/testapplets">
-        <applet class="testapplets.Empty" aid="0102030405060708"/>
+      <cap jckit="${JC303}" output="Empty303.cap" sources="src/testapplets/empty">
+        <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
       </cap>
-      <cap jckit="${JC304}" output="Empty304.cap" sources="src/testapplets">
-        <applet class="testapplets.Empty" aid="0102030405060708"/>
+      <cap jckit="${JC304}" output="Empty304.cap" sources="src/testapplets/empty">
+        <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+      </cap>
+      <cap jckit="${JC222}" output="EmptyInt304.cap" sources="src/testapplets/integer">
+        <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
       </cap>
     </javacard>
   </target>
