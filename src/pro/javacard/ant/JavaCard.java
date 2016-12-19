@@ -497,7 +497,7 @@ public class JavaCard extends Task {
 				for (JCImport imp : raw_imports) {
 					exps.add(Paths.get(imp.exps).toAbsolutePath().toString());
 				}
-				// StringJoiner is 1.8+, we are 1.7+
+				// XXX StringJoiner is 1.8+, we are 1.7+
 				StringBuilder expstringbuilder = new StringBuilder();
 				for (String imp : exps) {
 					expstringbuilder.append(File.pathSeparatorChar);
