@@ -65,7 +65,7 @@ Details:
    * `classes` attribute - path to pre-compiled class files to be assembled into a CAP file. If both `classes` and `sources` are specified, compiled class files will be put to `classes` folder, which is created if missing.
    * `package` attribute - name of the package of the CAP file. Optional - set to the parent package of the applet class if left unspecified.
    * `version` attribute - version of the package. Optional - defaults to 0.0 if left unspecified.
-   * `aid``` attribute - AID (hex) of the package. Recommended - or set to the 5 first bytes of the applet AID if left unspecified.
+   * `aid` attribute - AID (hex) of the package. Recommended - or set to the 5 first bytes of the applet AID if left unspecified.
    * `output` attribute - path where to save the generated CAP file. Required.
    * `export` attribtue - path (folder) where to place the JAR and generated EXP file. Optional.
    * `jca` attribute - path where to save the generated JavaCard Assembly (JCA) file. Optional.
