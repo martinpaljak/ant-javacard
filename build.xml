@@ -41,7 +41,7 @@
       <cap jckit="${JC304}" output="Empty304.cap" sources="src/testapplets/empty">
         <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
       </cap>
-      <cap jckit="${JC222}" output="EmptyInt304.cap" sources="src/testapplets/integer">
+      <cap jckit="${JC304}" output="EmptyInt304.cap" sources="src/testapplets/integer">
         <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
       </cap>
     </javacard>
