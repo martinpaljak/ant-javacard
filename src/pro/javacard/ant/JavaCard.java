@@ -200,6 +200,7 @@ public class JavaCard extends Task {
 		private String jckit_path = null;
 		private boolean verify = true;
 		private boolean debug = false;
+		private boolean ints = false;
 		private List<java.nio.file.Path> temporary = new ArrayList<>();
 
 		public JCCap() {
@@ -243,6 +244,10 @@ public class JavaCard extends Task {
 
 		public void setDebug(boolean arg) {
 			debug = arg;
+		}
+
+		public void setInts(boolean arg) {
+			ints = arg;
 		}
 
 		public void setAID(String msg) {
@@ -514,6 +519,9 @@ public class JavaCard extends Task {
 				}
 				if (jckit.version == JC.V3) {
 					j.createArg().setLine("-useproxyclass");
+				}
+				if (ints) {
+					j.createArg().setLine("-i");
 				}
 
 				String outputs = "CAP";
