@@ -8,7 +8,7 @@
  * **[Do What I Mean](http://en.wikipedia.org/wiki/DWIM)**.
  * **No dependencies**, no extra or unrelated downloads. Just **a 14KB jar**.
  * Supports **all available JavaCard SDK versions**: 2.1.2, 2.2.1, 2.2.2, 3.0.3, 3.0.4 and 3.0.5
-   * Get it from oracle.com or use the [handy Github repository](https://github.com/martinpaljak/oracle_javacard_sdks)
+   * Get one from [oracle.com](http://www.oracle.com/technetwork/java/embedded/javacard/downloads/javacard-sdk-2043229.html) or use the [handy Github repository](https://github.com/martinpaljak/oracle_javacard_sdks)
  * **Works on all platforms** with Java 1.7+: Windows, OSX, Linux.
  * Almost **everything integrates** or works with Ant.
  * Can be easily integrated into **continuous integration** workflows.
