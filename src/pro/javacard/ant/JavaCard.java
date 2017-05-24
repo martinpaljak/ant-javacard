@@ -639,7 +639,7 @@ public class JavaCard extends Task {
 										throws IOException
 								{
 									if (file.toString().endsWith(".exp")) {
-										expfiles.add(file.toAbsolutePath().toString());
+										expfiles.add('"' + file.toAbsolutePath().toString() + '"');
 									}
 									return FileVisitResult.CONTINUE;
 								}
@@ -656,7 +656,7 @@ public class JavaCard extends Task {
 					for (String exp: expfiles) {
 						j.createArg().setLine(exp);
 					}
-					j.createArg().setLine(getProject().resolveFile(output_cap).toString());
+					j.createArg().setLine('"' + getProject().resolveFile(output_cap).toString() + '"');
 					j.setFailonerror(true);
 					j.setFork(true);
 
