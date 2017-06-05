@@ -654,9 +654,9 @@ public class JavaCard extends Task {
 					j.createArg().setLine("-nobanner");
 					//TODO j.createArg().setLine("-verbose");
 					for (String exp: expfiles) {
-						j.createArg().setLine(exp);
+						j.createArg().setLine("'" + exp + "'");
 					}
-					j.createArg().setLine(getProject().resolveFile(output_cap).toString());
+					j.createArg().setLine("'" + getProject().resolveFile(output_cap).toString() + "'");
 					j.setFailonerror(true);
 					j.setFork(true);
 
