@@ -98,25 +98,25 @@ Notes:
 
 ## Similar projects
  * standard JavaCard SDK Ant tasks
-  * :( as cumbersome to use as the command line utilities
-  * :( not declarative/DWIM enough
-  * :) very explicit interface with all details exposed
+   * :( as cumbersome to use as the command line utilities
+   * :( not declarative/DWIM enough
+   * :) very explicit interface with all details exposed
  * gradle-javacard (Apache 2.0) - https://github.com/fidesmo/gradle-javacard
-  * :) nice declarative interface
-  * :( requires gradle (40M download) 
-  * :( JavaCard 2.2.2 only
+   * :) nice declarative interface
+   * :( requires gradle (40M download) 
+   * :( JavaCard 2.2.2 only
  * EclipseJCDE (Eclipse 1.0) - http://eclipse-jcde.sourceforge.net/
-  * :( JavaCard 2.2.2 only
-  * :( not possible to integrate in CI - depends on eclipse
-  * :( essentially an Eclipse GUI wrapper for JC SDK
+   * :( JavaCard 2.2.2 only
+   * :( not possible to integrate in CI - depends on eclipse
+   * :( essentially an Eclipse GUI wrapper for JC SDK
  * JCOP Tools
-  * :( not open source
+   * :( not open source
  * NetBeans IDE JC support
-  * :( not possible to integrate into CI
-  * :( JavaCard 3.0 only
-  * :( Netbeans, not cross platform
+   * :( not possible to integrate into CI
+   * :( JavaCard 3.0 only
+   * :( Netbeans, not cross platform
  * Maven2 task from FedICT (LGPL3) - https://code.google.com/p/eid-quick-key-toolset
-  * :( Maven downloads half the internet before even simple tasks
-  * :( JavaCard 2.2.2 only
+   * :( Maven downloads half the internet before even simple tasks
+   * :( JavaCard 2.2.2 only
  * Ant script files with templates
-  * :( XML is a *very* bad and verbose programming environment
+   * :( XML is a *very* bad and verbose programming environment
