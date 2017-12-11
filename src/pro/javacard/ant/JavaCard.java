@@ -275,6 +275,11 @@ public class JavaCard extends Task {
 			return imp;
 		}
 
+		/** Many imports inside one package - jimport to avoid conflict with gradle / groovy keyword */
+		public JCImport createJimport() {
+			return this.createImport();
+		}
+
 		// Check that arguments are sufficient and do some DWIM
 		private void check() {
 			JavaCardKit env = detectSDK(System.getenv("JC_HOME"));
