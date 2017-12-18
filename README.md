@@ -67,7 +67,8 @@ Details:
    * `version` attribute - version of the package. Optional - defaults to 0.0 if left unspecified.
    * `aid` attribute - AID (hex) of the package. Recommended - or set to the 5 first bytes of the applet AID if left unspecified.
    * `output` attribute - path where to save the generated CAP file. Required.
-   * `export` attribtue - path (folder) where to place the JAR and generated EXP file. Optional.
+   * `export` attribute - path (folder) where to place generated EXP file. Optional.
+   * `jaroutput` attribute - path (folder) where to place the JAR file. Optional.
    * `jca` attribute - path where to save the generated JavaCard Assembly (JCA) file. Optional.
    * `verify` attribute - if set to false, disables verification of the resulting CAP file with offcardeverifier. Optional.
    * `debug` attribute - if set to true, generates debug CAP components. Optional.

@@ -196,6 +196,7 @@ public class JavaCard extends Task {
 		private Vector<JCImport> raw_imports = new Vector<>();
 		private String output_cap = null;
 		private String output_exp = null;
+		private String output_jar = null;
 		private String output_jca = null;
 		private String jckit_path = null;
 		private boolean verify = true;
@@ -206,6 +207,9 @@ public class JavaCard extends Task {
 		public JCCap() {
 		}
 
+		public void setJarOutput(String msg) {
+			output_jar = msg;
+		}
 		public void setJCKit(String msg) {
 			jckit_path = msg;
 		}
@@ -445,6 +449,15 @@ public class JavaCard extends Task {
 			}
 			cp.append(new Path(getProject(), api));
 			for (JCImport i : raw_imports) {
+				// Sanity check
+				// Sometimes the value has null if the <import> tag does not include complete exps and jar
+				// e.g 
+				// <import exps="exps_dir"/>
+				// <import jar="jar_dir"/>
+				if(i.jar != null)
+				{
+					cp.append(new Path(getProject(), i.jar));
+				}
 				cp.append(new Path(getProject(), i.jar));
 			}
 			j.execute();
@@ -499,7 +512,15 @@ public class JavaCard extends Task {
 				}
 				// add imports
 				for (JCImport imp : raw_imports) {
-					exps.add(Paths.get(imp.exps).toAbsolutePath().toString());
+					// Sanity check
+					// Sometimes the value has null if the <import> tag does not include complete exps and jar
+					// e.g 
+					// <import exps="exps_dir"/>
+					// <import jar="jar_dir"/>
+					if(imp.exps != null)
+					{
+						exps.add(Paths.get(imp.exps).toAbsolutePath().toString());
+					}
 				}
 				// XXX StringJoiner is 1.8+, we are 1.7+
 				StringBuilder expstringbuilder = new StringBuilder();
@@ -555,7 +576,7 @@ public class JavaCard extends Task {
 				j.execute();
 
 				// Copy results
-				if (output_cap != null || output_exp != null || output_jca != null) {
+				if (output_cap != null || output_exp != null || output_jca != null || output_jar != null) {
 					// Last component of the package
 					String ln = package_name;
 					if (ln.lastIndexOf(".") != -1) {
@@ -599,13 +620,20 @@ public class JavaCard extends Task {
 							// Copy output
 							Files.copy(exp, exp_path.resolve(exp.getFileName()), StandardCopyOption.REPLACE_EXISTING);
 							log("EXP saved to " + exp_path.resolve(exp.getFileName()), Project.MSG_INFO);
+
+						}
+						if(output_jar != null) {
+							setTaskName("jc_jar");
+							opf = getProject().resolveFile(output_jar);
 							// Make Jar for the export
 							Jar jarz = new Jar();
 							jarz.setProject(getProject());
-							jarz.setTaskName("export");
+							jarz.setTaskName("jc_jar");
 							jarz.setBasedir(getProject().resolveFile(classes_path));
-							jarz.setDestFile(opf.toPath().resolve(ln + ".jar").toFile());
+							
+							jarz.setDestFile(opf);
 							jarz.execute();
+							log("JAR saved to " + opf.getAbsolutePath(), Project.MSG_INFO);
 						}
 						// Copy JCA
 						if (output_jca != null) {
