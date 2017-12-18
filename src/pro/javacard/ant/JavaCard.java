@@ -458,7 +458,6 @@ public class JavaCard extends Task {
 				{
 					cp.append(new Path(getProject(), i.jar));
 				}
-				cp.append(new Path(getProject(), i.jar));
 			}
 			j.execute();
 		}
