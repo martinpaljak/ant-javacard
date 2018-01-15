@@ -499,13 +499,16 @@ public class JavaCard extends Task {
 				}
 				// add imports
 				for (JCImport imp : raw_imports) {
-					exps.add(Paths.get(imp.exps).toAbsolutePath().toString());
+					if (!exps.contains(Paths.get(imp.exps).toAbsolutePath().toString()))
+					{
+						exps.add(Paths.get(imp.exps).toAbsolutePath().toString());
+					}
 				}
 				// XXX StringJoiner is 1.8+, we are 1.7+
 				StringBuilder expstringbuilder = new StringBuilder();
 				for (String imp : exps) {
-					expstringbuilder.append(File.pathSeparatorChar);
 					expstringbuilder.append(imp);
+					expstringbuilder.append(File.pathSeparatorChar);
 				}
 
 				j.createArg().setLine("-exportpath '" + expstringbuilder.toString() + "'");
