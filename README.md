@@ -2,7 +2,7 @@
 
 **Easy to use [Ant](https://ant.apache.org/) task** for building JavaCard CAP files in a declarative way.
 
-[![Build status](https://travis-ci.org/martinpaljak/ant-javacard.svg?branch=master)](https://travis-ci.org/martinpaljak/ant-javacard) &nbsp; [![Coverity](https://scan.coverity.com/projects/8418/badge.svg)](https://scan.coverity.com/projects/martinpaljak-ant-javacard) &nbsp; [![Latest release](https://img.shields.io/github/release/martinpaljak/ant-javacard.svg)](https://github.com/martinpaljak/ant-javacard/releases/latest)
+[![Build status](https://travis-ci.org/martinpaljak/ant-javacard.svg?branch=master)](https://travis-ci.org/martinpaljak/ant-javacard) &nbsp; [![Coverity](https://scan.coverity.com/projects/8418/badge.svg)](https://scan.coverity.com/projects/martinpaljak-ant-javacard) &nbsp; [![Latest release](https://img.shields.io/github/release/martinpaljak/ant-javacard.svg)](https://github.com/martinpaljak/ant-javacard/releases/latest) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.martinpaljak/ant-javacard/badge.svg)](https://mvnrepository.com/artifact/com.github.martinpaljak/ant-javacard) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/martinpaljak/ant-javacard/blob/master/LICENSE)
 
 ## Features
  * **[Do What I Mean](http://en.wikipedia.org/wiki/DWIM)**.
