@@ -5,7 +5,7 @@
 
     <groupId>com.github.martinpaljak</groupId>
     <artifactId>ant-javacard</artifactId>
-    <version>18.01.17</version>
+    <version>18.01.17.1</version>
     <packaging>jar</packaging>
     <description>Easy to use Ant task for building JavaCard applets</description>
     <name>ant-javacard</name>

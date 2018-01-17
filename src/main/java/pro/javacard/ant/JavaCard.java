@@ -202,7 +202,7 @@ public class JavaCard extends Task {
         }
     }
 
-    private static enum JC {
+    private enum JC {
         NONE, V212, V221, V222, V3;
 
         @Override
@@ -219,12 +219,12 @@ public class JavaCard extends Task {
         }
     }
 
-    private class JavaCardKit {
+    private static class JavaCardKit {
         JC version = JC.NONE;
         String path = null;
     }
 
-    public class JCApplet {
+    public static class JCApplet {
         private String klass = null;
         private byte[] aid = null;
 
@@ -248,7 +248,7 @@ public class JavaCard extends Task {
     }
 
     @SuppressWarnings("serial")
-    public class HelpingBuildException extends BuildException {
+    public static class HelpingBuildException extends BuildException {
         public HelpingBuildException(String msg) {
             super(msg + "\n\nPLEASE READ https://github.com/martinpaljak/ant-javacard#syntax");
         }
@@ -477,7 +477,8 @@ public class JavaCard extends Task {
             if (classes_path != null) {
                 tmp = getProject().resolveFile(classes_path);
                 if (!tmp.exists()) {
-                    tmp.mkdir();
+                    if (!tmp.mkdir())
+                        throw new BuildException("Could not create temporary folder " + tmp.getAbsolutePath());
                 }
             } else {
                 // Generate temporary folder
@@ -761,7 +762,7 @@ public class JavaCard extends Task {
         }
     }
 
-    public class JCImport {
+    public static class JCImport {
         String exps = null;
         String jar = null;
 
