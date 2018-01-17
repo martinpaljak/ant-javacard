@@ -19,6 +19,7 @@
 
 ## Download & Use
  * Download [`ant-javacard.jar`](https://github.com/martinpaljak/ant-javacard/releases/download/v1.8/ant-javacard.jar) (be sure to get the [latest version](https://github.com/martinpaljak/ant-javacard/releases/latest))
+   * **The only supported Java version is 1.8!**
  * Or use the download task:
 ```xml
 <get src="https://github.com/martinpaljak/ant-javacard/releases/download/v1.8/ant-javacard.jar" dest="." skipexisting="true"/>
