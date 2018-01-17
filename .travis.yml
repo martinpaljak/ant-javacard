@@ -1,7 +1,8 @@
 sudo: false
 language: java
 jdk:
-- oraclejdk7
+- oraclejdk8
+- oraclejdk9
 script: ant test
 env:
   global:
