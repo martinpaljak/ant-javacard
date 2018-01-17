@@ -6,3 +6,5 @@ hs_err_pid*
 /bin/
 /*.jar
 /lib/
+/.idea
+/*.iml
