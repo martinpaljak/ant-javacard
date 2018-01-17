@@ -18,11 +18,11 @@
  * Loading JavaCard applets is equally pleasing with **[GlobalPlatformPro](https://github.com/martinpaljak/GlobalPlatformPro)**
 
 ## Download & Use
- * Download [`ant-javacard.jar`](https://github.com/martinpaljak/ant-javacard/releases/download/v1.8/ant-javacard.jar) (be sure to get the [latest version](https://github.com/martinpaljak/ant-javacard/releases/latest))
+ * Download [`ant-javacard.jar`](https://github.com/martinpaljak/ant-javacard/releases/download/18.01.17/ant-javacard.jar) (be sure to get the [latest version](https://github.com/martinpaljak/ant-javacard/releases/latest))
    * The **only** supported Java version for all SDK targets is 1.8!
  * Or use the download task:
 ```xml
-<get src="https://github.com/martinpaljak/ant-javacard/releases/download/v1.8/ant-javacard.jar" dest="." skipexisting="true"/>
+<get src="https://github.com/martinpaljak/ant-javacard/releases/download/18.01.17/ant-javacard.jar" dest="." skipexisting="true"/>
 ```
  * Then add the following to your `build.xml` file:
 ```xml
@@ -87,12 +87,17 @@ Notes:
  * [MIT](./LICENSE)
 
 ## Happy users
- * [IsoApplet](https://github.com/philipWendland/IsoApplet) by [@philipWendland](https://github.com/philipWendland)
- * [NdefApplet](https://github.com/promovicz/javacard-ndef) by [@promovicz](https://github.com/promovicz)
- * [GidsApplet](https://github.com/vletoux/GidsApplet) by [@vletoux](https://github.com/vletoux)
- * [LedgerWalletApplet](https://github.com/LedgerHQ/ledger-javacard) by [@LedgerHQ](https://github.com/LedgerHQ)
- * [KeePassNFC](https://github.com/nfd/smartcard_crypto_applet)
- * You! Don't torture yourself with complexity, KISS!
+* Applets:
+  * [IsoApplet](https://github.com/philipWendland/IsoApplet) by [@philipWendland](https://github.com/philipWendland)
+  * [NdefApplet](https://github.com/promovicz/javacard-ndef) by [@promovicz](https://github.com/promovicz)
+  * [GidsApplet](https://github.com/vletoux/GidsApplet) by [@vletoux](https://github.com/vletoux)
+  * [LedgerWalletApplet](https://github.com/LedgerHQ/ledger-javacard) by [@LedgerHQ](https://github.com/LedgerHQ)
+  * [KeePassNFC](https://github.com/nfd/smartcard_crypto_applet)
+* Integration projects:
+  * [JavaCard Gradle plugin](https://github.com/bertrandmartel/javacard-gradle-plugin) by [@bertrandmartel](https://github.com/bertrandmartel)
+  * [JavaCard Template project with Gradle](https://github.com/ph4r05/javacard-gradle-template) by [@ph4r05](https://github.com/ph4r05)
+* Other:
+  * **You!** Don't torture yourself with complexity, **KISS!**
 
 ## Contact
  * See [javacard.pro](https://javacard.pro)
@@ -102,6 +107,8 @@ Notes:
    * :( as cumbersome to use as the command line utilities
    * :( not declarative/DWIM enough
    * :) very explicit interface with all details exposed
+ * JavaCard Gradle plugin (MIT) - https://github.com/bertrandmartel/javacard-gradle-plugin
+   * :) Wraps ant-javacard for use with Gradle
  * gradle-javacard (Apache 2.0) - https://github.com/fidesmo/gradle-javacard
    * :) nice declarative interface
    * :( requires gradle (40M download) 
