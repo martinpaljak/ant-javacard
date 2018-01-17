@@ -4,7 +4,7 @@
   <target name="jcpro">
     <tempfile property="jcpro.tmp" destdir="${java.io.tmpdir}" prefix="jcpro" deleteonexit="true"/>
     <mkdir dir="${jcpro.tmp}"/>
-    <javac srcdir="src/pro/javacard/ant" destdir="${jcpro.tmp}" includeantruntime="true" target="1.7" source="1.7">
+    <javac srcdir="src/main/java/pro/javacard/ant" destdir="${jcpro.tmp}" includeantruntime="true" target="1.8" source="1.8">
       <compilerarg value="-Xlint:all"/>
     </javac>
     <!-- Load the fresh task -->
