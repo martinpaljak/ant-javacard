@@ -30,10 +30,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -490,22 +487,26 @@ public class JavaCard extends Task {
 				j.createArg().setLine("-classdir '" + classes_path + "'");
 				j.createArg().setLine("-d '" + applet_folder.getAbsolutePath() + "'");
 
-				ArrayList<String> exps = new ArrayList<>();
 				// Construct exportpath
+				ArrayList<String> exps = new ArrayList<>();
+				// JC kit
 				if (jckit.version == JC.V212) {
 					exps.add(Paths.get(jckit.path, "api21_export_files").toString());
 				} else {
 					exps.add(Paths.get(jckit.path, "api_export_files").toString());
 				}
+
 				// add imports
 				for (JCImport imp : raw_imports) {
-					exps.add(Paths.get(imp.exps).toAbsolutePath().toString());
+					String s = Paths.get(imp.exps).toAbsolutePath().toString();
+					// Avoid duplicates
+					if (!exps.contains(s))
+						exps.add(s);
 				}
-				// XXX StringJoiner is 1.8+, we are 1.7+
-				StringBuilder expstringbuilder = new StringBuilder();
+
+				StringJoiner expstringbuilder = new StringJoiner(File.pathSeparator);
 				for (String imp : exps) {
-					expstringbuilder.append(File.pathSeparatorChar);
-					expstringbuilder.append(imp);
+					expstringbuilder.add(imp);
 				}
 
 				j.createArg().setLine("-exportpath '" + expstringbuilder.toString() + "'");
