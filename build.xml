@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="dist" name="ant-javacard build">
   <!-- Build and load the JavaCard task -->
-  <target name="jcpro">
-    <tempfile property="jcpro.tmp" destdir="${java.io.tmpdir}" prefix="jcpro" deleteonexit="true"/>
-    <mkdir dir="${jcpro.tmp}"/>
-    <javac srcdir="src/main/java/pro/javacard/ant" destdir="${jcpro.tmp}" includeantruntime="true" target="1.8" source="1.8">
+  <target name="jcpro" depends="clean">
+    <mkdir dir="build"/>
+    <javac srcdir="src/main/java/pro/javacard/ant" destdir="build" includeantruntime="true" target="1.8" source="1.8">
       <compilerarg value="-Xlint:all"/>
     </javac>
     <!-- Load the fresh task -->
-    <taskdef name="javacard" classname="pro.javacard.ant.JavaCard" classpath="${jcpro.tmp}"/>
+    <taskdef name="javacard" classname="pro.javacard.ant.JavaCard" classpath="build"/>
   </target>
   <!-- Package it into a JAR -->
   <target name="dist" depends="jcpro">
-    <jar destfile="ant-javacard.jar" level="9" basedir="${jcpro.tmp}"/>
+    <jar destfile="ant-javacard.jar" level="9" basedir="build"/>
     <!-- Now this JAR can be used in your build.xml by placing the jar to -->
     <!-- lib folder and having the following in your target: -->
     <!-- <taskdef name="javacard" classname="pro.javacard.ant.JavaCard" classpath="lib/ant-javacard.jar"/> -->
@@ -49,5 +48,8 @@
         <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
       </cap>
     </javacard>
+  </target>
+  <target name="clean">
+    <delete dir="build"/>
   </target>
 </project>
