@@ -93,8 +93,11 @@ Notes:
   * [GidsApplet](https://github.com/vletoux/GidsApplet) by [@vletoux](https://github.com/vletoux)
   * [LedgerWalletApplet](https://github.com/LedgerHQ/ledger-javacard) by [@LedgerHQ](https://github.com/LedgerHQ)
   * [KeePassNFC](https://github.com/nfd/smartcard_crypto_applet)
-  * [PivApplet](https://github.com/arekinath/PivApplet) by [@arekinath](https://github.com/arekinath)
-  * [OpenFIP201](https://github.com/makinako/OpenFIPS201) by [@makinako](https://github.com/makinako)
+  * [PivApplet](https://github.com/arekinath/PivApplet) (PIV) by [@arekinath](https://github.com/arekinath)
+  * [OpenFIP201](https://github.com/makinako/OpenFIPS201) (PIV) by [@makinako](https://github.com/makinako)
+  * [Cryptonit](https://github.com/mbrossard/cryptonit-applet) (PIV) by [@mbrossard](https://github.com/mbrossard)
+  * [HTOP NDEF](https://github.com/petrs/hotp_via_ndef) by [@petrs](https://github.com/petrs)
+  * [Yubikey OTP](https://github.com/arekinath/YkOtpApplet) by [@arekinath](https://github.com/arekinath)
 * Integration projects:
   * [JavaCard Gradle plugin](https://github.com/bertrandmartel/javacard-gradle-plugin) by [@bertrandmartel](https://github.com/bertrandmartel)
   * [JavaCard Template project with Gradle](https://github.com/ph4r05/javacard-gradle-template) by [@ph4r05](https://github.com/ph4r05)
