@@ -87,6 +87,7 @@ Notes:
  * [MIT](./LICENSE)
 
 ## Happy users
+A random list of users, with a public link:
 * Applets:
   * [IsoApplet](https://github.com/philipWendland/IsoApplet) by [@philipWendland](https://github.com/philipWendland)
   * [NdefApplet](https://github.com/promovicz/javacard-ndef) by [@promovicz](https://github.com/promovicz)
@@ -98,6 +99,7 @@ Notes:
   * [Cryptonit](https://github.com/mbrossard/cryptonit-applet) (PIV) by [@mbrossard](https://github.com/mbrossard)
   * [HTOP NDEF](https://github.com/petrs/hotp_via_ndef) by [@petrs](https://github.com/petrs)
   * [Yubikey OTP](https://github.com/arekinath/YkOtpApplet) by [@arekinath](https://github.com/arekinath)
+  * Plus loads of academic projects, classes and papers.
 * Integration projects:
   * [JavaCard Gradle plugin](https://github.com/bertrandmartel/javacard-gradle-plugin) by [@bertrandmartel](https://github.com/bertrandmartel)
   * [JavaCard Template project with Gradle](https://github.com/ph4r05/javacard-gradle-template) by [@ph4r05](https://github.com/ph4r05)
