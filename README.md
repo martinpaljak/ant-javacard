@@ -5,7 +5,7 @@
 [![Build status](https://travis-ci.org/martinpaljak/ant-javacard.svg?branch=master)](https://travis-ci.org/martinpaljak/ant-javacard) &nbsp; [![Coverity](https://scan.coverity.com/projects/8418/badge.svg)](https://scan.coverity.com/projects/martinpaljak-ant-javacard) &nbsp; [![Latest release](https://img.shields.io/github/release/martinpaljak/ant-javacard.svg)](https://github.com/martinpaljak/ant-javacard/releases/latest) &nbsp; [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.martinpaljak/ant-javacard/badge.svg)](https://mvnrepository.com/artifact/com.github.martinpaljak/ant-javacard) &nbsp; [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/martinpaljak/ant-javacard/blob/master/LICENSE)
 
 ## Features
- * **[Do What I Mean](http://en.wikipedia.org/wiki/DWIM)**.
+ * **[Do What I Mean](http://en.wikipedia.org/wiki/DWIM)**. You will [love it](#happy-users)!
  * **No dependencies**, no extra or unrelated downloads. Just **a 14KB jar**.
  * Supports **all available JavaCard SDK versions**: 2.1.2, 2.2.1, 2.2.2, 3.0.3, 3.0.4 and 3.0.5
    * Get one from [oracle.com](http://www.oracle.com/technetwork/java/embedded/javacard/downloads/javacard-sdk-2043229.html) or use the [handy Github repository](https://github.com/martinpaljak/oracle_javacard_sdks)
