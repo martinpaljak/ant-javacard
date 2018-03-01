@@ -28,6 +28,7 @@ import org.apache.tools.ant.taskdefs.Jar;
 import org.apache.tools.ant.taskdefs.Java;
 import org.apache.tools.ant.taskdefs.Javac;
 import org.apache.tools.ant.types.Environment.Variable;
+import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 
 import java.io.File;
@@ -265,6 +266,7 @@ public class JavaCard extends Task {
         private Vector<JCImport> raw_imports = new Vector<>();
         private String output_cap = null;
         private String output_exp = null;
+        private String output_jar = null;
         private String output_jca = null;
         private String jckit_path = null;
         private boolean verify = true;
@@ -285,6 +287,10 @@ public class JavaCard extends Task {
 
         public void setExport(String msg) {
             output_exp = msg;
+        }
+
+        public void setJar(String msg) {
+            output_jar = msg;
         }
 
         public void setJca(String msg) {
@@ -644,7 +650,7 @@ public class JavaCard extends Task {
                 j.execute();
 
                 // Copy results
-                if (output_cap != null || output_exp != null || output_jca != null) {
+                if (output_cap != null || output_exp != null || output_jca != null || output_jar != null) {
                     // Last component of the package
                     String ln = package_name;
                     if (ln.lastIndexOf(".") != -1) {
@@ -691,13 +697,27 @@ public class JavaCard extends Task {
                             log("EXP saved to " + exp_file, Project.MSG_INFO);
                             exps.add(exp_file.toString());
 
-                            // Make Jar for the export
+                        }
+                        // Make JAR
+                        if (output_jar != null) {
+                            setTaskName("jar");
+                            File outJar = getProject().resolveFile(output_jar);
+                            // create a new JAR task
                             Jar jarz = new Jar();
                             jarz.setProject(getProject());
-                            jarz.setTaskName("export");
-                            jarz.setBasedir(getProject().resolveFile(classes_path));
-                            jarz.setDestFile(opf.toPath().resolve(ln + ".jar").toFile());
+                            jarz.setTaskName("jar");
+                            jarz.setDestFile(outJar);
+                            // include class files
+                            FileSet jarcls = new FileSet();
+                            jarcls.setDir(getProject().resolveFile(classes_path));
+                            jarz.add(jarcls);
+                            // include conversion output
+                            FileSet jarout = new FileSet();
+                            jarout.setDir(applet_folder);
+                            jarz.add(jarout);
+                            // create the JAR
                             jarz.execute();
+                            log("JAR created at " + outJar.getAbsolutePath(), Project.MSG_INFO);
                         }
                         // Copy JCA
                         if (output_jca != null) {
