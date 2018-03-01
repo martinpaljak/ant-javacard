@@ -686,8 +686,11 @@ public class JavaCard extends Task {
                             }
 
                             // Copy output
-                            Files.copy(exp, exp_path.resolve(exp.getFileName()), StandardCopyOption.REPLACE_EXISTING);
-                            log("EXP saved to " + exp_path.resolve(exp.getFileName()), Project.MSG_INFO);
+                            java.nio.file.Path exp_file =  exp_path.resolve(exp.getFileName());
+                            Files.copy(exp, exp_file, StandardCopyOption.REPLACE_EXISTING);
+                            log("EXP saved to " + exp_file, Project.MSG_INFO);
+                            exps.add(exp_file.toString());
+
                             // Make Jar for the export
                             Jar jarz = new Jar();
                             jarz.setProject(getProject());
