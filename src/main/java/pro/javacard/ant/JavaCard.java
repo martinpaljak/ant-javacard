@@ -32,13 +32,10 @@ import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 public class JavaCard extends Task {
     // This code has been taken from Apache commons-codec 1.7 (License: Apache
@@ -135,61 +132,6 @@ public class JavaCard extends Task {
         master_jckit_path = msg;
     }
 
-    /**
-     * Given a path, return a meta-info object about possible JavaCard SDK in that path.
-     *
-     * @param path raw string as present in build.xml or environment, or <code>null</code>
-     * @return a {@link JavaCardKit} instance
-     */
-    public JavaCardKit detectSDK(String path) {
-        JavaCardKit detected = new JavaCardKit();
-        if (path == null || path.trim() == "") {
-            return detected;
-        }
-        // Expand user
-        String real_path = path.replaceFirst("^~", System.getProperty("user.home"));
-        // Check if path is OK
-        if (!new File(real_path).exists()) {
-            log("JavaCard SDK folder " + path + " does not exist!", Project.MSG_WARN);
-            return detected;
-        }
-        detected.path = real_path;
-        // Identify jckit type
-        if (Paths.get(detected.path, "lib", "tools.jar").toFile().exists()) {
-            log("JavaCard 3.x SDK detected in " + detected.path, Project.MSG_VERBOSE);
-            detected.version = JC.V3;
-        } else if (Paths.get(detected.path, "lib", "api21.jar").toFile().exists()) {
-            detected.version = JC.V212;
-            log("JavaCard 2.1.x SDK detected in " + detected.path, Project.MSG_VERBOSE);
-        } else if (Paths.get(detected.path, "lib", "converter.jar").toFile().exists()) {
-            // Detect if 2.2.1 or 2.2.2
-            File api = Paths.get(detected.path, "lib", "api.jar").toFile();
-            try (ZipInputStream zip = new ZipInputStream(new FileInputStream(api))) {
-                while (true) {
-                    ZipEntry entry = zip.getNextEntry();
-                    if (entry == null) {
-                        break;
-                    }
-                    if (entry.getName().equals("javacardx/apdu/ExtendedLength.class")) {
-                        detected.version = JC.V222;
-                        log("JavaCard 2.2.2 SDK detected in " + detected.path, Project.MSG_VERBOSE);
-                    }
-                }
-            } catch (IOException e) {
-                log("Could not parse api.jar", Project.MSG_DEBUG);
-            } finally {
-                // Assume older SDK if jar parsing fails.
-                if (detected.version == JC.NONE) {
-                    detected.version = JC.V221;
-                    log("JavaCard 2.x SDK detected in " + detected.path, Project.MSG_VERBOSE);
-                }
-            }
-        } else {
-            log("Could not detect a JavaCard SDK in " + Paths.get(path).toAbsolutePath(), Project.MSG_WARN);
-        }
-        return detected;
-    }
-
     public JCCap createCap() {
         JCCap pkg = new JCCap();
         packages.add(pkg);
@@ -201,28 +143,6 @@ public class JavaCard extends Task {
         for (JCCap p : packages) {
             p.execute();
         }
-    }
-
-    private enum JC {
-        NONE, V212, V221, V222, V3;
-
-        @Override
-        public String toString() {
-            if (this.equals(V3))
-                return "v3.x";
-            if (this.equals(V222))
-                return "v2.2.2";
-            if (this.equals(V221))
-                return "v2.2.1";
-            if (this.equals(V212))
-                return "v2.1.x";
-            return "unknown";
-        }
-    }
-
-    private static class JavaCardKit {
-        JC version = JC.NONE;
-        String path = null;
     }
 
     public static class JCApplet {
@@ -256,7 +176,7 @@ public class JavaCard extends Task {
     }
 
     public class JCCap extends Task {
-        private JavaCardKit jckit = null;
+        private JCKit jckit = null;
         private String classes_path = null;
         private String sources_path = null;
         private String package_name = null;
@@ -359,41 +279,37 @@ public class JavaCard extends Task {
             return this.createImport();
         }
 
+        private JCKit findSDK() {
+            // try configuration first
+            if(jckit_path != null) {
+                return JCKit.detectSDK(jckit_path);
+            }
+            if(master_jckit_path != null) {
+                return JCKit.detectSDK(master_jckit_path);
+            }
+            // now check via ant property
+            String propPath = getProject().getProperty("jc.home");
+            if(propPath != null) {
+                return JCKit.detectSDK(propPath);
+            }
+            // finally via the environment
+            String envPath = System.getenv("JC_HOME");
+            if(envPath != null) {
+                return JCKit.detectSDK(envPath);
+            }
+            // return null if no options
+            return null;
+        }
+
         // Check that arguments are sufficient and do some DWIM
         private void check() {
-            JavaCardKit env = detectSDK(System.getenv("JC_HOME"));
-            JavaCardKit prop = detectSDK(getProject().getProperty("jc.home"));
-            JavaCardKit master = detectSDK(master_jckit_path);
-            JavaCardKit current = detectSDK(jckit_path);
-
-            if (current.version == JC.NONE && master.version == JC.NONE && env.version == JC.NONE && prop.version == JC.NONE) {
-                throw new HelpingBuildException("Must specify usable JavaCard SDK path in build.xml or set JC_HOME or jc.home");
-            }
-
-
-            if (current.version == JC.NONE) {
-                // if master path is specified but is not usable,
-                // override with environment, variable, if usable
-                if (prop.version != JC.NONE) {
-                    jckit = prop;
-                } else if (master.version == JC.NONE && env.version != JC.NONE) {
-                    jckit = env;
-                } else {
-                    jckit = master;
-                }
-            } else {
-                if (prop.version != JC.NONE) {
-                    jckit = prop;
-                } else {
-                    jckit = current;
-                }
-            }
+            jckit = findSDK();
 
             // Sanity check
-            if (jckit == null || jckit.version == JC.NONE) {
+            if (jckit == null) {
                 throw new HelpingBuildException("No usable JavaCard SDK referenced");
             } else {
-                log("INFO: using JavaCard " + jckit.version + " SDK in " + jckit.path, Project.MSG_INFO);
+                log("INFO: using JavaCard " + jckit.getVersion() + " SDK in " + jckit.getRoot(), Project.MSG_INFO);
             }
 
             // sources or classes must be set
@@ -497,18 +413,13 @@ public class JavaCard extends Task {
             j.setDestdir(tmp);
             // See "Setting Java Compiler Options" in User Guide
             j.setDebug(true);
-            if (jckit.version == JC.V212) {
-                j.setTarget("1.1");
-                j.setSource("1.1");
+            String javaVersion = jckit.getJavaVersion();
+            j.setTarget(javaVersion);
+            j.setSource(javaVersion);
+            if (jckit.isVersion(JCKit.Version.V21)) {
                 // Always set debug to disable "contains local variables,
                 // but not local variable table." messages
                 j.setDebug(true);
-            } else if (jckit.version == JC.V221) {
-                j.setTarget("1.2");
-                j.setSource("1.2");
-            } else {
-                j.setTarget("1.5");
-                j.setSource("1.5");
             }
             j.setIncludeantruntime(false);
             j.createCompilerArg().setValue("-Xlint");
@@ -520,14 +431,7 @@ public class JavaCard extends Task {
 
             // set classpath
             Path cp = j.createClasspath();
-            String api = null;
-            if (jckit.version == JC.V3) {
-                api = Paths.get(jckit.path, "lib", "api_classic.jar").toAbsolutePath().toString();
-            } else if (jckit.version == JC.V212) { // V2.1.X
-                api = Paths.get(jckit.path, "lib", "api21.jar").toAbsolutePath().toString();
-            } else { // V2.2.X
-                api = Paths.get(jckit.path, "lib", "api.jar").toAbsolutePath().toString();
-            }
+            String api = jckit.getApiJar().toString();
             cp.append(new Path(getProject(), api));
             for (JCImport i : raw_imports) {
                 // Support import clauses with only jar or exp values
@@ -552,23 +456,8 @@ public class JavaCard extends Task {
                 Java j = new Java(this);
                 // classpath to jckit bits
                 Path cp = j.createClasspath();
-                // converter
-                File jar = null;
-                if (jckit.version == JC.V3) {
-                    jar = Paths.get(jckit.path, "lib", "tools.jar").toFile();
-                    Path jarpath = new Path(getProject());
-                    jarpath.setLocation(jar);
-                    cp.append(jarpath);
-                } else {
-                    // XXX: this should be with less lines ?
-                    jar = Paths.get(jckit.path, "lib", "converter.jar").toFile();
-                    Path jarpath = new Path(getProject());
-                    jarpath.setLocation(jar);
-                    cp.append(jarpath);
-                    jar = Paths.get(jckit.path, "lib", "offcardverifier.jar").toFile();
-                    jarpath = new Path(getProject());
-                    jarpath.setLocation(jar);
-                    cp.append(jarpath);
+                for(File jar: jckit.getToolJars()) {
+                    cp.append(new Path(getProject(), jar.getPath()));
                 }
 
                 // Create temporary folder and add to cleanup
@@ -580,12 +469,7 @@ public class JavaCard extends Task {
 
                 // Construct exportpath
                 ArrayList<String> exps = new ArrayList<>();
-                // JC kit
-                if (jckit.version == JC.V212) {
-                    exps.add(Paths.get(jckit.path, "api21_export_files").toString());
-                } else {
-                    exps.add(Paths.get(jckit.path, "api_export_files").toString());
-                }
+                exps.add(jckit.getExportDir().toString());
 
                 // add imports
                 for (JCImport imp : raw_imports) {
@@ -612,7 +496,7 @@ public class JavaCard extends Task {
                 if (!verify) {
                     j.createArg().setLine("-noverify");
                 }
-                if (jckit.version == JC.V3) {
+                if (jckit.isVersion(JCKit.Version.V3)) {
                     j.createArg().setLine("-useproxyclass");
                 }
                 if (ints) {
@@ -633,12 +517,12 @@ public class JavaCard extends Task {
                 j.createArg().setLine(package_name + " " + hexAID(package_aid) + " " + package_version);
 
                 // Call converter
-                if (jckit.version == JC.V3) {
+                if (jckit.isVersion(JCKit.Version.V3)) {
                     j.setClassname("com.sun.javacard.converter.Main");
                     // XXX: See https://community.oracle.com/message/10452555
                     Variable jchome = new Variable();
                     jchome.setKey("jc.home");
-                    jchome.setValue(jckit.path);
+                    jchome.setValue(jckit.getRoot().toString());
                     j.addSysproperty(jchome);
                 } else {
                     j.setClassname("com.sun.javacard.converter.Converter");
