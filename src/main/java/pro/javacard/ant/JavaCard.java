@@ -391,6 +391,7 @@ public class JavaCard extends Task {
 
         private void compile() {
             Project project = getProject();
+            setTaskName("compile");
 
             // construct javac task
             Javac j = new Javac();
@@ -464,8 +465,10 @@ public class JavaCard extends Task {
         }
 
         private void convert(File applet_folder, List<File> exps) {
+            setTaskName("convert");
             // construct java task
             Java j = new Java(this);
+            j.setTaskName("convert");
             addKitClasses(j);
 
             j.createArg().setLine("-classdir '" + classes_path + "'");
@@ -529,6 +532,7 @@ public class JavaCard extends Task {
             // construct java task
             Java j = new Java(this);
             addKitClasses(j);
+            j.setTaskName("verify");
             j.setClassname("com.sun.javacard.offcardverifier.Verifier");
             // Find all expfiles
             final ArrayList<String> expfiles = new ArrayList<>();
