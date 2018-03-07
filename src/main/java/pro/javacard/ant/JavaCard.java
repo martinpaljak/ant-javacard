@@ -546,13 +546,9 @@ public class JavaCard extends Task {
         private void verify(List<File> exps) {
 			Project project = getProject();
             setTaskName("verify");
-            // construct java task
-            Java j = new Java(this);
-            addKitClasses(j);
-            j.setTaskName("verify");
-            j.setClassname("com.sun.javacard.offcardverifier.Verifier");
-            // Find all expfiles
-            final ArrayList<String> expfiles = new ArrayList<>();
+
+            // collect all export files
+            final ArrayList<File> expfiles = new ArrayList<>();
             try {
                 for (File e : exps) {
                     Files.walkFileTree(e.toPath(), new SimpleFileVisitor<java.nio.file.Path>() {
@@ -560,7 +556,7 @@ public class JavaCard extends Task {
                         public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs)
                                 throws IOException {
                             if (file.toString().endsWith(".exp")) {
-                                expfiles.add(file.toAbsolutePath().toString());
+                                expfiles.add(file.toFile());
                             }
                             return FileVisitResult.CONTINUE;
                         }
@@ -571,17 +567,33 @@ public class JavaCard extends Task {
                 return;
             }
 
-            // Arguments to verifier
-            j.createArg().setLine("-nobanner");
-            //TODO j.createArg().setLine("-verbose");
-            for (String exp : expfiles) {
-                j.createArg().setLine("'" + exp + "'");
-            }
-            j.createArg().setLine("'" + project.resolveFile(output_cap).toString() + "'");
+            // construct java task
+            Java j = new Java(this);
+            j.setTaskName("verify");
             j.setFailonerror(true);
             j.setFork(true);
 
-            log("cmdline: " + j.getCommandLine(), Project.MSG_VERBOSE);
+            // add classpath for SDK tools
+            addKitClasses(j);
+            // set main class
+            j.setClassname("com.sun.javacard.offcardverifier.Verifier");
+
+            // not verbose for now
+            //j.createArg().setLine("-verbose");
+            j.createArg().setLine("-nobanner");
+
+            // export files for verification
+            for (File exp : expfiles) {
+                j.createArg().setLine(exp.toString());
+            }
+
+            // cap file for verification
+            j.createArg().setLine(project.resolveFile(output_cap).toString());
+
+            // report the command
+            log("command: " + j.getCommandLine(), Project.MSG_VERBOSE);
+
+            // perform verification
             j.execute();
         }
 
