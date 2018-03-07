@@ -469,19 +469,42 @@ public class JavaCard extends Task {
             // construct java task
             Java j = new Java(this);
             j.setTaskName("convert");
+            j.setFailonerror(true);
+            j.setFork(true);
+
+            // add classpath for SDK tools
             addKitClasses(j);
 
-            j.createArg().setLine("-classdir '" + classes_path + "'");
+            // set class depending on SDK
+            if (jckit.isVersion(JCKit.Version.V3)) {
+                j.setClassname("com.sun.javacard.converter.Main");
+                // XXX: See https://community.oracle.com/message/10452555
+                Variable jchome = new Variable();
+                jchome.setKey("jc.home");
+                jchome.setValue(jckit.getRoot().toString());
+                j.addSysproperty(jchome);
+            } else {
+                j.setClassname("com.sun.javacard.converter.Converter");
+            }
+
+            // output path
             j.createArg().setLine("-d '" + applet_folder.getAbsolutePath() + "'");
 
+            // classes for conversion
+            j.createArg().setLine("-classdir '" + classes_path + "'");
+
+            // construct export path
             StringJoiner expstringbuilder = new StringJoiner(File.pathSeparator);
             for (File imp : exps) {
                 expstringbuilder.add(imp.toString());
             }
-
             j.createArg().setLine("-exportpath '" + expstringbuilder.toString() + "'");
+
+            // always be a little verbose
             j.createArg().setLine("-verbose");
             j.createArg().setLine("-nobanner");
+
+            // simple options
             if (debug) {
                 j.createArg().setLine("-debug");
             }
@@ -495,6 +518,7 @@ public class JavaCard extends Task {
                 j.createArg().setLine("-i");
             }
 
+            // determine output types
             String outputs = "CAP";
             if (output_exp != null) {
                 outputs += " EXP";
@@ -503,26 +527,19 @@ public class JavaCard extends Task {
                 outputs += " JCA";
             }
             j.createArg().setLine("-out " + outputs);
+
+            // define applets
             for (JCApplet app : raw_applets) {
                 j.createArg().setLine("-applet " + hexAID(app.aid) + " " + app.klass);
             }
+
+            // package properties
             j.createArg().setLine(package_name + " " + hexAID(package_aid) + " " + package_version);
 
-            // Call converter
-            if (jckit.isVersion(JCKit.Version.V3)) {
-                j.setClassname("com.sun.javacard.converter.Main");
-                // XXX: See https://community.oracle.com/message/10452555
-                Variable jchome = new Variable();
-                jchome.setKey("jc.home");
-                jchome.setValue(jckit.getRoot().toString());
-                j.addSysproperty(jchome);
-            } else {
-                j.setClassname("com.sun.javacard.converter.Converter");
-            }
-            j.setFailonerror(true);
-            j.setFork(true);
+            // report the command
+            log("command: " + j.getCommandLine(), Project.MSG_VERBOSE);
 
-            log("cmdline: " + j.getCommandLine(), Project.MSG_VERBOSE);
+            // execute the converter
             j.execute();
         }
 
