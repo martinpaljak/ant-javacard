@@ -399,15 +399,17 @@ public class JavaCard extends Task {
         }
 
         private void compile() {
+            Project project = getProject();
+
             Javac j = new Javac();
-            j.setProject(getProject());
+            j.setProject(project);
             j.setTaskName("compile");
 
-            j.setSrcdir(new Path(getProject(), sources_path));
+            j.setSrcdir(new Path(project, sources_path));
 
             File tmp;
             if (classes_path != null) {
-                tmp = getProject().resolveFile(classes_path);
+                tmp = project.resolveFile(classes_path);
                 if (!tmp.exists()) {
                     if (!tmp.mkdir())
                         throw new BuildException("Could not create temporary folder " + tmp.getAbsolutePath());
@@ -449,11 +451,11 @@ public class JavaCard extends Task {
             // set classpath
             Path cp = j.createClasspath();
             String api = jckit.getApiJar().toString();
-            cp.append(new Path(getProject(), api));
+            cp.append(new Path(project, api));
             for (JCImport i : raw_imports) {
                 // Support import clauses with only jar or exp values
                 if (i.jar != null) {
-                    cp.append(new Path(getProject(), i.jar));
+                    cp.append(new Path(project, i.jar));
                 }
             }
             j.execute();
@@ -461,6 +463,8 @@ public class JavaCard extends Task {
 
         @Override
         public void execute() {
+            Project project = getProject();
+
             // Convert
             check();
 
@@ -474,7 +478,7 @@ public class JavaCard extends Task {
                 // classpath to jckit bits
                 Path cp = j.createClasspath();
                 for(File jar: jckit.getToolJars()) {
-                    cp.append(new Path(getProject(), jar.getPath()));
+                    cp.append(new Path(project, jar.getPath()));
                 }
 
                 // Create temporary folder and add to cleanup
@@ -568,7 +572,7 @@ public class JavaCard extends Task {
                             throw new BuildException("Can not find CAP in " + jcsrc);
                         }
                         // Resolve output file
-                        File opf = getProject().resolveFile(output_cap);
+                        File opf = project.resolveFile(output_cap);
                         // Copy CAP
                         Files.copy(cap, opf.toPath(), StandardCopyOption.REPLACE_EXISTING);
                         log("CAP saved to " + opf.getAbsolutePath(), Project.MSG_INFO);
@@ -579,7 +583,7 @@ public class JavaCard extends Task {
                                 throw new BuildException("Can not find EXP in " + jcsrc);
                             }
                             // output_exp is the folder name
-                            opf = getProject().resolveFile(output_exp);
+                            opf = project.resolveFile(output_exp);
 
                             // Get the folder under the output folder
                             java.nio.file.Path exp_path = opf.toPath().resolve(package_name.replace(".", File.separator)).resolve("javacard");
@@ -601,15 +605,15 @@ public class JavaCard extends Task {
                         // Make JAR
                         if (output_jar != null) {
                             setTaskName("jar");
-                            File outJar = getProject().resolveFile(output_jar);
+                            File outJar = project.resolveFile(output_jar);
                             // create a new JAR task
                             Jar jarz = new Jar();
-                            jarz.setProject(getProject());
+                            jarz.setProject(project);
                             jarz.setTaskName("jar");
                             jarz.setDestFile(outJar);
                             // include class files
                             FileSet jarcls = new FileSet();
-                            jarcls.setDir(getProject().resolveFile(classes_path));
+                            jarcls.setDir(project.resolveFile(classes_path));
                             jarz.add(jarcls);
                             // include conversion output
                             FileSet jarout = new FileSet();
@@ -625,7 +629,7 @@ public class JavaCard extends Task {
                             if (!jca.toFile().exists()) {
                                 throw new BuildException("Can not find JCA in " + jcsrc);
                             }
-                            opf = getProject().resolveFile(output_jca);
+                            opf = project.resolveFile(output_jca);
                             Files.copy(jca, opf.toPath(), StandardCopyOption.REPLACE_EXISTING);
                             log("JCA saved to " + opf.getAbsolutePath(), Project.MSG_INFO);
                         }
@@ -667,7 +671,7 @@ public class JavaCard extends Task {
                     for (String exp : expfiles) {
                         j.createArg().setLine("'" + exp + "'");
                     }
-                    j.createArg().setLine("'" + getProject().resolveFile(output_cap).toString() + "'");
+                    j.createArg().setLine("'" + project.resolveFile(output_cap).toString() + "'");
                     j.setFailonerror(true);
                     j.setFork(true);
 
