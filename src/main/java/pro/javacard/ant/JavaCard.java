@@ -392,21 +392,24 @@ public class JavaCard extends Task {
         private void compile() {
             Project project = getProject();
 
+            // construct javac task
             Javac j = new Javac();
             j.setProject(project);
             j.setTaskName("compile");
 
             j.setSrcdir(new Path(project, sources_path));
 
+            // determine output directory
             File tmp;
             if (classes_path != null) {
+                // if specified use that
                 tmp = project.resolveFile(classes_path);
                 if (!tmp.exists()) {
                     if (!tmp.mkdir())
                         throw new BuildException("Could not create temporary folder " + tmp.getAbsolutePath());
                 }
             } else {
-                // Generate temporary folder
+                // else generate temporary folder
                 tmp = makeTemp();
                 classes_path = tmp.getAbsolutePath();
             }
@@ -461,7 +464,7 @@ public class JavaCard extends Task {
         }
 
         private void convert(File applet_folder, List<File> exps) {
-            // construct the Java task that executes converter
+            // construct java task
             Java j = new Java(this);
             addKitClasses(j);
 
@@ -523,7 +526,7 @@ public class JavaCard extends Task {
         private void verify(List<File> exps) {
 			Project project = getProject();
             setTaskName("verify");
-            // construct the Java task that executes converter
+            // construct java task
             Java j = new Java(this);
             addKitClasses(j);
             j.setClassname("com.sun.javacard.offcardverifier.Verifier");
@@ -565,7 +568,7 @@ public class JavaCard extends Task {
         public void execute() {
             Project project = getProject();
 
-            // Convert
+            // perform checks
             check();
 
             try {
