@@ -56,15 +56,6 @@ public class JavaCard extends Task {
         return hex.substring(0, hex.length() - 1);
     }
 
-    private static java.nio.file.Path mktemp() {
-        try {
-            java.nio.file.Path p = Files.createTempDirectory("jccpro");
-            return p;
-        } catch (IOException e) {
-            throw new RuntimeException("Can not make temporary folder", e);
-        }
-    }
-
     private static void rmminusrf(java.nio.file.Path path) {
         try {
             Files.walkFileTree(path, new SimpleFileVisitor<java.nio.file.Path>() {
@@ -416,8 +407,7 @@ public class JavaCard extends Task {
                 }
             } else {
                 // Generate temporary folder
-                java.nio.file.Path p = mktemp();
-                temporary.add(p);
+                java.nio.file.Path p = makeTemp();
                 tmp = p.toFile();
                 classes_path = tmp.getAbsolutePath();
             }
@@ -482,8 +472,7 @@ public class JavaCard extends Task {
                 }
 
                 // Create temporary folder and add to cleanup
-                java.nio.file.Path p = mktemp();
-                temporary.add(p);
+                java.nio.file.Path p = makeTemp();
                 File applet_folder = p.toFile();
                 j.createArg().setLine("-classdir '" + classes_path + "'");
                 j.createArg().setLine("-d '" + applet_folder.getAbsolutePath() + "'");
@@ -678,11 +667,25 @@ public class JavaCard extends Task {
                     j.execute();
                 }
             } finally {
-                // Clean temporary files.
-                for (java.nio.file.Path p : temporary) {
-                    if (p.toFile().exists()) {
-                        rmminusrf(p);
-                    }
+                cleanTemp();
+            }
+        }
+
+        private java.nio.file.Path makeTemp() {
+            try {
+                java.nio.file.Path p = Files.createTempDirectory("jccpro");
+                temporary.add(p);
+                return p;
+            } catch (IOException e) {
+                throw new RuntimeException("Can not make temporary folder", e);
+            }
+        }
+
+        private void cleanTemp() {
+            // Clean temporary files.
+            for (java.nio.file.Path p : temporary) {
+                if (p.toFile().exists()) {
+                    rmminusrf(p);
                 }
             }
         }
