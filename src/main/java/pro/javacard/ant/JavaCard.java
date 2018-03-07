@@ -547,7 +547,6 @@ public class JavaCard extends Task {
                 j.setFailonerror(true);
                 j.setFork(true);
 
-                log("cmdline: " + j.getCommandLine(), Project.MSG_VERBOSE);
                 j.execute();
 
                 // Copy results
@@ -672,7 +671,6 @@ public class JavaCard extends Task {
                     j.setFailonerror(true);
                     j.setFork(true);
 
-                    log("cmdline: " + j.getCommandLine(), Project.MSG_VERBOSE);
                     j.execute();
                 }
             } finally {
