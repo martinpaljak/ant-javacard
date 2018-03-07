@@ -649,42 +649,60 @@ public class JavaCard extends Task {
                     File jca = new File(jcsrc, ln + ".jca");
 
                     try {
+                        // copy CAP file
+                        setTaskName("cap");
+                        // check that a CAP file got created
                         if (!cap.exists()) {
                             throw new BuildException("Can not find CAP in " + jcsrc);
                         }
-                        // Resolve output file
-                        File opf = project.resolveFile(output_cap);
-                        // Copy CAP
-                        Files.copy(cap.toPath(), opf.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                        log("CAP saved to " + opf.getAbsolutePath(), Project.MSG_INFO);
-                        // Copy exp file
+                        // resolve output path
+                        File outCap = project.resolveFile(output_cap);
+                        // perform the copy
+                        Files.copy(cap.toPath(), outCap.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        // report destination
+                        log("CAP saved to " + outCap, Project.MSG_INFO);
+
+                        // copy EXP file
                         if (output_exp != null) {
-                            setTaskName("export");
+                            setTaskName("exp");
+                            // check that an EXP file got created
                             if (!exp.exists()) {
                                 throw new BuildException("Can not find EXP in " + jcsrc);
                             }
-                            // output_exp is the folder name
-                            opf = project.resolveFile(output_exp);
-
-                            // Get the folder under the output folder
-                            File exp_pkg_path = new File(opf.toString(), pkgPath);
-                            File exp_path = new File(exp_pkg_path, "javacard");
-
-                            // Create the output folder
-                            if (!exp_path.exists()) {
-                                if (!exp_path.mkdirs()) {
-                                    throw new HelpingBuildException("Can not make path for EXP output: " + opf.getAbsolutePath());
+                            // resolve output directory
+                            File outExp = project.resolveFile(output_exp);
+                            // determine package directories
+                            File outExpPkg = new File(outExp.toString(), pkgPath);
+                            File outExpPkgJc = new File(outExpPkg, "javacard");
+                            // create directories
+                            if (!outExpPkgJc.exists()) {
+                                if (!outExpPkgJc.mkdirs()) {
+                                    throw new HelpingBuildException("Could not create directory " + outExpPkgJc);
                                 }
                             }
-
-                            // Copy output
-                            File exp_file =  new File(exp_path, exp.getName());
+                            // perform the copy
+                            File exp_file =  new File(outExpPkgJc, exp.getName());
                             Files.copy(exp.toPath(), exp_file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                            // report destination
                             log("EXP saved to " + exp_file, Project.MSG_INFO);
-                            exps.add(opf);
-
+                            // add the export directory to the export path for verification
+                            exps.add(outExp);
                         }
-                        // Make JAR
+
+                        // copy JCA file
+                        if (output_jca != null) {
+                            setTaskName("jca");
+                            // check that a JCA file got created
+                            if (!jca.exists()) {
+                                throw new BuildException("Can not find JCA in " + jcsrc);
+                            }
+                            // resolve output path
+                            outCap = project.resolveFile(output_jca);
+                            Files.copy(jca.toPath(), outCap.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                            log("JCA saved to " + outCap.getAbsolutePath(), Project.MSG_INFO);
+                        }
+
+                        // create JAR file
                         if (output_jar != null) {
                             setTaskName("jar");
                             File outJar = project.resolveFile(output_jar);
@@ -704,16 +722,6 @@ public class JavaCard extends Task {
                             // create the JAR
                             jarz.execute();
                             log("JAR created at " + outJar.getAbsolutePath(), Project.MSG_INFO);
-                        }
-                        // Copy JCA
-                        if (output_jca != null) {
-                            setTaskName("jca");
-                            if (!jca.exists()) {
-                                throw new BuildException("Can not find JCA in " + jcsrc);
-                            }
-                            opf = project.resolveFile(output_jca);
-                            Files.copy(jca.toPath(), opf.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                            log("JCA saved to " + opf.getAbsolutePath(), Project.MSG_INFO);
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
