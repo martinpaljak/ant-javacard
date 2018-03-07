@@ -450,6 +450,47 @@ public class JavaCard extends Task {
             j.execute();
         }
 
+        private void verify(Path cp, List<File> exps) {
+            Project project = getProject();
+            setTaskName("verify");
+            // construct the Java task that executes converter
+            Java j = new Java(this);
+            j.setClasspath(cp);
+            j.setClassname("com.sun.javacard.offcardverifier.Verifier");
+            // Find all expfiles
+            final ArrayList<String> expfiles = new ArrayList<>();
+            try {
+                for (File e : exps) {
+                    Files.walkFileTree(e.toPath(), new SimpleFileVisitor<java.nio.file.Path>() {
+                        @Override
+                        public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs)
+                                throws IOException {
+                            if (file.toString().endsWith(".exp")) {
+                                expfiles.add(file.toAbsolutePath().toString());
+                            }
+                            return FileVisitResult.CONTINUE;
+                        }
+                    });
+                }
+            } catch (IOException e) {
+                log("Could not find .exp files: " + e.getMessage(), Project.MSG_ERR);
+                return;
+            }
+
+            // Arguments to verifier
+            j.createArg().setLine("-nobanner");
+            //TODO j.createArg().setLine("-verbose");
+            for (String exp : expfiles) {
+                j.createArg().setLine("'" + exp + "'");
+            }
+            j.createArg().setLine("'" + project.resolveFile(output_cap).toString() + "'");
+            j.setFailonerror(true);
+            j.setFork(true);
+
+            log("cmdline: " + j.getCommandLine(), Project.MSG_VERBOSE);
+            j.execute();
+        }
+
         @Override
         public void execute() {
             Project project = getProject();
@@ -631,42 +672,7 @@ public class JavaCard extends Task {
                 }
 
                 if (verify) {
-                    setTaskName("verify");
-                    // construct the Java task that executes converter
-                    j = new Java(this);
-                    j.setClasspath(cp);
-                    j.setClassname("com.sun.javacard.offcardverifier.Verifier");
-                    // Find all expfiles
-                    final ArrayList<String> expfiles = new ArrayList<>();
-                    try {
-                        for (File e : exps) {
-                            Files.walkFileTree(e.toPath(), new SimpleFileVisitor<java.nio.file.Path>() {
-                                @Override
-                                public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs)
-                                        throws IOException {
-                                    if (file.toString().endsWith(".exp")) {
-                                        expfiles.add(file.toAbsolutePath().toString());
-                                    }
-                                    return FileVisitResult.CONTINUE;
-                                }
-                            });
-                        }
-                    } catch (IOException e) {
-                        log("Could not find .exp files: " + e.getMessage(), Project.MSG_ERR);
-                        return;
-                    }
-
-                    // Arguments to verifier
-                    j.createArg().setLine("-nobanner");
-                    //TODO j.createArg().setLine("-verbose");
-                    for (String exp : expfiles) {
-                        j.createArg().setLine("'" + exp + "'");
-                    }
-                    j.createArg().setLine("'" + project.resolveFile(output_cap).toString() + "'");
-                    j.setFailonerror(true);
-                    j.setFork(true);
-
-                    j.execute();
+                    verify(cp, exps);
                 }
             } finally {
                 cleanTemp();
