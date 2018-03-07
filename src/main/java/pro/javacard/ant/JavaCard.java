@@ -476,23 +476,24 @@ public class JavaCard extends Task {
                 j.createArg().setLine("-d '" + applet_folder.getAbsolutePath() + "'");
 
                 // Construct exportpath
-                ArrayList<String> exps = new ArrayList<>();
-                exps.add(jckit.getExportDir().toString());
+                ArrayList<File> exps = new ArrayList<>();
+                exps.add(jckit.getExportDir());
 
                 // add imports
                 for (JCImport imp : raw_imports) {
                     // Support import clauses with only jar or exp values
                     if (imp.exps != null) {
-                        String s = Paths.get(imp.exps).toAbsolutePath().toString();
+                        File f = new File(imp.exps).getAbsoluteFile();
                         // Avoid duplicates
-                        if (!exps.contains(s))
-                            exps.add(s);
+                        if (!exps.contains(f)) {
+                            exps.add(f);
+                        }
                     }
                 }
 
                 StringJoiner expstringbuilder = new StringJoiner(File.pathSeparator);
-                for (String imp : exps) {
-                    expstringbuilder.add(imp);
+                for (File imp : exps) {
+                    expstringbuilder.add(imp.toString());
                 }
 
                 j.createArg().setLine("-exportpath '" + expstringbuilder.toString() + "'");
@@ -575,7 +576,8 @@ public class JavaCard extends Task {
                             opf = project.resolveFile(output_exp);
 
                             // Get the folder under the output folder
-                            File exp_path = new File(opf.toString(), pkgPath);
+                            File exp_pkg_path = new File(opf.toString(), pkgPath);
+                            File exp_path = new File(exp_pkg_path, "javacard");
 
                             // Create the output folder
                             if (!exp_path.exists()) {
@@ -588,7 +590,7 @@ public class JavaCard extends Task {
                             File exp_file =  new File(exp_path, exp.getName());
                             Files.copy(exp.toPath(), exp_file.toPath(), StandardCopyOption.REPLACE_EXISTING);
                             log("EXP saved to " + exp_file, Project.MSG_INFO);
-                            exps.add(exp_file.toString());
+                            exps.add(opf);
 
                         }
                         // Make JAR
@@ -637,8 +639,8 @@ public class JavaCard extends Task {
                     // Find all expfiles
                     final ArrayList<String> expfiles = new ArrayList<>();
                     try {
-                        for (String e : exps) {
-                            Files.walkFileTree(Paths.get(e), new SimpleFileVisitor<java.nio.file.Path>() {
+                        for (File e : exps) {
+                            Files.walkFileTree(e.toPath(), new SimpleFileVisitor<java.nio.file.Path>() {
                                 @Override
                                 public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs)
                                         throws IOException {
