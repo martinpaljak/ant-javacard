@@ -450,12 +450,22 @@ public class JavaCard extends Task {
             j.execute();
         }
 
-        private void verify(Path cp, List<File> exps) {
+        private void addKitClasses(Java j) {
             Project project = getProject();
+            // classpath to jckit bits
+            Path cp = j.createClasspath();
+            for(File jar: jckit.getToolJars()) {
+                cp.append(new Path(project, jar.getPath()));
+            }
+            j.setClasspath(cp);
+        }
+
+        private void verify(List<File> exps) {
+			Project project = getProject();
             setTaskName("verify");
             // construct the Java task that executes converter
             Java j = new Java(this);
-            j.setClasspath(cp);
+            addKitClasses(j);
             j.setClassname("com.sun.javacard.offcardverifier.Verifier");
             // Find all expfiles
             final ArrayList<String> expfiles = new ArrayList<>();
@@ -505,11 +515,7 @@ public class JavaCard extends Task {
                 }
                 // construct the Java task that executes converter
                 Java j = new Java(this);
-                // classpath to jckit bits
-                Path cp = j.createClasspath();
-                for(File jar: jckit.getToolJars()) {
-                    cp.append(new Path(project, jar.getPath()));
-                }
+                addKitClasses(j);
 
                 // Create temporary folder and add to cleanup
                 File applet_folder = makeTemp();
@@ -672,7 +678,7 @@ public class JavaCard extends Task {
                 }
 
                 if (verify) {
-                    verify(cp, exps);
+                    verify(exps);
                 }
             } finally {
                 cleanTemp();
