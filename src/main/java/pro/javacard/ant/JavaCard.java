@@ -42,6 +42,7 @@ public class JavaCard extends Task {
     // 2.0)
     private static final char[] LOWER_HEX = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
     private String master_jckit_path = null;
+    private String master_java_version = null;
     private Vector<JCCap> packages = new Vector<>();
 
     private static String hexAID(byte[] aid) {
@@ -132,6 +133,10 @@ public class JavaCard extends Task {
         master_jckit_path = msg;
     }
 
+    public void setJavaVersion(String msg) {
+        master_java_version = msg;
+    }
+
     public JCCap createCap() {
         JCCap pkg = new JCCap();
         packages.add(pkg);
@@ -189,6 +194,7 @@ public class JavaCard extends Task {
         private String output_jar = null;
         private String output_jca = null;
         private String jckit_path = null;
+        private String java_version = null;
         private boolean verify = true;
         private boolean debug = false;
         private boolean ints = false;
@@ -199,6 +205,10 @@ public class JavaCard extends Task {
 
         public void setJCKit(String msg) {
             jckit_path = msg;
+        }
+
+        public void setJavaVersion(String msg) {
+            java_version = msg;
         }
 
         public void setOutput(String msg) {
@@ -414,6 +424,13 @@ public class JavaCard extends Task {
             // See "Setting Java Compiler Options" in User Guide
             j.setDebug(true);
             String javaVersion = jckit.getJavaVersion();
+            if(java_version != null) {
+                javaVersion = java_version;
+            } else {
+                if(master_java_version != null) {
+                    javaVersion = master_java_version;
+                }
+            }
             j.setTarget(javaVersion);
             j.setSource(javaVersion);
             if (jckit.isVersion(JCKit.Version.V21)) {
