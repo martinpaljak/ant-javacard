@@ -460,6 +460,66 @@ public class JavaCard extends Task {
             j.setClasspath(cp);
         }
 
+        private void convert(File applet_folder, List<File> exps) {
+            // construct the Java task that executes converter
+            Java j = new Java(this);
+            addKitClasses(j);
+
+            j.createArg().setLine("-classdir '" + classes_path + "'");
+            j.createArg().setLine("-d '" + applet_folder.getAbsolutePath() + "'");
+
+            StringJoiner expstringbuilder = new StringJoiner(File.pathSeparator);
+            for (File imp : exps) {
+                expstringbuilder.add(imp.toString());
+            }
+
+            j.createArg().setLine("-exportpath '" + expstringbuilder.toString() + "'");
+            j.createArg().setLine("-verbose");
+            j.createArg().setLine("-nobanner");
+            if (debug) {
+                j.createArg().setLine("-debug");
+            }
+            if (!verify) {
+                j.createArg().setLine("-noverify");
+            }
+            if (jckit.isVersion(JCKit.Version.V3)) {
+                j.createArg().setLine("-useproxyclass");
+            }
+            if (ints) {
+                j.createArg().setLine("-i");
+            }
+
+            String outputs = "CAP";
+            if (output_exp != null) {
+                outputs += " EXP";
+            }
+            if (output_jca != null) {
+                outputs += " JCA";
+            }
+            j.createArg().setLine("-out " + outputs);
+            for (JCApplet app : raw_applets) {
+                j.createArg().setLine("-applet " + hexAID(app.aid) + " " + app.klass);
+            }
+            j.createArg().setLine(package_name + " " + hexAID(package_aid) + " " + package_version);
+
+            // Call converter
+            if (jckit.isVersion(JCKit.Version.V3)) {
+                j.setClassname("com.sun.javacard.converter.Main");
+                // XXX: See https://community.oracle.com/message/10452555
+                Variable jchome = new Variable();
+                jchome.setKey("jc.home");
+                jchome.setValue(jckit.getRoot().toString());
+                j.addSysproperty(jchome);
+            } else {
+                j.setClassname("com.sun.javacard.converter.Converter");
+            }
+            j.setFailonerror(true);
+            j.setFork(true);
+
+            log("cmdline: " + j.getCommandLine(), Project.MSG_VERBOSE);
+            j.execute();
+        }
+
         private void verify(List<File> exps) {
 			Project project = getProject();
             setTaskName("verify");
@@ -513,14 +573,9 @@ public class JavaCard extends Task {
                 if (sources_path != null) {
                     compile();
                 }
-                // construct the Java task that executes converter
-                Java j = new Java(this);
-                addKitClasses(j);
 
                 // Create temporary folder and add to cleanup
                 File applet_folder = makeTemp();
-                j.createArg().setLine("-classdir '" + classes_path + "'");
-                j.createArg().setLine("-d '" + applet_folder.getAbsolutePath() + "'");
 
                 // Construct exportpath
                 ArrayList<File> exps = new ArrayList<>();
@@ -538,55 +593,8 @@ public class JavaCard extends Task {
                     }
                 }
 
-                StringJoiner expstringbuilder = new StringJoiner(File.pathSeparator);
-                for (File imp : exps) {
-                    expstringbuilder.add(imp.toString());
-                }
-
-                j.createArg().setLine("-exportpath '" + expstringbuilder.toString() + "'");
-                j.createArg().setLine("-verbose");
-                j.createArg().setLine("-nobanner");
-                if (debug) {
-                    j.createArg().setLine("-debug");
-                }
-                if (!verify) {
-                    j.createArg().setLine("-noverify");
-                }
-                if (jckit.isVersion(JCKit.Version.V3)) {
-                    j.createArg().setLine("-useproxyclass");
-                }
-                if (ints) {
-                    j.createArg().setLine("-i");
-                }
-
-                String outputs = "CAP";
-                if (output_exp != null) {
-                    outputs += " EXP";
-                }
-                if (output_jca != null) {
-                    outputs += " JCA";
-                }
-                j.createArg().setLine("-out " + outputs);
-                for (JCApplet app : raw_applets) {
-                    j.createArg().setLine("-applet " + hexAID(app.aid) + " " + app.klass);
-                }
-                j.createArg().setLine(package_name + " " + hexAID(package_aid) + " " + package_version);
-
-                // Call converter
-                if (jckit.isVersion(JCKit.Version.V3)) {
-                    j.setClassname("com.sun.javacard.converter.Main");
-                    // XXX: See https://community.oracle.com/message/10452555
-                    Variable jchome = new Variable();
-                    jchome.setKey("jc.home");
-                    jchome.setValue(jckit.getRoot().toString());
-                    j.addSysproperty(jchome);
-                } else {
-                    j.setClassname("com.sun.javacard.converter.Converter");
-                }
-                j.setFailonerror(true);
-                j.setFork(true);
-
-                j.execute();
+                // perform conversion
+                convert(applet_folder, exps);
 
                 // Copy results
                 if (output_cap != null || output_exp != null || output_jca != null || output_jar != null) {
