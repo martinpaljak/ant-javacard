@@ -189,7 +189,7 @@ public class JavaCard extends Task {
         private boolean verify = true;
         private boolean debug = false;
         private boolean ints = false;
-        private List<java.nio.file.Path> temporary = new ArrayList<>();
+        private List<File> temporary = new ArrayList<>();
 
         public JCCap() {
         }
@@ -407,8 +407,7 @@ public class JavaCard extends Task {
                 }
             } else {
                 // Generate temporary folder
-                java.nio.file.Path p = makeTemp();
-                tmp = p.toFile();
+                tmp = makeTemp();
                 classes_path = tmp.getAbsolutePath();
             }
 
@@ -472,8 +471,7 @@ public class JavaCard extends Task {
                 }
 
                 // Create temporary folder and add to cleanup
-                java.nio.file.Path p = makeTemp();
-                File applet_folder = p.toFile();
+                File applet_folder = makeTemp();
                 j.createArg().setLine("-classdir '" + classes_path + "'");
                 j.createArg().setLine("-d '" + applet_folder.getAbsolutePath() + "'");
 
@@ -671,11 +669,12 @@ public class JavaCard extends Task {
             }
         }
 
-        private java.nio.file.Path makeTemp() {
+        private File makeTemp() {
             try {
                 java.nio.file.Path p = Files.createTempDirectory("jccpro");
-                temporary.add(p);
-                return p;
+                File fp = p.toFile();
+                temporary.add(fp);
+                return fp;
             } catch (IOException e) {
                 throw new RuntimeException("Can not make temporary folder", e);
             }
@@ -683,9 +682,9 @@ public class JavaCard extends Task {
 
         private void cleanTemp() {
             // Clean temporary files.
-            for (java.nio.file.Path p : temporary) {
-                if (p.toFile().exists()) {
-                    rmminusrf(p);
+            for (File f : temporary) {
+                if (f.exists()) {
+                    rmminusrf(f.toPath());
                 }
             }
         }
