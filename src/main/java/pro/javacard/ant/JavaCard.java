@@ -28,22 +28,21 @@ import org.apache.tools.ant.taskdefs.Jar;
 import org.apache.tools.ant.taskdefs.Java;
 import org.apache.tools.ant.taskdefs.Javac;
 import org.apache.tools.ant.types.Environment.Variable;
+import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 public class JavaCard extends Task {
     // This code has been taken from Apache commons-codec 1.7 (License: Apache
     // 2.0)
     private static final char[] LOWER_HEX = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
     private String master_jckit_path = null;
+    private String master_java_version = null;
     private Vector<JCCap> packages = new Vector<>();
 
     private static String hexAID(byte[] aid) {
@@ -55,15 +54,6 @@ public class JavaCard extends Task {
         String hex = hexaid.toString();
         // Cut off the final colon
         return hex.substring(0, hex.length() - 1);
-    }
-
-    private static java.nio.file.Path mktemp() {
-        try {
-            java.nio.file.Path p = Files.createTempDirectory("jccpro");
-            return p;
-        } catch (IOException e) {
-            throw new RuntimeException("Can not make temporary folder", e);
-        }
     }
 
     private static void rmminusrf(java.nio.file.Path path) {
@@ -134,59 +124,8 @@ public class JavaCard extends Task {
         master_jckit_path = msg;
     }
 
-    /**
-     * Given a path, return a meta-info object about possible JavaCard SDK in that path.
-     *
-     * @param path raw string as present in build.xml or environment, or <code>null</code>
-     * @return a {@link JavaCardKit} instance
-     */
-    public JavaCardKit detectSDK(String path) {
-        JavaCardKit detected = new JavaCardKit();
-        if (path == null || path.trim() == "") {
-            return detected;
-        }
-        // Expand user
-        String real_path = path.replaceFirst("^~", System.getProperty("user.home"));
-        // Check if path is OK
-        if (!new File(real_path).exists()) {
-            log("JavaCard SDK folder " + path + " does not exist!", Project.MSG_WARN);
-            return detected;
-        }
-        detected.path = real_path;
-        // Identify jckit type
-        if (Paths.get(detected.path, "lib", "tools.jar").toFile().exists()) {
-            log("JavaCard 3.x SDK detected in " + detected.path, Project.MSG_VERBOSE);
-            detected.version = JC.V3;
-        } else if (Paths.get(detected.path, "lib", "api21.jar").toFile().exists()) {
-            detected.version = JC.V212;
-            log("JavaCard 2.1.x SDK detected in " + detected.path, Project.MSG_VERBOSE);
-        } else if (Paths.get(detected.path, "lib", "converter.jar").toFile().exists()) {
-            // Detect if 2.2.1 or 2.2.2
-            File api = Paths.get(detected.path, "lib", "api.jar").toFile();
-            try (ZipInputStream zip = new ZipInputStream(new FileInputStream(api))) {
-                while (true) {
-                    ZipEntry entry = zip.getNextEntry();
-                    if (entry == null) {
-                        break;
-                    }
-                    if (entry.getName().equals("javacardx/apdu/ExtendedLength.class")) {
-                        detected.version = JC.V222;
-                        log("JavaCard 2.2.2 SDK detected in " + detected.path, Project.MSG_VERBOSE);
-                    }
-                }
-            } catch (IOException e) {
-                log("Could not parse api.jar", Project.MSG_DEBUG);
-            } finally {
-                // Assume older SDK if jar parsing fails.
-                if (detected.version == JC.NONE) {
-                    detected.version = JC.V221;
-                    log("JavaCard 2.x SDK detected in " + detected.path, Project.MSG_VERBOSE);
-                }
-            }
-        } else {
-            log("Could not detect a JavaCard SDK in " + Paths.get(path).toAbsolutePath(), Project.MSG_WARN);
-        }
-        return detected;
+    public void setJavaVersion(String msg) {
+        master_java_version = msg;
     }
 
     public JCCap createCap() {
@@ -200,28 +139,6 @@ public class JavaCard extends Task {
         for (JCCap p : packages) {
             p.execute();
         }
-    }
-
-    private enum JC {
-        NONE, V212, V221, V222, V3;
-
-        @Override
-        public String toString() {
-            if (this.equals(V3))
-                return "v3.x";
-            if (this.equals(V222))
-                return "v2.2.2";
-            if (this.equals(V221))
-                return "v2.2.1";
-            if (this.equals(V212))
-                return "v2.1.x";
-            return "unknown";
-        }
-    }
-
-    private static class JavaCardKit {
-        JC version = JC.NONE;
-        String path = null;
     }
 
     public static class JCApplet {
@@ -255,7 +172,7 @@ public class JavaCard extends Task {
     }
 
     public class JCCap extends Task {
-        private JavaCardKit jckit = null;
+        private JCKit jckit = null;
         private String classes_path = null;
         private String sources_path = null;
         private String package_name = null;
@@ -265,12 +182,14 @@ public class JavaCard extends Task {
         private Vector<JCImport> raw_imports = new Vector<>();
         private String output_cap = null;
         private String output_exp = null;
+        private String output_jar = null;
         private String output_jca = null;
         private String jckit_path = null;
+        private String java_version = null;
         private boolean verify = true;
         private boolean debug = false;
         private boolean ints = false;
-        private List<java.nio.file.Path> temporary = new ArrayList<>();
+        private List<File> temporary = new ArrayList<>();
 
         public JCCap() {
         }
@@ -279,12 +198,20 @@ public class JavaCard extends Task {
             jckit_path = msg;
         }
 
+        public void setJavaVersion(String msg) {
+            java_version = msg;
+        }
+
         public void setOutput(String msg) {
             output_cap = msg;
         }
 
         public void setExport(String msg) {
             output_exp = msg;
+        }
+
+        public void setJar(String msg) {
+            output_jar = msg;
         }
 
         public void setJca(String msg) {
@@ -353,41 +280,37 @@ public class JavaCard extends Task {
             return this.createImport();
         }
 
+        private JCKit findSDK() {
+            // try configuration first
+            if(jckit_path != null) {
+                return JCKit.detectSDK(jckit_path);
+            }
+            if(master_jckit_path != null) {
+                return JCKit.detectSDK(master_jckit_path);
+            }
+            // now check via ant property
+            String propPath = getProject().getProperty("jc.home");
+            if(propPath != null) {
+                return JCKit.detectSDK(propPath);
+            }
+            // finally via the environment
+            String envPath = System.getenv("JC_HOME");
+            if(envPath != null) {
+                return JCKit.detectSDK(envPath);
+            }
+            // return null if no options
+            return null;
+        }
+
         // Check that arguments are sufficient and do some DWIM
         private void check() {
-            JavaCardKit env = detectSDK(System.getenv("JC_HOME"));
-            JavaCardKit prop = detectSDK(getProject().getProperty("jc.home"));
-            JavaCardKit master = detectSDK(master_jckit_path);
-            JavaCardKit current = detectSDK(jckit_path);
-
-            if (current.version == JC.NONE && master.version == JC.NONE && env.version == JC.NONE && prop.version == JC.NONE) {
-                throw new HelpingBuildException("Must specify usable JavaCard SDK path in build.xml or set JC_HOME or jc.home");
-            }
-
-
-            if (current.version == JC.NONE) {
-                // if master path is specified but is not usable,
-                // override with environment, variable, if usable
-                if (prop.version != JC.NONE) {
-                    jckit = prop;
-                } else if (master.version == JC.NONE && env.version != JC.NONE) {
-                    jckit = env;
-                } else {
-                    jckit = master;
-                }
-            } else {
-                if (prop.version != JC.NONE) {
-                    jckit = prop;
-                } else {
-                    jckit = current;
-                }
-            }
+            jckit = findSDK();
 
             // Sanity check
-            if (jckit == null || jckit.version == JC.NONE) {
+            if (jckit == null) {
                 throw new HelpingBuildException("No usable JavaCard SDK referenced");
             } else {
-                log("INFO: using JavaCard " + jckit.version + " SDK in " + jckit.path, Project.MSG_INFO);
+                log("INFO: using JavaCard " + jckit.getVersion() + " SDK in " + jckit.getRoot(), Project.MSG_INFO);
             }
 
             // sources or classes must be set
@@ -467,42 +390,48 @@ public class JavaCard extends Task {
         }
 
         private void compile() {
+            Project project = getProject();
+            setTaskName("compile");
+
+            // construct javac task
             Javac j = new Javac();
-            j.setProject(getProject());
+            j.setProject(project);
             j.setTaskName("compile");
 
-            j.setSrcdir(new Path(getProject(), sources_path));
+            j.setSrcdir(new Path(project, sources_path));
 
+            // determine output directory
             File tmp;
             if (classes_path != null) {
-                tmp = getProject().resolveFile(classes_path);
+                // if specified use that
+                tmp = project.resolveFile(classes_path);
                 if (!tmp.exists()) {
                     if (!tmp.mkdir())
                         throw new BuildException("Could not create temporary folder " + tmp.getAbsolutePath());
                 }
             } else {
-                // Generate temporary folder
-                java.nio.file.Path p = mktemp();
-                temporary.add(p);
-                tmp = p.toFile();
+                // else generate temporary folder
+                tmp = makeTemp();
                 classes_path = tmp.getAbsolutePath();
             }
 
             j.setDestdir(tmp);
             // See "Setting Java Compiler Options" in User Guide
             j.setDebug(true);
-            if (jckit.version == JC.V212) {
-                j.setTarget("1.1");
-                j.setSource("1.1");
+            String javaVersion = jckit.getJavaVersion();
+            if(java_version != null) {
+                javaVersion = java_version;
+            } else {
+                if(master_java_version != null) {
+                    javaVersion = master_java_version;
+                }
+            }
+            j.setTarget(javaVersion);
+            j.setSource(javaVersion);
+            if (jckit.isVersion(JCKit.Version.V21)) {
                 // Always set debug to disable "contains local variables,
                 // but not local variable table." messages
                 j.setDebug(true);
-            } else if (jckit.version == JC.V221) {
-                j.setTarget("1.2");
-                j.setSource("1.2");
-            } else {
-                j.setTarget("1.5");
-                j.setSource("1.5");
             }
             j.setIncludeantruntime(false);
             j.createCompilerArg().setValue("-Xlint");
@@ -514,27 +443,165 @@ public class JavaCard extends Task {
 
             // set classpath
             Path cp = j.createClasspath();
-            String api = null;
-            if (jckit.version == JC.V3) {
-                api = Paths.get(jckit.path, "lib", "api_classic.jar").toAbsolutePath().toString();
-            } else if (jckit.version == JC.V212) { // V2.1.X
-                api = Paths.get(jckit.path, "lib", "api21.jar").toAbsolutePath().toString();
-            } else { // V2.2.X
-                api = Paths.get(jckit.path, "lib", "api.jar").toAbsolutePath().toString();
-            }
-            cp.append(new Path(getProject(), api));
+            String api = jckit.getApiJar().toString();
+            cp.append(new Path(project, api));
             for (JCImport i : raw_imports) {
                 // Support import clauses with only jar or exp values
                 if (i.jar != null) {
-                    cp.append(new Path(getProject(), i.jar));
+                    cp.append(new Path(project, i.jar));
                 }
             }
             j.execute();
         }
 
+        private void addKitClasses(Java j) {
+            Project project = getProject();
+            // classpath to jckit bits
+            Path cp = j.createClasspath();
+            for(File jar: jckit.getToolJars()) {
+                cp.append(new Path(project, jar.getPath()));
+            }
+            j.setClasspath(cp);
+        }
+
+        private void convert(File applet_folder, List<File> exps) {
+            setTaskName("convert");
+            // construct java task
+            Java j = new Java(this);
+            j.setTaskName("convert");
+            j.setFailonerror(true);
+            j.setFork(true);
+
+            // add classpath for SDK tools
+            addKitClasses(j);
+
+            // set class depending on SDK
+            if (jckit.isVersion(JCKit.Version.V3)) {
+                j.setClassname("com.sun.javacard.converter.Main");
+                // XXX: See https://community.oracle.com/message/10452555
+                Variable jchome = new Variable();
+                jchome.setKey("jc.home");
+                jchome.setValue(jckit.getRoot().toString());
+                j.addSysproperty(jchome);
+            } else {
+                j.setClassname("com.sun.javacard.converter.Converter");
+            }
+
+            // output path
+            j.createArg().setLine("-d '" + applet_folder.getAbsolutePath() + "'");
+
+            // classes for conversion
+            j.createArg().setLine("-classdir '" + classes_path + "'");
+
+            // construct export path
+            StringJoiner expstringbuilder = new StringJoiner(File.pathSeparator);
+            for (File imp : exps) {
+                expstringbuilder.add(imp.toString());
+            }
+            j.createArg().setLine("-exportpath '" + expstringbuilder.toString() + "'");
+
+            // always be a little verbose
+            j.createArg().setLine("-verbose");
+            j.createArg().setLine("-nobanner");
+
+            // simple options
+            if (debug) {
+                j.createArg().setLine("-debug");
+            }
+            if (!verify) {
+                j.createArg().setLine("-noverify");
+            }
+            if (jckit.isVersion(JCKit.Version.V3)) {
+                j.createArg().setLine("-useproxyclass");
+            }
+            if (ints) {
+                j.createArg().setLine("-i");
+            }
+
+            // determine output types
+            String outputs = "CAP";
+            if (output_exp != null) {
+                outputs += " EXP";
+            }
+            if (output_jca != null) {
+                outputs += " JCA";
+            }
+            j.createArg().setLine("-out " + outputs);
+
+            // define applets
+            for (JCApplet app : raw_applets) {
+                j.createArg().setLine("-applet " + hexAID(app.aid) + " " + app.klass);
+            }
+
+            // package properties
+            j.createArg().setLine(package_name + " " + hexAID(package_aid) + " " + package_version);
+
+            // report the command
+            log("command: " + j.getCommandLine(), Project.MSG_VERBOSE);
+
+            // execute the converter
+            j.execute();
+        }
+
+        private void verify(List<File> exps) {
+			Project project = getProject();
+            setTaskName("verify");
+
+            // collect all export files
+            final ArrayList<File> expfiles = new ArrayList<>();
+            try {
+                for (File e : exps) {
+                    Files.walkFileTree(e.toPath(), new SimpleFileVisitor<java.nio.file.Path>() {
+                        @Override
+                        public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs)
+                                throws IOException {
+                            if (file.toString().endsWith(".exp")) {
+                                expfiles.add(file.toFile());
+                            }
+                            return FileVisitResult.CONTINUE;
+                        }
+                    });
+                }
+            } catch (IOException e) {
+                log("Could not find .exp files: " + e.getMessage(), Project.MSG_ERR);
+                return;
+            }
+
+            // construct java task
+            Java j = new Java(this);
+            j.setTaskName("verify");
+            j.setFailonerror(true);
+            j.setFork(true);
+
+            // add classpath for SDK tools
+            addKitClasses(j);
+            // set main class
+            j.setClassname("com.sun.javacard.offcardverifier.Verifier");
+
+            // not verbose for now
+            //j.createArg().setLine("-verbose");
+            j.createArg().setLine("-nobanner");
+
+            // export files for verification
+            for (File exp : expfiles) {
+                j.createArg().setLine(exp.toString());
+            }
+
+            // cap file for verification
+            j.createArg().setLine(project.resolveFile(output_cap).toString());
+
+            // report the command
+            log("command: " + j.getCommandLine(), Project.MSG_VERBOSE);
+
+            // perform verification
+            j.execute();
+        }
+
         @Override
         public void execute() {
-            // Convert
+            Project project = getProject();
+
+            // perform checks
             check();
 
             try {
@@ -542,169 +609,119 @@ public class JavaCard extends Task {
                 if (sources_path != null) {
                     compile();
                 }
-                // construct the Java task that executes converter
-                Java j = new Java(this);
-                // classpath to jckit bits
-                Path cp = j.createClasspath();
-                // converter
-                File jar = null;
-                if (jckit.version == JC.V3) {
-                    jar = Paths.get(jckit.path, "lib", "tools.jar").toFile();
-                    Path jarpath = new Path(getProject());
-                    jarpath.setLocation(jar);
-                    cp.append(jarpath);
-                } else {
-                    // XXX: this should be with less lines ?
-                    jar = Paths.get(jckit.path, "lib", "converter.jar").toFile();
-                    Path jarpath = new Path(getProject());
-                    jarpath.setLocation(jar);
-                    cp.append(jarpath);
-                    jar = Paths.get(jckit.path, "lib", "offcardverifier.jar").toFile();
-                    jarpath = new Path(getProject());
-                    jarpath.setLocation(jar);
-                    cp.append(jarpath);
-                }
 
                 // Create temporary folder and add to cleanup
-                java.nio.file.Path p = mktemp();
-                temporary.add(p);
-                File applet_folder = p.toFile();
-                j.createArg().setLine("-classdir '" + classes_path + "'");
-                j.createArg().setLine("-d '" + applet_folder.getAbsolutePath() + "'");
+                File applet_folder = makeTemp();
 
                 // Construct exportpath
-                ArrayList<String> exps = new ArrayList<>();
-                // JC kit
-                if (jckit.version == JC.V212) {
-                    exps.add(Paths.get(jckit.path, "api21_export_files").toString());
-                } else {
-                    exps.add(Paths.get(jckit.path, "api_export_files").toString());
-                }
+                ArrayList<File> exps = new ArrayList<>();
+                exps.add(jckit.getExportDir());
 
                 // add imports
                 for (JCImport imp : raw_imports) {
                     // Support import clauses with only jar or exp values
                     if (imp.exps != null) {
-                        String s = Paths.get(imp.exps).toAbsolutePath().toString();
+                        File f = new File(imp.exps).getAbsoluteFile();
                         // Avoid duplicates
-                        if (!exps.contains(s))
-                            exps.add(s);
+                        if (!exps.contains(f)) {
+                            exps.add(f);
+                        }
                     }
                 }
 
-                StringJoiner expstringbuilder = new StringJoiner(File.pathSeparator);
-                for (String imp : exps) {
-                    expstringbuilder.add(imp);
-                }
-
-                j.createArg().setLine("-exportpath '" + expstringbuilder.toString() + "'");
-                j.createArg().setLine("-verbose");
-                j.createArg().setLine("-nobanner");
-                if (debug) {
-                    j.createArg().setLine("-debug");
-                }
-                if (!verify) {
-                    j.createArg().setLine("-noverify");
-                }
-                if (jckit.version == JC.V3) {
-                    j.createArg().setLine("-useproxyclass");
-                }
-                if (ints) {
-                    j.createArg().setLine("-i");
-                }
-
-                String outputs = "CAP";
-                if (output_exp != null) {
-                    outputs += " EXP";
-                }
-                if (output_jca != null) {
-                    outputs += " JCA";
-                }
-                j.createArg().setLine("-out " + outputs);
-                for (JCApplet app : raw_applets) {
-                    j.createArg().setLine("-applet " + hexAID(app.aid) + " " + app.klass);
-                }
-                j.createArg().setLine(package_name + " " + hexAID(package_aid) + " " + package_version);
-
-                // Call converter
-                if (jckit.version == JC.V3) {
-                    j.setClassname("com.sun.javacard.converter.Main");
-                    // XXX: See https://community.oracle.com/message/10452555
-                    Variable jchome = new Variable();
-                    jchome.setKey("jc.home");
-                    jchome.setValue(jckit.path);
-                    j.addSysproperty(jchome);
-                } else {
-                    j.setClassname("com.sun.javacard.converter.Converter");
-                }
-                j.setFailonerror(true);
-                j.setFork(true);
-
-                log("cmdline: " + j.getCommandLine(), Project.MSG_VERBOSE);
-                j.execute();
+                // perform conversion
+                convert(applet_folder, exps);
 
                 // Copy results
-                if (output_cap != null || output_exp != null || output_jca != null) {
+                if (output_cap != null || output_exp != null || output_jca != null || output_jar != null) {
                     // Last component of the package
                     String ln = package_name;
                     if (ln.lastIndexOf(".") != -1) {
                         ln = ln.substring(ln.lastIndexOf(".") + 1);
                     }
-                    // JavaCard folder
-                    java.nio.file.Path jcsrc = applet_folder.toPath().resolve(package_name.replace(".", File.separator)).resolve("javacard");
+                    // directory of package
+                    String pkgPath = package_name.replace(".", File.separator);
+                    File pkgDir = new File(applet_folder, pkgPath);
+                    File jcsrc = new File(pkgDir, "javacard");
                     // Interesting paths inside the JC folder
-                    java.nio.file.Path cap = jcsrc.resolve(ln + ".cap");
-                    java.nio.file.Path exp = jcsrc.resolve(ln + ".exp");
-                    java.nio.file.Path jca = jcsrc.resolve(ln + ".jca");
+                    File cap = new File(jcsrc, ln + ".cap");
+                    File exp = new File(jcsrc, ln + ".exp");
+                    File jca = new File(jcsrc, ln + ".jca");
 
                     try {
-                        if (!cap.toFile().exists()) {
+                        // copy CAP file
+                        setTaskName("cap");
+                        // check that a CAP file got created
+                        if (!cap.exists()) {
                             throw new BuildException("Can not find CAP in " + jcsrc);
                         }
-                        // Resolve output file
-                        File opf = getProject().resolveFile(output_cap);
-                        // Copy CAP
-                        Files.copy(cap, opf.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                        log("CAP saved to " + opf.getAbsolutePath(), Project.MSG_INFO);
-                        // Copy exp file
+                        // resolve output path
+                        File outCap = project.resolveFile(output_cap);
+                        // perform the copy
+                        Files.copy(cap.toPath(), outCap.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        // report destination
+                        log("CAP saved to " + outCap, Project.MSG_INFO);
+
+                        // copy EXP file
                         if (output_exp != null) {
-                            setTaskName("export");
-                            if (!exp.toFile().exists()) {
+                            setTaskName("exp");
+                            // check that an EXP file got created
+                            if (!exp.exists()) {
                                 throw new BuildException("Can not find EXP in " + jcsrc);
                             }
-                            // output_exp is the folder name
-                            opf = getProject().resolveFile(output_exp);
-
-                            // Get the folder under the output folder
-                            java.nio.file.Path exp_path = opf.toPath().resolve(package_name.replace(".", File.separator)).resolve("javacard");
-
-                            // Create the output folder
-                            if (!exp_path.toFile().exists()) {
-                                if (!exp_path.toFile().mkdirs()) {
-                                    throw new HelpingBuildException("Can not make path for EXP output: " + opf.getAbsolutePath());
+                            // resolve output directory
+                            File outExp = project.resolveFile(output_exp);
+                            // determine package directories
+                            File outExpPkg = new File(outExp.toString(), pkgPath);
+                            File outExpPkgJc = new File(outExpPkg, "javacard");
+                            // create directories
+                            if (!outExpPkgJc.exists()) {
+                                if (!outExpPkgJc.mkdirs()) {
+                                    throw new HelpingBuildException("Could not create directory " + outExpPkgJc);
                                 }
                             }
-
-                            // Copy output
-                            Files.copy(exp, exp_path.resolve(exp.getFileName()), StandardCopyOption.REPLACE_EXISTING);
-                            log("EXP saved to " + exp_path.resolve(exp.getFileName()), Project.MSG_INFO);
-                            // Make Jar for the export
-                            Jar jarz = new Jar();
-                            jarz.setProject(getProject());
-                            jarz.setTaskName("export");
-                            jarz.setBasedir(getProject().resolveFile(classes_path));
-                            jarz.setDestFile(opf.toPath().resolve(ln + ".jar").toFile());
-                            jarz.execute();
+                            // perform the copy
+                            File exp_file =  new File(outExpPkgJc, exp.getName());
+                            Files.copy(exp.toPath(), exp_file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                            // report destination
+                            log("EXP saved to " + exp_file, Project.MSG_INFO);
+                            // add the export directory to the export path for verification
+                            exps.add(outExp);
                         }
-                        // Copy JCA
+
+                        // copy JCA file
                         if (output_jca != null) {
                             setTaskName("jca");
-                            if (!jca.toFile().exists()) {
+                            // check that a JCA file got created
+                            if (!jca.exists()) {
                                 throw new BuildException("Can not find JCA in " + jcsrc);
                             }
-                            opf = getProject().resolveFile(output_jca);
-                            Files.copy(jca, opf.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                            log("JCA saved to " + opf.getAbsolutePath(), Project.MSG_INFO);
+                            // resolve output path
+                            outCap = project.resolveFile(output_jca);
+                            Files.copy(jca.toPath(), outCap.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                            log("JCA saved to " + outCap.getAbsolutePath(), Project.MSG_INFO);
+                        }
+
+                        // create JAR file
+                        if (output_jar != null) {
+                            setTaskName("jar");
+                            File outJar = project.resolveFile(output_jar);
+                            // create a new JAR task
+                            Jar jarz = new Jar();
+                            jarz.setProject(project);
+                            jarz.setTaskName("jar");
+                            jarz.setDestFile(outJar);
+                            // include class files
+                            FileSet jarcls = new FileSet();
+                            jarcls.setDir(project.resolveFile(classes_path));
+                            jarz.add(jarcls);
+                            // include conversion output
+                            FileSet jarout = new FileSet();
+                            jarout.setDir(applet_folder);
+                            jarz.add(jarout);
+                            // create the JAR
+                            jarz.execute();
+                            log("JAR created at " + outJar.getAbsolutePath(), Project.MSG_INFO);
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -713,50 +730,29 @@ public class JavaCard extends Task {
                 }
 
                 if (verify) {
-                    setTaskName("verify");
-                    // construct the Java task that executes converter
-                    j = new Java(this);
-                    j.setClasspath(cp);
-                    j.setClassname("com.sun.javacard.offcardverifier.Verifier");
-                    // Find all expfiles
-                    final ArrayList<String> expfiles = new ArrayList<>();
-                    try {
-                        for (String e : exps) {
-                            Files.walkFileTree(Paths.get(e), new SimpleFileVisitor<java.nio.file.Path>() {
-                                @Override
-                                public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs)
-                                        throws IOException {
-                                    if (file.toString().endsWith(".exp")) {
-                                        expfiles.add(file.toAbsolutePath().toString());
-                                    }
-                                    return FileVisitResult.CONTINUE;
-                                }
-                            });
-                        }
-                    } catch (IOException e) {
-                        log("Could not find .exp files: " + e.getMessage(), Project.MSG_ERR);
-                        return;
-                    }
-
-                    // Arguments to verifier
-                    j.createArg().setLine("-nobanner");
-                    //TODO j.createArg().setLine("-verbose");
-                    for (String exp : expfiles) {
-                        j.createArg().setLine("'" + exp + "'");
-                    }
-                    j.createArg().setLine("'" + getProject().resolveFile(output_cap).toString() + "'");
-                    j.setFailonerror(true);
-                    j.setFork(true);
-
-                    log("cmdline: " + j.getCommandLine(), Project.MSG_VERBOSE);
-                    j.execute();
+                    verify(exps);
                 }
             } finally {
-                // Clean temporary files.
-                for (java.nio.file.Path p : temporary) {
-                    if (p.toFile().exists()) {
-                        rmminusrf(p);
-                    }
+                cleanTemp();
+            }
+        }
+
+        private File makeTemp() {
+            try {
+                java.nio.file.Path p = Files.createTempDirectory("jccpro");
+                File fp = p.toFile();
+                temporary.add(fp);
+                return fp;
+            } catch (IOException e) {
+                throw new RuntimeException("Can not make temporary folder", e);
+            }
+        }
+
+        private void cleanTemp() {
+            // Clean temporary files.
+            for (File f : temporary) {
+                if (f.exists()) {
+                    rmminusrf(f.toPath());
                 }
             }
         }
