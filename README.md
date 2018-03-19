@@ -74,6 +74,7 @@ Details:
    * `verify` attribute - if set to false, disables verification of the resulting CAP file with offcardeverifier. Optional.
    * `debug` attribute - if set to true, generates debug CAP components. Optional.
    * `ints` attribute - if set to true, enables support for 32 bit `int` type. Optional.
+   * `javaVersion` attribute - if set to true, override the Java source and target version. Optional.
  * `applet` tag - for creating an applet inside the CAP
    * `class` attribute - class of the Applet where install() method is defined. Required.
    * `aid` attribute - AID (hex) of the applet. Recommended - or set to package `aid`+`i` where `i` is index of the applet definition in the build.xml instruction
