@@ -584,11 +584,11 @@ public class JavaCard extends Task {
 
             // export files for verification
             for (File exp : expfiles) {
-                j.createArg().setLine(exp.toString());
+                j.createArg().setFile(exp);
             }
 
             // cap file for verification
-            j.createArg().setLine(project.resolveFile(output_cap).toString());
+            j.createArg().setFile(project.resolveFile(output_cap));
 
             // report the command
             log("command: " + j.getCommandLine(), Project.MSG_VERBOSE);
