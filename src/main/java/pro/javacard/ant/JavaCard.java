@@ -37,7 +37,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
-public class JavaCard extends Task {
+public final class JavaCard extends Task {
     // This code has been taken from Apache commons-codec 1.7 (License: Apache
     // 2.0)
     private static final char[] LOWER_HEX = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};

@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-public class JCKit {
+public final class JCKit {
 
     public static JCKit detectSDK(String path) {
         if (path == null || path.trim() == "") {

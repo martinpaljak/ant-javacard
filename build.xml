@@ -11,7 +11,11 @@
   </target>
   <!-- Package it into a JAR -->
   <target name="dist" depends="jcpro">
-    <jar destfile="ant-javacard.jar" level="9" basedir="build"/>
+    <jar destfile="ant-javacard.jar" level="9" basedir="build">
+      <manifest>
+        <attribute name="Main-Class" value="pro.javacard.ant.DummyMain"/>
+      </manifest>
+    </jar>
     <!-- Now this JAR can be used in your build.xml by placing the jar to -->
     <!-- lib folder and having the following in your target: -->
     <!-- <taskdef name="javacard" classname="pro.javacard.ant.JavaCard" classpath="lib/ant-javacard.jar"/> -->
