@@ -124,7 +124,7 @@ public class JavaCard extends Task {
         master_jckit_path = msg;
     }
 
-    public void setJavaVersion(String msg) {
+    public void setJavaversion(String msg) {
         master_java_version = msg;
     }
 
@@ -198,7 +198,7 @@ public class JavaCard extends Task {
             jckit_path = msg;
         }
 
-        public void setJavaVersion(String msg) {
+        public void setJavaversion(String msg) {
             java_version = msg;
         }
 
