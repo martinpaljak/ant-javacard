@@ -31,7 +31,7 @@ import java.util.zip.ZipFile;
 public final class JCKit {
 
     public static JCKit detectSDK(String path) {
-        if (path == null || path.trim() == "") {
+        if (path == null || path.trim().length() == 0) {
             return null;
         }
 
@@ -60,10 +60,9 @@ public final class JCKit {
             version = Version.V221;
             // test for 2.2.2 by testing api.jar
             File api = new File(libDir, "api.jar");
-            try {
-                ZipFile apiZip = new ZipFile(api);
+            try (ZipFile apiZip = new ZipFile(api)) {
                 ZipEntry testEntry = apiZip.getEntry("javacardx/apdu/ExtendedLength.class");
-                if(testEntry != null) {
+                if (testEntry != null) {
                     version = JCKit.Version.V222;
                 }
             } catch (IOException ignored) {
@@ -102,7 +101,6 @@ public final class JCKit {
                 return "1.3";
             case V221:
                 return "1.2";
-            case V21:
             default:
                 return "1.1";
         }
