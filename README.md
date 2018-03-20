@@ -60,6 +60,7 @@ Sample:
 Details:
  * `javacard` tag - generic task
    * `jckit` attribute - path to the JavaCard SDK that is used if individual `cap` does not specify one. Optional if `cap` defines one, required otherwise.
+   * `javaversion` attribute - override the Java source and target version. Can be overridden for each `cap`. Optional.
  * `cap` tag - construct a CAP file
    * `jckit` attribute - path to the JavaCard SDK to be used for this CAP. Optional if `javacard` defines one, required otherwise. 
    * `sources` attribute - path to Java source code, to be compiled against the current JavaCard SDK. Either `sources` or `classes` is required.
