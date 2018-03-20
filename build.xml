@@ -27,6 +27,7 @@
   <property name="JC303" value="sdks/jc303_kit"/>
   <property name="JC304" value="sdks/jc304_kit"/>
   <property name="JC305" value="sdks/jc305u1_kit"/>
+  <property name="JC305_2" value="sdks/jc305u2_kit"/>
   <!-- Build test applets -->
   <target name="test" depends="dist">
     <javacard>
@@ -46,6 +47,9 @@
         <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
       </cap>
       <cap jckit="${JC305}" output="Empty305.cap" sources="src/testapplets/empty">
+        <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+      </cap>
+      <cap jckit="${JC305_2}" output="Empty305_2.cap" sources="src/testapplets/empty">
         <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
       </cap>
       <cap jckit="${JC304}" output="EmptyInt304.cap" sources="src/testapplets/integer" ints="true">
