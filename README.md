@@ -60,6 +60,7 @@ Sample:
 Details:
  * `javacard` tag - generic task
    * `jckit` attribute - path to the JavaCard SDK that is used if individual `cap` does not specify one. Optional if `cap` defines one, required otherwise.
+   * `javaversion` attribute - override the Java source and target version. Can be overridden for each `cap`. Optional.
  * `cap` tag - construct a CAP file
    * `jckit` attribute - path to the JavaCard SDK to be used for this CAP. Optional if `javacard` defines one, required otherwise. 
    * `sources` attribute - path to Java source code, to be compiled against the current JavaCard SDK. Either `sources` or `classes` is required.
@@ -74,6 +75,7 @@ Details:
    * `verify` attribute - if set to false, disables verification of the resulting CAP file with offcardeverifier. Optional.
    * `debug` attribute - if set to true, generates debug CAP components. Optional.
    * `ints` attribute - if set to true, enables support for 32 bit `int` type. Optional.
+   * `javaversion` attribute - override the Java source and target version. Optional.
  * `applet` tag - for creating an applet inside the CAP
    * `class` attribute - class of the Applet where install() method is defined. Required.
    * `aid` attribute - AID (hex) of the applet. Recommended - or set to package `aid`+`i` where `i` is index of the applet definition in the build.xml instruction
