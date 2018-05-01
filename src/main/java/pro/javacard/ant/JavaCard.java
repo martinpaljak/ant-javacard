@@ -175,6 +175,7 @@ public final class JavaCard extends Task {
         private JCKit jckit = null;
         private String classes_path = null;
         private String sources_path = null;
+        private String sources2_path = null;
         private String package_name = null;
         private byte[] package_aid = null;
         private String package_version = null;
@@ -232,6 +233,10 @@ public final class JavaCard extends Task {
 
         public void setSources(String arg) {
             sources_path = arg;
+        }
+
+        public void setSources2(String arg) {
+            sources2_path = arg;
         }
 
         public void setVerify(boolean arg) {
@@ -398,7 +403,10 @@ public final class JavaCard extends Task {
             j.setProject(project);
             j.setTaskName("compile");
 
-            j.setSrcdir(new Path(project, sources_path));
+            Path sources = new Path(project);
+            sources.append(new Path(project, sources_path));
+            sources.append(new Path(project, sources2_path));
+            j.setSrcdir(sources);
 
             // determine output directory
             File tmp;
