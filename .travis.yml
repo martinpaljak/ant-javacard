@@ -19,6 +19,7 @@ deploy:
   api-key:
     secure: Z2jzWVPpB3Yq4+voY1cMDaq/j+qpYIyLCQTKSuWwbETxzrgoMo88X1oRA4ab82HRSpL5M3C5DFTK+SMKyEcNm5owGdYLOYSkIwR9p9KnsB7/eMJtg9O8PyPAFZbFG40GBA1XXVPTQxFYxlQBsRK5kgVCdVUtkmloDajPaUIvNng=
   provider: releases
+  prerelease: true
   file: ant-javacard.jar
   skip_cleanup: true
   on:
