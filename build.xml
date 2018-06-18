@@ -55,6 +55,9 @@
       <cap jckit="${JC304}" output="EmptyInt304.cap" sources="src/testapplets/integer" ints="true">
         <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
       </cap>
+      <cap jckit="${JC304}" output="Fidesmo.cap" sources="src/testapplets/empty" fidesmoappid="8e5cdaae">
+        <applet class="testapplets.empty.Empty"/>
+      </cap>
     </javacard>
   </target>
   <target name="clean">

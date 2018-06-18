@@ -33,7 +33,10 @@ import org.apache.tools.ant.types.Path;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
@@ -173,6 +176,7 @@ public final class JavaCard extends Task {
         private String sources2_path = null;
         private String package_name = null;
         private byte[] package_aid = null;
+        private String fidesmoappid = null;
         private String package_version = null;
         private Vector<JCApplet> raw_applets = new Vector<>();
         private Vector<JCImport> raw_imports = new Vector<>();
@@ -247,28 +251,44 @@ public final class JavaCard extends Task {
         }
 
         public void setAID(String msg) {
+            if (package_aid != null) {
+                throw new BuildException("Package AID already created from fidesmoappid");
+            }
             try {
                 package_aid = stringToBin(msg);
                 if (package_aid.length < 5 || package_aid.length > 16)
-                    throw new BuildException("Package AID must be between 5 and 16 bytes: " + package_aid.length);
+                    throw new BuildException("Package AID must be between 5 and 16 bytes: " + encodeHexString(package_aid) + " (" + package_aid.length + ")");
 
             } catch (IllegalArgumentException e) {
                 throw new BuildException("Not a correct package AID: " + e.getMessage());
             }
         }
 
-        /**
-         * Many applets inside one package
-         */
+        public void setFidesmoAppId(String appid) {
+            if (package_aid != null) {
+                throw new BuildException("Can't have aid and fidesmoappid at the same time!");
+            }
+            try {
+                byte[] id = stringToBin(appid);
+                if (id.length == 4) {
+                    package_aid = stringToBin("A0000006170011223344");
+                    System.arraycopy(id, 0, package_aid, 6, id.length);
+                } else {
+                    throw new BuildException("Fidesmo appId must be 4 bytes: " + encodeHexString(id) + " (" + id.length + ")");
+                }
+            } catch (IllegalArgumentException e) {
+                throw new BuildException("Not a correct Fidesmo appId: " + e.getMessage());
+            }
+        }
+
+        // Many applets inside one package
         public JCApplet createApplet() {
             JCApplet applet = new JCApplet();
             raw_applets.add(applet);
             return applet;
         }
 
-        /**
-         * Many imports inside one package
-         */
+        // Many imports inside one package
         public JCImport createImport() {
             JCImport imp = new JCImport();
             raw_imports.add(imp);
@@ -282,20 +302,20 @@ public final class JavaCard extends Task {
 
         private JCKit findSDK() {
             // try configuration first
-            if(jckit_path != null) {
+            if (jckit_path != null) {
                 return JCKit.detectSDK(jckit_path);
             }
-            if(master_jckit_path != null) {
+            if (master_jckit_path != null) {
                 return JCKit.detectSDK(master_jckit_path);
             }
             // now check via ant property
             String propPath = getProject().getProperty("jc.home");
-            if(propPath != null) {
+            if (propPath != null) {
                 return JCKit.detectSDK(propPath);
             }
             // finally via the environment
             String envPath = System.getenv("JC_HOME");
-            if(envPath != null) {
+            if (envPath != null) {
                 return JCKit.detectSDK(envPath);
             }
             // return null if no options
@@ -422,7 +442,7 @@ public final class JavaCard extends Task {
             // See "Setting Java Compiler Options" in User Guide
             j.setDebug(true);
             String javaVersion = jckit.getJavaVersion();
-            if(java_version != null) {
+            if (java_version != null) {
                 javaVersion = java_version;
             }
 
@@ -458,7 +478,7 @@ public final class JavaCard extends Task {
             Project project = getProject();
             // classpath to jckit bits
             Path cp = j.createClasspath();
-            for(File jar: jckit.getToolJars()) {
+            for (File jar : jckit.getToolJars()) {
                 cp.append(new Path(project, jar.getPath()));
             }
             j.setClasspath(cp);
@@ -544,7 +564,7 @@ public final class JavaCard extends Task {
         }
 
         private void verify(List<File> exps) {
-			Project project = getProject();
+            Project project = getProject();
             setTaskName("verify");
 
             // collect all export files
@@ -681,7 +701,7 @@ public final class JavaCard extends Task {
                                 }
                             }
                             // perform the copy
-                            File exp_file =  new File(outExpPkgJc, exp.getName());
+                            File exp_file = new File(outExpPkgJc, exp.getName());
                             Files.copy(exp.toPath(), exp_file.toPath(), StandardCopyOption.REPLACE_EXISTING);
                             // report destination
                             log("EXP saved to " + exp_file, Project.MSG_INFO);
