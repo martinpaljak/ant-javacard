@@ -176,7 +176,6 @@ public final class JavaCard extends Task {
         private String sources2_path = null;
         private String package_name = null;
         private byte[] package_aid = null;
-        private String fidesmoappid = null;
         private String package_version = null;
         private Vector<JCApplet> raw_applets = new Vector<>();
         private Vector<JCImport> raw_imports = new Vector<>();

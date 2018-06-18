@@ -2,7 +2,9 @@ sudo: false
 language: java
 jdk:
 - oraclejdk8
-script: ant test
+script:
+- ant test
+- mvn clean compile findbugs:check
 env:
   global:
     secure: "N28Gewdx09KG+NAT/7VotHhI/xTaNdXWBpLTi3hoQfAbegdo9srt2pvw9oY6rT3vGyM1MsUwA78Uqb2+ls9yMm0MsI+uQH0A4NtkOoD2/8alLOsNhAjcK+w0NjURWSwcOrH4h6ibbZKWO+J6paJFNX/EU/m3QxH83uYonir2RBs="
