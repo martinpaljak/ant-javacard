@@ -338,16 +338,15 @@ public final class JavaCard extends Task {
             }
             // Check package version
             if (package_version == null) {
-                package_version = "0.0";
+                package_version = "0.1";
             } else {
                 if (!package_version.matches("^[0-9].[0-9]$")) {
                     throw new HelpingBuildException("Incorrect package version: " + package_version);
                 }
             }
 
-            // Construct applets and fill in missing bits from package info, if
+            // Construct applets and fill in missing bits from package info, if necessary
             int applet_counter = 0;
-            // necessary
             for (JCApplet a : raw_applets) {
                 // Keep count for automagic numbering
                 applet_counter = applet_counter + 1;
@@ -401,10 +400,27 @@ public final class JavaCard extends Task {
             if (output_cap == null) {
                 throw new HelpingBuildException("Must specify output file");
             }
-            // Nice info
-            log("Building CAP with " + applet_counter + " applet" + (applet_counter > 1 ? "s" : "") + " from package " + package_name, Project.MSG_INFO);
-            for (JCApplet app : raw_applets) {
-                log(app.klass + " " + encodeHexString(app.aid), Project.MSG_INFO);
+
+            // Package name must be present if no applets
+            if (raw_applets.size() == 0) {
+                if (package_name == null)
+                    throw new HelpingBuildException("Must specify package name if no applets");
+                if (output_exp == null)
+                    throw new HelpingBuildException("Must specify export file target if no applets");
+                if (output_jar == null) {
+                    // Last component of the package
+                    String ln = package_name;
+                    if (ln.lastIndexOf(".") != -1) {
+                        ln = ln.substring(ln.lastIndexOf(".") + 1);
+                    }
+                    output_jar = new File(output_exp, ln + ".jar").toString();
+                }
+                log("Building library from package " + package_name, Project.MSG_INFO);
+            } else {
+                log("Building CAP with " + applet_counter + " applet" + (applet_counter > 1 ? "s" : "") + " from package " + package_name, Project.MSG_INFO);
+                for (JCApplet app : raw_applets) {
+                    log(app.klass + " " + encodeHexString(app.aid), Project.MSG_INFO);
+                }
             }
         }
 

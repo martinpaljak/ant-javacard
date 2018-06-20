@@ -12,6 +12,7 @@
   <!-- Package it into a JAR -->
   <target name="dist" depends="jcpro">
     <jar destfile="ant-javacard.jar" level="9" basedir="build">
+      <!-- Some people try to execute ant-javacard.jar... -->
       <manifest>
         <attribute name="Main-Class" value="pro.javacard.ant.DummyMain"/>
       </manifest>
@@ -31,6 +32,11 @@
   <!-- Build test applets -->
   <target name="test" depends="dist">
     <javacard>
+      <cap jckit="${JC304}" output="Library.cap" sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" export="testlib" version="0.1"/>
+      <cap jckit="${JC222}" output="LibraryUser.cap" sources="src/testapplets/libraryuser">
+        <applet class="testapplets.libraryuser.LibraryUser" aid="01020304050607"/>
+        <import exps="testlib" jar="testlib/library.jar"/>
+      </cap>
       <cap jckit="${JC212}" output="Empty212.cap" sources="src/testapplets/empty">
         <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
       </cap>
