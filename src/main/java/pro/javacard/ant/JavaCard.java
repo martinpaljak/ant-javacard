@@ -820,25 +820,27 @@ public final class JavaCard extends Task {
     }
 
     private static void extractExps(File in, File out) throws IOException {
-        JarFile jarfile = new JarFile(in);
-        Enumeration<JarEntry> entries = jarfile.entries();
-        while (entries.hasMoreElements()) {
-            JarEntry entry = entries.nextElement();
-            if (entry.getName().toLowerCase().endsWith(".exp")) {
-                File f = new File(out, entry.getName());
-                if (!f.exists()) {
-                    f.getParentFile().mkdirs();
-                    f = new File(out, entry.getName());
-                }
-                try (InputStream is = jarfile.getInputStream(entry);
-                     FileOutputStream fo = new java.io.FileOutputStream(f)) {
-                    byte[] buf = new byte[1024];
-                    while (true) {
-                        int r = is.read(buf);
-                        if (r == -1) {
-                            break;
+        try (JarFile jarfile = new JarFile(in)) {
+            Enumeration<JarEntry> entries = jarfile.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                if (entry.getName().toLowerCase().endsWith(".exp")) {
+                    File f = new File(out, entry.getName());
+                    if (!f.exists()) {
+                        if (!f.getParentFile().mkdirs())
+                            throw new IOException("Failed to create folder: " + f.getParentFile());
+                        f = new File(out, entry.getName());
+                    }
+                    try (InputStream is = jarfile.getInputStream(entry);
+                         FileOutputStream fo = new java.io.FileOutputStream(f)) {
+                        byte[] buf = new byte[1024];
+                        while (true) {
+                            int r = is.read(buf);
+                            if (r == -1) {
+                                break;
+                            }
+                            fo.write(buf, 0, r);
                         }
-                        fo.write(buf, 0, r);
                     }
                 }
             }
