@@ -31,16 +31,18 @@ import org.apache.tools.ant.types.Environment.Variable;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 public final class JavaCard extends Task {
+    private List<File> temporary = new ArrayList<>();
     // This code has been taken from Apache commons-codec 1.7 (License: Apache
     // 2.0)
     private static final char[] LOWER_HEX = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
@@ -80,6 +82,8 @@ public final class JavaCard extends Task {
                     }
                 }
             });
+        } catch (FileNotFoundException e) {
+            // Already gone - do nothing.
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -134,8 +138,17 @@ public final class JavaCard extends Task {
 
     @Override
     public void execute() {
-        for (JCCap p : packages) {
-            p.execute();
+        Thread cleanup = new Thread(() -> {
+            log("Ctrl-C, cleaning up", Project.MSG_INFO);
+            cleanTemp();
+        });
+        Runtime.getRuntime().addShutdownHook(cleanup);
+        try {
+            for (JCCap p : packages) {
+                p.execute();
+            }
+        } finally {
+            Runtime.getRuntime().removeShutdownHook(cleanup);
         }
     }
 
@@ -188,7 +201,7 @@ public final class JavaCard extends Task {
         private boolean verify = true;
         private boolean debug = false;
         private boolean ints = false;
-        private List<File> temporary = new ArrayList<>();
+
 
         public JCCap() {
         }
@@ -338,7 +351,7 @@ public final class JavaCard extends Task {
             }
             // Check package version
             if (package_version == null) {
-                package_version = "0.1";
+                package_version = "0.0";
             } else {
                 if (!package_version.matches("^[0-9].[0-9]$")) {
                     throw new HelpingBuildException("Incorrect package version: " + package_version);
@@ -445,7 +458,7 @@ public final class JavaCard extends Task {
                 tmp = project.resolveFile(classes_path);
                 if (!tmp.exists()) {
                     if (!tmp.mkdir())
-                        throw new BuildException("Could not create temporary folder " + tmp.getAbsolutePath());
+                        throw new BuildException("Could not create classes folder " + tmp.getAbsolutePath());
                 }
             } else {
                 // else generate temporary folder
@@ -511,7 +524,7 @@ public final class JavaCard extends Task {
             addKitClasses(j);
 
             // set class depending on SDK
-            if (jckit.isVersion(JCKit.Version.V3)) {
+            if (jckit.getVersion().isV3()) {
                 j.setClassname("com.sun.javacard.converter.Main");
                 // XXX: See https://community.oracle.com/message/10452555
                 Variable jchome = new Variable();
@@ -546,7 +559,7 @@ public final class JavaCard extends Task {
             if (!verify) {
                 j.createArg().setLine("-noverify");
             }
-            if (jckit.isVersion(JCKit.Version.V3)) {
+            if (jckit.getVersion().isV3()) {
                 j.createArg().setLine("-useproxyclass");
             }
             if (ints) {
@@ -655,12 +668,21 @@ public final class JavaCard extends Task {
                 // add imports
                 for (JCImport imp : raw_imports) {
                     // Support import clauses with only jar or exp values
+                    final File f;
                     if (imp.exps != null) {
-                        File f = new File(imp.exps).getAbsoluteFile();
-                        // Avoid duplicates
-                        if (!exps.contains(f)) {
-                            exps.add(f);
+                        f = new File(imp.exps).getAbsoluteFile();
+                    } else {
+                        try {
+                            // Assume exp files in jar
+                            f = makeTemp();
+                            extractExps(new File(imp.jar), f);
+                        } catch (IOException e) {
+                            throw new BuildException("Can not extract EXP files from JAR", e);
                         }
+                    }
+                    // Avoid duplicates
+                    if (!exps.contains(f)) {
+                        exps.add(f);
                     }
                 }
 
@@ -782,15 +804,6 @@ public final class JavaCard extends Task {
                 throw new RuntimeException("Can not make temporary folder", e);
             }
         }
-
-        private void cleanTemp() {
-            // Clean temporary files.
-            for (File f : temporary) {
-                if (f.exists()) {
-                    rmminusrf(f.toPath());
-                }
-            }
-        }
     }
 
     public static class JCImport {
@@ -806,4 +819,38 @@ public final class JavaCard extends Task {
         }
     }
 
+    private static void extractExps(File in, File out) throws IOException {
+        JarFile jarfile = new JarFile(in);
+        Enumeration<JarEntry> entries = jarfile.entries();
+        while (entries.hasMoreElements()) {
+            JarEntry entry = entries.nextElement();
+            if (entry.getName().toLowerCase().endsWith(".exp")) {
+                File f = new File(out, entry.getName());
+                if (!f.exists()) {
+                    f.getParentFile().mkdirs();
+                    f = new File(out, entry.getName());
+                }
+                try (InputStream is = jarfile.getInputStream(entry);
+                     FileOutputStream fo = new java.io.FileOutputStream(f)) {
+                    byte[] buf = new byte[1024];
+                    while (true) {
+                        int r = is.read(buf);
+                        if (r == -1) {
+                            break;
+                        }
+                        fo.write(buf, 0, r);
+                    }
+                }
+            }
+        }
+    }
+
+    private void cleanTemp() {
+        // Clean temporary files.
+        for (File f : temporary) {
+            if (f.exists()) {
+                rmminusrf(f.toPath());
+            }
+        }
+    }
 }

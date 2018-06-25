@@ -36,12 +36,12 @@ public final class JCKit {
         }
 
         File root = new File(path);
-        if(!root.isDirectory()) {
+        if (!root.isDirectory()) {
             return null;
         }
 
         Version version = detectSDKVersion(root);
-        if(version == null) {
+        if (version == null) {
             return null;
         }
 
@@ -52,7 +52,18 @@ public final class JCKit {
         Version version = null;
         File libDir = new File(root, "lib");
         if (new File(libDir, "tools.jar").exists()) {
-            version = JCKit.Version.V3;
+            File api = new File(libDir, "api_classic.jar");
+            try (ZipFile apiZip = new ZipFile(api)) {
+                if (apiZip.getEntry("javacardx/framework/SensitiveArrays.class") != null) {
+                    return Version.V305;
+                }
+                if (apiZip.getEntry("javacardx/framework/string/StringUtil.class") != null) {
+                    return Version.V304;
+                }
+                return Version.V301;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         } else if (new File(libDir, "api21.jar").exists()) {
             version = JCKit.Version.V21;
         } else if (new File(libDir, "converter.jar").exists()) {
@@ -65,9 +76,8 @@ public final class JCKit {
                 if (testEntry != null) {
                     version = JCKit.Version.V222;
                 }
-            } catch (IOException ignored) {
-                // do not ignore this, escalate it
-                throw new RuntimeException(ignored);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
         return version;
@@ -94,11 +104,13 @@ public final class JCKit {
     }
 
     public String getJavaVersion() {
-        switch(version) {
-            case V3:
-                return "1.5";
+        switch (version) {
+            case V301:
+            case V304:
+            case V305:
+                return "1.6";
             case V222:
-                return "1.3";
+                return "1.5";
             case V221:
                 return "1.2";
             default:
@@ -115,7 +127,9 @@ public final class JCKit {
         switch (version) {
             case V21:
                 return getJar("api21.jar");
-            case V3:
+            case V301:
+            case V304:
+            case V305:
                 return getJar("api_classic.jar");
             default:
                 return getJar("api.jar");
@@ -133,25 +147,26 @@ public final class JCKit {
 
     public List<File> getToolJars() {
         List<File> jars = new ArrayList<>();
-        switch (version) {
-            case V3:
-                jars.add(getJar("tools.jar"));
-                break;
-            default:
-                jars.add(getJar("converter.jar"));
-                jars.add(getJar("offcardverifier.jar"));
-                break;
+        if (version.isV3()) {
+            jars.add(getJar("tools.jar"));
+        } else {
+            jars.add(getJar("converter.jar"));
+            jars.add(getJar("offcardverifier.jar"));
         }
         return jars;
     }
 
     enum Version {
-        NONE, V21, V221, V222, V3;
+        NONE, V21, V221, V222, V301, V304, V305;
 
         @Override
         public String toString() {
-            if (this.equals(V3))
-                return "v3.x";
+            if (this.equals(V305))
+                return "v3.0.5";
+            if (this.equals(V304))
+                return "v3.0.4";
+            if (this.equals(V301))
+                return "v3.0.1";
             if (this.equals(V222))
                 return "v2.2.2";
             if (this.equals(V221))
@@ -159,6 +174,17 @@ public final class JCKit {
             if (this.equals(V21))
                 return "v2.1.x";
             return "unknown";
+        }
+
+        public boolean isV3() {
+            switch (this) {
+                case V301:
+                case V304:
+                case V305:
+                    return true;
+                default:
+                    return false;
+            }
         }
     }
 

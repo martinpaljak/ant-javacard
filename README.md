@@ -81,8 +81,8 @@ Details:
    * `class` attribute - class of the Applet where install() method is defined. Required.
    * `aid` attribute - AID (hex) of the applet. Recommended - or set to package `aid`+`i` where `i` is index of the applet definition in the build.xml instruction
  * `import` tag - for linking against external components/libraries, like `GPSystem` or `OPSystem`
-   * `exps` attribute - path to the folder keeping `.exp` files. Required
-   * `jar` attribute - path to the JAR file for compilation. Optional - only required if using `sources` mode and not necessary with `classes` mode if java code is already compiled
+   * `exps` attribute - path to the folder keeping `.exp` files. Optional. Required if `jar` does not include .exp files.
+   * `jar` attribute - path to the JAR file for compilation. Required if using `sources` mode and not necessary with `classes` mode if java code is already compiled
 
 Notes:
  * `jc.home` property has the highest precedence, followed by `jckit` path of `cap`, followed by path in `javacard`, followed by `JC_HOME` environment variable. SDK must be valid to be considered for use.
