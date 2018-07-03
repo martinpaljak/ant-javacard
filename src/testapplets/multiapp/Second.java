@@ -8,7 +8,7 @@ import javacard.security.CryptoException;
 public class Second extends Applet {
 
 	private Second(byte[] parameters, short offset, byte length) {
-		register(parameters, offset, length);
+		register(parameters, (short) (offset + 1), parameters[offset]);
 	}
 
 	public static void install(byte[] parameters, short offset, byte length) {
