@@ -8,7 +8,7 @@ public class EmptyInt extends Applet {
 
 	private EmptyInt(byte[] parameters, short offset, byte length) {
 		int everything = 42;
-		register(parameters, offset, length);
+		register(parameters, (short) (offset + 1), parameters[offset]);
 	}
 
 	public static void install(byte[] parameters, short offset, byte length) {
