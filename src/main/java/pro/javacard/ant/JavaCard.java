@@ -358,6 +358,13 @@ public final class JavaCard extends Task {
                 }
             }
 
+            // Check imports
+            for (JCImport a: raw_imports) {
+                if (a.jar != null && ! getProject().resolveFile(a.jar).isFile())
+                    throw new BuildException("Import JAR does not exist: " + a.jar);
+                if (a.exps != null && ! getProject().resolveFile(a.exps).isDirectory())
+                    throw new BuildException("Import EXP files folder does not exist: " + a.exps);
+            }
             // Construct applets and fill in missing bits from package info, if necessary
             int applet_counter = 0;
             for (JCApplet a : raw_applets) {
