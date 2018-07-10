@@ -69,7 +69,7 @@ Details:
    * `version` attribute - version of the package. Optional - defaults to 0.1 if left unspecified.
    * `fidesmoappid` attribute - [Fidesmo](https://developer.fidesmo.com) appId, to create the package AID and applet AID-s automatically. Optional.
    * `aid` attribute - AID (hex) of the package. Recommended - or set to the 5 first bytes of the applet AID if left unspecified.
-   * `output` attribute - path where to save the generated CAP file. Required.
+   * `output` attribute - path where to save the generated CAP file. Recommended - or set to applet class/package name + ".cap"
    * `export` attribtue - path (folder) where to place the JAR and generated EXP file. Optional.
    * `jar` attribute - path where to save the generated archive JAR file. Optional.
    * `jca` attribute - path where to save the generated JavaCard Assembly (JCA) file. Optional.
