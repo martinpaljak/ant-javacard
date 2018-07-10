@@ -32,10 +32,7 @@ import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 
 import java.io.*;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.jar.JarEntry;
@@ -82,7 +79,7 @@ public final class JavaCard extends Task {
                     }
                 }
             });
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException | NoSuchFileException e) {
             // Already gone - do nothing.
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -359,10 +356,10 @@ public final class JavaCard extends Task {
             }
 
             // Check imports
-            for (JCImport a: raw_imports) {
-                if (a.jar != null && ! getProject().resolveFile(a.jar).isFile())
+            for (JCImport a : raw_imports) {
+                if (a.jar != null && !getProject().resolveFile(a.jar).isFile())
                     throw new BuildException("Import JAR does not exist: " + a.jar);
-                if (a.exps != null && ! getProject().resolveFile(a.exps).isDirectory())
+                if (a.exps != null && !getProject().resolveFile(a.exps).isDirectory())
                     throw new BuildException("Import EXP files folder does not exist: " + a.exps);
             }
             // Construct applets and fill in missing bits from package info, if necessary
@@ -382,9 +379,13 @@ public final class JavaCard extends Task {
                         throw new HelpingBuildException("Applet class " + a.klass + " is not in package " + package_name);
                     }
                 } else {
-                    String pkgname = a.klass.substring(0, a.klass.lastIndexOf("."));
-                    log("Setting package name to " + pkgname, Project.MSG_INFO);
-                    package_name = pkgname;
+                    if (a.klass.contains(".")) {
+                        String pkgname = a.klass.substring(0, a.klass.lastIndexOf("."));
+                        log("Setting package name to " + pkgname, Project.MSG_INFO);
+                        package_name = pkgname;
+                    } else {
+                        throw new HelpingBuildException("Applet must be in a package!");
+                    }
                 }
 
                 // If applet AID is present, must match the package AID
@@ -398,7 +399,7 @@ public final class JavaCard extends Task {
                         // make "magic" applet AID from package_aid + counter
                         a.aid = Arrays.copyOf(package_aid, package_aid.length + 1);
                         a.aid[package_aid.length] = (byte) applet_counter;
-                        log("INFO: generated applet AID: " + hexAID(a.aid) + " for " + a.klass, Project.MSG_INFO);
+                        log("INFO: generated applet AID: " + encodeHexString(a.aid) + " for " + a.klass, Project.MSG_INFO);
                     }
                 } else {
                     // if package AID is empty, just set it to the minimal from
@@ -416,17 +417,10 @@ public final class JavaCard extends Task {
                 throw new HelpingBuildException("Must specify package AID");
             }
 
-            // Check output file
-            if (output_cap == null) {
-                throw new HelpingBuildException("Must specify output file");
-            }
-
             // Package name must be present if no applets
             if (raw_applets.size() == 0) {
                 if (package_name == null)
                     throw new HelpingBuildException("Must specify package name if no applets");
-                if (output_exp == null)
-                    throw new HelpingBuildException("Must specify export file target if no applets");
                 if (output_jar == null) {
                     // Last component of the package
                     String ln = package_name;
@@ -440,6 +434,22 @@ public final class JavaCard extends Task {
                 log("Building CAP with " + applet_counter + " applet" + (applet_counter > 1 ? "s" : "") + " from package " + package_name, Project.MSG_INFO);
                 for (JCApplet app : raw_applets) {
                     log(app.klass + " " + encodeHexString(app.aid), Project.MSG_INFO);
+                }
+            }
+            // Check output file
+            if (output_cap == null) {
+                if (raw_applets.size() == 1) {
+                    String ln = raw_applets.get(0).klass;
+                    if (ln.lastIndexOf(".") != -1) {
+                        ln = ln.substring(ln.lastIndexOf(".") + 1);
+                    }
+                    output_cap = new File(ln + "_" + encodeHexString(raw_applets.get(0).aid) + "_JC" + jckit.getVersion() + ".cap").toString();
+                    log("INFO: output file is " + output_cap, Project.MSG_INFO);
+                } else if (raw_applets.size() == 0){
+                    output_cap = new File(package_name + ".cap").toString();
+                } else {
+                    throw new HelpingBuildException("Must specify output file");
+
                 }
             }
         }

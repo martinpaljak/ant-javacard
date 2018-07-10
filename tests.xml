@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="test" name="ant-javacard tests">
+  <!-- Some handy shorthands -->
+  <property name="JC212" value="sdks/jc212_kit"/>
+  <property name="JC221" value="sdks/jc221_kit"/>
+  <property name="JC222" value="sdks/jc222_kit"/>
+  <property name="JC303" value="sdks/jc303_kit"/>
+  <property name="JC304" value="sdks/jc304_kit"/>
+  <property name="JC305" value="sdks/jc305u1_kit"/>
+  <property name="JC305_2" value="sdks/jc305u2_kit"/>
+  <!-- Build test applets -->
+  <target name="test" depends="jcpro,test-library-user,test-multiapp,test-fidesmo,test-sdks"/>
+  <!-- Different SDK-s-->
+  <target name="test-sdks">
+    <javacard>
+      <!-- JC 3.0.4 -->
+      <cap jckit="${JC304}" output="Empty304.cap" sources="src/testapplets/empty">
+        <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+      </cap>
+      <!-- JC 3.0.1 -->
+      <cap jckit="${JC303}" output="Empty303.cap" sources="src/testapplets/empty">
+        <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+      </cap>
+      <cap jckit="${JC222}" output="Empty222.cap" sources="src/testapplets/empty">
+        <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+      </cap>
+      <cap jckit="${JC212}" output="Empty212.cap" sources="src/testapplets/empty">
+        <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+      </cap>
+      <cap debug="true" jckit="${JC221}" output="Empty221.cap" sources="src/testapplets/empty">
+        <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+      </cap>
+      <cap jckit="${JC305}" output="Empty305.cap" sources="src/testapplets/empty">
+        <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+      </cap>
+      <cap jckit="${JC305_2}" output="Empty305_2.cap" sources="src/testapplets/empty">
+        <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+      </cap>
+      <cap jckit="${JC304}" output="EmptyInt304.cap" sources="src/testapplets/integer" ints="true">
+        <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+      </cap>
+    </javacard>
+  </target>
+  <!-- Output file generation -->
+  <target name="test-no-output" depends="jcpro">
+    <javacard jckit="${JC304}">
+      <cap sources="src/testapplets/empty">
+        <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+      </cap>
+    </javacard>
+  </target>
+  <!-- Library -->
+  <target name="test-library" depends="jcpro">
+    <javacard jckit="${JC304}">
+      <cap sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" export="testlib" version="0.1"/>
+    </javacard>
+  </target>
+  <!-- JC 2.2.2 with 3.0.4 library -->
+  <target name="test-library-user" depends="jcpro,test-library">
+    <javacard>
+      <cap jckit="${JC222}" sources="src/testapplets/libraryuser">
+        <applet class="testapplets.libraryuser.LibraryUser" aid="01020304050607"/>
+        <import jar="testlib/library.jar"/>
+      </cap>
+    </javacard>
+  </target>
+  <!-- JC 3.0.4 multiapp -->
+  <target name="test-multiapp" depends="jcpro">
+    <javacard>
+      <cap jckit="${JC303}" output="Multiapp.cap" sources="src/testapplets/multiapp" aid="010203040506">
+        <applet class="testapplets.multiapp.First" aid="01020304050607"/>
+        <applet class="testapplets.multiapp.Second" aid="0102030405060708"/>
+        <import jar="testlib/library.jar"/>
+      </cap>
+    </javacard>
+  </target>
+  <!-- Fidesmo -->
+  <target name="test-fidesmo" depends="jcpro">
+    <javacard>
+      <cap jckit="${JC304}" output="Fidesmo.cap" sources="src/testapplets/empty" fidesmoappid="8e5cdaae">
+        <applet class="testapplets.empty.Empty"/>
+      </cap>
+    </javacard>
+  </target>
+</project>
