@@ -445,7 +445,7 @@ public final class JavaCard extends Task {
                     }
                     output_cap = new File(ln + "_" + encodeHexString(raw_applets.get(0).aid) + "_JC" + jckit.getVersion() + ".cap").toString();
                     log("INFO: output file is " + output_cap, Project.MSG_INFO);
-                } else if (raw_applets.size() == 0){
+                } else if (raw_applets.size() == 0) {
                     output_cap = new File(package_name + ".cap").toString();
                 } else {
                     throw new HelpingBuildException("Must specify output file");
@@ -502,14 +502,26 @@ public final class JavaCard extends Task {
             j.createCompilerArg().setValue("-Xlint");
             j.createCompilerArg().setValue("-Xlint:-options");
             j.createCompilerArg().setValue("-Xlint:-serial");
+            if (jckit.getVersion() == JCKit.Version.V304) {
+                //-processor com.oracle.javacard.stringproc.StringConstantsProcessor \
+                //                -processorpath "JCDK_HOME/lib/tools.jar;JCDK_HOME/lib/api_classic_annotations.jar" \
+                j.createCompilerArg().setLine("-processor com.oracle.javacard.stringproc.StringConstantsProcessor");
+                Path pcp = new Javac().createClasspath();
+                for (File jar : jckit.getCompilerJars()) {
+                    pcp.append(new Path(project, jar.getPath()));
+                }
+                j.createCompilerArg().setLine("-processorpath \"" + pcp.toString() + "\"");
+                j.createCompilerArg().setValue("-Xlint:all,-processing");
+            }
 
             j.setFailonerror(true);
             j.setFork(true);
 
             // set classpath
             Path cp = j.createClasspath();
-            String api = jckit.getApiJar().toString();
-            cp.append(new Path(project, api));
+            for (File jar : jckit.getApiJars()) {
+                cp.append(new Path(project, jar.getPath()));
+            }
             for (JCImport i : raw_imports) {
                 // Support import clauses with only jar or exp values
                 if (i.jar != null) {

@@ -123,17 +123,25 @@ public final class JCKit {
         return new File(libDir, name);
     }
 
-    public File getApiJar() {
+    public List<File> getApiJars() {
+        List<File> jars = new ArrayList<>();
         switch (version) {
             case V21:
-                return getJar("api21.jar");
+                jars.add(getJar("api21.jar"));
+                break;
             case V301:
             case V304:
             case V305:
-                return getJar("api_classic.jar");
+                jars.add(getJar("api_classic.jar"));
+                break;
             default:
-                return getJar("api.jar");
+                jars.add(getJar("api.jar"));
         }
+        // Add annotations
+        if (version == Version.V304 || version == Version.V305) {
+            jars.add(getJar("api_classic_annotations.jar"));
+        }
+        return jars;
     }
 
     public File getExportDir() {
@@ -152,6 +160,15 @@ public final class JCKit {
         } else {
             jars.add(getJar("converter.jar"));
             jars.add(getJar("offcardverifier.jar"));
+        }
+        return jars;
+    }
+
+    public List<File> getCompilerJars() {
+        List<File> jars = new ArrayList<>();
+        if (version == Version.V304) {
+            jars.add(getJar("tools.jar"));
+            jars.add(getJar("api_classic_annotations.jar"));
         }
         return jars;
     }

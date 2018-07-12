@@ -9,7 +9,7 @@
   <property name="JC305" value="sdks/jc305u1_kit"/>
   <property name="JC305_2" value="sdks/jc305u2_kit"/>
   <!-- Build test applets -->
-  <target name="test" depends="jcpro,test-library-user,test-multiapp,test-fidesmo,test-sdks"/>
+  <target name="test" depends="jcpro,test-library-user,test-multiapp,test-fidesmo,test-sdks,test-stringdef"/>
   <!-- Different SDK-s-->
   <target name="test-sdks">
     <javacard>
@@ -79,6 +79,14 @@
     <javacard>
       <cap jckit="${JC304}" output="Fidesmo.cap" sources="src/testapplets/empty" fidesmoappid="8e5cdaae">
         <applet class="testapplets.empty.Empty"/>
+      </cap>
+    </javacard>
+  </target>
+  <!-- Stringdefs -->
+  <target name="test-stringdef" depends="jcpro">
+    <javacard>
+      <cap jckit="${JC304}" output="StringDefs.cap" sources="src/testapplets/stringdefs" fidesmoappid="8e5cdaae">
+        <applet class="testapplets.stringdefs.Empty"/>
       </cap>
     </javacard>
   </target>
