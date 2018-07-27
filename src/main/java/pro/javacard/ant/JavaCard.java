@@ -454,7 +454,8 @@ public final class JavaCard extends Task {
                     if (ln.lastIndexOf(".") != -1) {
                         ln = ln.substring(ln.lastIndexOf(".") + 1);
                     }
-                    output_cap = new File(ln + "_" + encodeHexString(raw_applets.get(0).aid) + "_JC" + jckit.getVersion() + ".cap").toString();
+                    JCKit sdk = targetsdk == null ? jckit : targetsdk;
+                    output_cap = new File(ln + "_" + encodeHexString(raw_applets.get(0).aid) + "_JC" + sdk.getVersion() + ".cap").toString();
                     log("INFO: output file is " + output_cap, Project.MSG_INFO);
                 } else if (raw_applets.size() == 0) {
                     output_cap = new File(package_name + ".cap").toString();
@@ -531,9 +532,7 @@ public final class JavaCard extends Task {
 
             // set classpath
             Path cp = j.createClasspath();
-            JCKit sdk = jckit;
-            if (targetsdk != null)
-                sdk = targetsdk;
+            JCKit sdk = targetsdk == null ? jckit : targetsdk;
             for (File jar : sdk.getApiJars()) {
                 cp.append(new Path(project, jar.getPath()));
             }

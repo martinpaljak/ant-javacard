@@ -93,7 +93,7 @@
   <!-- targetsdk -->
   <target name="test-targetsdk" depends="jcpro">
     <javacard>
-      <cap jckit="${JC304}" targetsdk="${JC222}" output="Target222.cap" sources="src/testapplets/empty" fidesmoappid="8e5cdaae">
+      <cap jckit="${JC304}" targetsdk="${JC222}" sources="src/testapplets/empty" fidesmoappid="8e5cdaae">
         <applet class="testapplets.empty.Empty"/>
       </cap>
     </javacard>
