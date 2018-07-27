@@ -194,6 +194,7 @@ public final class JavaCard extends Task {
         private String output_jar = null;
         private String output_jca = null;
         private String jckit_path = null;
+        private JCKit targetsdk = null;
         private String java_version = null;
         private boolean verify = true;
         private boolean debug = false;
@@ -257,6 +258,13 @@ public final class JavaCard extends Task {
 
         public void setInts(boolean arg) {
             ints = arg;
+        }
+
+        public void setTargetsdk(String arg) {
+            targetsdk = JCKit.detectSDK(arg);
+            if (targetsdk == null) {
+                throw new BuildException("Invalid targetsdk: " + arg);
+            }
         }
 
         public void setAID(String msg) {
@@ -340,6 +348,9 @@ public final class JavaCard extends Task {
                 throw new HelpingBuildException("No usable JavaCard SDK referenced");
             } else {
                 log("INFO: using JavaCard " + jckit.getVersion() + " SDK in " + jckit.getRoot(), Project.MSG_INFO);
+                if (targetsdk != null) {
+                    log("INFO: targeting JavaCard " + targetsdk.getVersion() + " SDK in " + targetsdk.getRoot(), Project.MSG_INFO);
+                }
             }
 
             // sources or classes must be set
@@ -465,7 +476,8 @@ public final class JavaCard extends Task {
 
             Path sources = new Path(project);
             sources.append(new Path(project, sources_path));
-            sources.append(new Path(project, sources2_path));
+            if (sources2_path != null)
+                sources.append(new Path(project, sources2_path));
             j.setSrcdir(sources);
 
             // determine output directory
@@ -519,7 +531,10 @@ public final class JavaCard extends Task {
 
             // set classpath
             Path cp = j.createClasspath();
-            for (File jar : jckit.getApiJars()) {
+            JCKit sdk = jckit;
+            if (targetsdk != null)
+                sdk = targetsdk;
+            for (File jar : sdk.getApiJars()) {
                 cp.append(new Path(project, jar.getPath()));
             }
             for (JCImport i : raw_imports) {
@@ -572,6 +587,11 @@ public final class JavaCard extends Task {
 
             // construct export path
             StringJoiner expstringbuilder = new StringJoiner(File.pathSeparator);
+            // Add targetSDK export files
+            if (targetsdk != null) {
+                expstringbuilder.add(new File(targetsdk.getRoot(), "api_export_files").toString());
+            }
+            // imports
             for (File imp : exps) {
                 expstringbuilder.add(imp.toString());
             }
