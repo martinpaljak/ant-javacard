@@ -26,7 +26,6 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-    branch: master
 cache:
   directories:
   - $HOME/.m2
