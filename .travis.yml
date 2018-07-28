@@ -3,7 +3,7 @@ language: java
 jdk:
 - oraclejdk8
 script:
-- ant test
+- ant test dist
 - mvn clean compile findbugs:check
 env:
   global:
