@@ -440,9 +440,9 @@ public final class JavaCard extends Task {
                     }
                     output_jar = new File(output_exp, ln + ".jar").toString();
                 }
-                log("Building library from package " + package_name, Project.MSG_INFO);
+                log("Building library from package " + package_name + " (AID: " + encodeHexString(package_aid) + ")", Project.MSG_INFO);
             } else {
-                log("Building CAP with " + applet_counter + " applet" + (applet_counter > 1 ? "s" : "") + " from package " + package_name, Project.MSG_INFO);
+                log("Building CAP with " + applet_counter + " applet" + (applet_counter > 1 ? "s" : "") + " from package " + package_name+ " (AID: " + encodeHexString(package_aid) + ")", Project.MSG_INFO);
                 for (JCApplet app : raw_applets) {
                     log(app.klass + " " + encodeHexString(app.aid), Project.MSG_INFO);
                 }
@@ -588,7 +588,7 @@ public final class JavaCard extends Task {
             StringJoiner expstringbuilder = new StringJoiner(File.pathSeparator);
             // Add targetSDK export files
             if (targetsdk != null) {
-                expstringbuilder.add(new File(targetsdk.getRoot(), "api_export_files").toString());
+                expstringbuilder.add(targetsdk.getExportDir().toString());
             }
             // imports
             for (File imp : exps) {

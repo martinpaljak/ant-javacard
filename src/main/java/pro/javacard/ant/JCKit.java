@@ -189,7 +189,7 @@ public final class JCKit {
             if (this.equals(V221))
                 return "v2.2.1";
             if (this.equals(V21))
-                return "v2.1.x";
+                return "v2.1.1";
             return "unknown";
         }
 
