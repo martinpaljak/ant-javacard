@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="dist" name="ant-javacard build">
+  <property name="capfile.jar" value="${user.home}/.m2/repository/com/github/martinpaljak/capfile/18.09.25.1/capfile-18.09.25.1.jar"/>
   <!-- Build and load the JavaCard task -->
   <target name="jcpro" depends="clean">
+    <path id="capfile">
+      <pathelement location="${capfile.jar}"/>
+    </path>
     <mkdir dir="build"/>
-    <javac srcdir="src/main/java/pro/javacard/ant" destdir="build" includeantruntime="true" target="1.8" source="1.8">
+    <javac debug="true" srcdir="src/main/java" destdir="build" includeantruntime="true" target="1.8" source="1.8">
       <compilerarg value="-Xlint:all"/>
+      <classpath refid="capfile"/>
     </javac>
     <!-- Load the fresh task -->
-    <taskdef name="javacard" classname="pro.javacard.ant.JavaCard" classpath="build"/>
+    <path id="task">
+      <pathelement path="build"/>
+      <pathelement location="${capfile.jar}"/>
+    </path>
+    <taskdef name="javacard" classname="pro.javacard.ant.JavaCard" classpathref="task"/>
   </target>
   <!-- Package it into a JAR -->
   <target name="dist" depends="jcpro">
@@ -16,6 +25,7 @@
       <manifest>
         <attribute name="Main-Class" value="pro.javacard.ant.DummyMain"/>
       </manifest>
+      <zipfileset src="${capfile.jar}"/>
     </jar>
     <!-- Now this JAR can be used in your build.xml by placing the jar to -->
     <!-- lib folder and having the following in your target: -->
