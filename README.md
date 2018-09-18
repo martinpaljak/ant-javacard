@@ -1,28 +1,28 @@
 # Building JavaCard applet CAP files with Ant
 
-**Easy to use [Ant](https://ant.apache.org/) task** for building JavaCard CAP files in a declarative way.
+> Easy to use [Ant](https://ant.apache.org/) task for building JavaCard CAP files in a declarative way.
 
 [![Build status](https://travis-ci.org/martinpaljak/ant-javacard.svg?branch=master)](https://travis-ci.org/martinpaljak/ant-javacard) &nbsp; [![Coverity](https://scan.coverity.com/projects/8418/badge.svg)](https://scan.coverity.com/projects/martinpaljak-ant-javacard) &nbsp; [![Latest release](https://img.shields.io/github/release/martinpaljak/ant-javacard.svg)](https://github.com/martinpaljak/ant-javacard/releases/latest) &nbsp; [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.martinpaljak/ant-javacard/badge.svg)](https://mvnrepository.com/artifact/com.github.martinpaljak/ant-javacard) &nbsp; [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/martinpaljak/ant-javacard/blob/master/LICENSE)
 
 ## Features
  * **[Do What I Mean](http://en.wikipedia.org/wiki/DWIM)**. You will [love it](#happy-users)!
- * **No dependencies**, no extra or unrelated downloads. Just **a 14KB jar**.
+ * **No dependencies**, no extra or unrelated downloads. Just **a 46KB jar**.
  * Supports **all available JavaCard SDK versions**: 2.1.2, 2.2.1, 2.2.2, 3.0.3, 3.0.4 and 3.0.5
    * Get one from [oracle.com](http://www.oracle.com/technetwork/java/embedded/javacard/downloads/javacard-sdk-2043229.html) or use the [handy Github repository](https://github.com/martinpaljak/oracle_javacard_sdks)
  * **Works on all platforms** with Java 1.8: Windows, OSX, Linux.
  * Almost **everything integrates** or works with Ant.
  * Can be easily integrated into **continuous integration** workflows.
  * Generates CAP files from **sources** or **pre-compiled** class files.
- * Import *external libraries*: natural use of `.exp` files and `.jar` libraries.
- * **No restrictions** on project folder layout.
+ * Import **external libraries**: natural use of `.jar` libraries and/or `.exp` files.
+ * **No restrictions** on project folder layout (but `src/main/javacard` works).
  * Loading JavaCard applets is equally pleasing with **[GlobalPlatformPro](https://github.com/martinpaljak/GlobalPlatformPro)**
 
 ## Download & Use
- * Download [`ant-javacard.jar`](https://github.com/martinpaljak/ant-javacard/releases/download/18.07.12/ant-javacard.jar) (be sure to get the [latest version](https://github.com/martinpaljak/ant-javacard/releases/latest))
-   * The **only** supported Java version for all SDK targets is 1.8!
+ * Download [`ant-javacard.jar`](https://github.com/martinpaljak/ant-javacard/releases/download/18.09.18/ant-javacard.jar) (be sure to get the [latest version](https://github.com/martinpaljak/ant-javacard/releases/latest))
+   * Java version usable with all SDK-s is 1.8! Use SDK 3.0.5u3 and `targetsdk` to compile with Java 10 for older versions.
  * Or use the download task:
 ```xml
-<get src="https://github.com/martinpaljak/ant-javacard/releases/download/18.07.12/ant-javacard.jar" dest="." skipexisting="true"/>
+<get src="https://github.com/martinpaljak/ant-javacard/releases/download/18.09.25/ant-javacard.jar" dest="." skipexisting="true"/>
 ```
  * Then add the following to your `build.xml` file:
 ```xml
@@ -31,7 +31,7 @@
  * Now you can create applets within your Ant targets like this:
 ```xml
 <javacard>
-  <cap jckit="/path/to/jckit_dir" aid="0102030405" output="MyApplet.cap" sources="src/myapplet">
+  <cap jckit="/path/to/jckit_dir" aid="0102030405">
     <applet class="myapplet.MyApplet" aid="0102030405060708"/>
   </cap>
 </javacard>
@@ -39,19 +39,28 @@
 (which results in output similar to this)
 ```
 target:
-      [cap] INFO: using JavaCard v2.2.2 SDK in ../jc222_kit
-      [cap] Setting package name to testapplets
-      [cap] Building CAP with 1 applet from package testapplets
-      [cap] testapplets.Empty 0102030405060708
-  [compile] Compiling 1 source file to /var/folders/l7/h99c5w6j0y1b8_qbsth_9v4r0000gn/T/antjc4506897175807383834
-      [cap] CAP saved to /Users/martin/projects/ant-javacard/Empty222.cap
+      [cap] INFO: using JavaCard 3.0.4 SDK in sdks/jc304_kit
+      [cap] INFO: targeting JavaCard 2.2.2 SDK in sdks/jc222_kit
+      [cap] Setting package name to testapplets.empty
+      [cap] INFO: generated applet AID: A000000617008E5CDAAE01 for testapplets.empty.Empty
+      [cap] Building CAP with 1 applet from package testapplets.empty (AID: A000000617008E5CDAAE)
+      [cap] testapplets.empty.Empty A000000617008E5CDAAE01
+  [compile] Compiling files from /Users/martin/projects/ant-javacard/src/testapplets/empty
+  [compile] Compiling 1 source file to /var/folders/gf/_m9mq9td3lz32qv1hd4r12yw0000gn/T/jccpro841338375581620546
+  [convert] [ INFO: ] Converter [v3.0.4]
+  [convert] [ INFO: ]     Copyright (c) 2011, Oracle and/or its affiliates. All rights reserved.
+  [convert]
+  [convert]
+  [convert] [ INFO: ] conversion completed with 0 errors and 0 warnings.
+ [javacard] NB! Please use JavaCard SDK 3.0.5u3 or later for verifying!
+      [cap] CAP saved to /Users/martin/projects/ant-javacard/Empty_A000000617008E5CDAAE_50da91a4_2.2.2.cap
 ```
 ## Syntax
 Sample:
 
 ```xml
 <javacard jckit="/path/to/jckit_dir1">
-  <cap jckit="/path/to/jckit_dir2" aid="0102030405" package="package.name" version="0.1" output="MyApplet.cap" sources="src/myapplet" classes="path/to/classes" export="mylib">
+  <cap targetsdk="/path/to/jckit_dir2" aid="0102030405" package="package.name" version="0.1" output="MyApplet.cap" sources="src/myapplet" classes="path/to/classes" export="mylib">
     <applet class="myapplet.MyApplet" aid="0102030405060708"/>
     <import exps="path/to/exps" jar="/path/to/lib.jar"/>
   </cap>
@@ -63,14 +72,14 @@ Details:
  * `cap` tag - construct a CAP file
    * `jckit` attribute - path to the JavaCard SDK to be used. Optional if `javacard` defines one, required otherwise.
    * `targetsdk` attribute - path to the target JavaCard SDK to be used for this CAP. Optional, value of `jckit` used by default. Allows to use a more recent converter to target older JavaCard platforms.
-   * `sources` attribute - path to Java source code, to be compiled against the current JavaCard SDK. Either `sources` or `classes` is required.
+   * `sources` attribute - path to Java source code, to be compiled against the JavaCard SDK. Either `sources` or `classes` is required, unless `src/main/javacard` exists.
    * `sources2` attribute - additional sources to build per-platform applets. Optional.
    * `classes` attribute - path to pre-compiled class files to be assembled into a CAP file. If both `classes` and `sources` are specified, compiled class files will be put to `classes` folder, which is created if missing.
    * `package` attribute - name of the package of the CAP file. Optional for applets - set to the parent package of the applet class if left unspecified, required for libraries
    * `version` attribute - version of the package. Optional - defaults to 0.1 if left unspecified.
    * `fidesmoappid` attribute - [Fidesmo](https://developer.fidesmo.com) appId, to create the package AID and applet AID-s automatically. Optional.
    * `aid` attribute - AID (hex) of the package. Recommended - or set to the 5 first bytes of the applet AID if left unspecified.
-   * `output` attribute - path where to save the generated CAP file. Recommended - or set to applet class/package name + ".cap"
+   * `output` attribute - path where to save the generated CAP file. Optional, see below for variables.
    * `export` attribtue - path (folder) where to place the JAR and generated EXP file. Optional.
    * `jar` attribute - path where to save the generated archive JAR file. Optional.
    * `jca` attribute - path where to save the generated JavaCard Assembly (JCA) file. Optional.
@@ -82,11 +91,19 @@ Details:
    * `class` attribute - class of the Applet where install() method is defined. Required.
    * `aid` attribute - AID (hex) of the applet. Recommended - or set to package `aid`+`i` where `i` is index of the applet definition in the build.xml instruction
  * `import` tag - for linking against external components/libraries, like `GPSystem` or `OPSystem`
-   * `exps` attribute - path to the folder keeping `.exp` files. Optional. Required if `jar` does not include .exp files.
+   * `exps` attribute - path to the folder keeping `.exp` files. Optional. Required if file in `jar` does not include .exp files.
    * `jar` attribute - path to the JAR file for compilation. Required if using `sources` mode and not necessary with `classes` mode if java code is already compiled
 
 Notes:
  * `jc.home` property has the highest precedence, followed by `jckit` path of `cap`, followed by path in `javacard`, followed by `JC_HOME` environment variable. SDK must be valid to be considered for use.
+
+### Output file name variables
+ * `%h` - 8 character prefix of the SHA-256 Load File Data Block hash of the CAP file
+ * `%H` - SHA-256 Load File Data Block hash of the CAP file
+ * `%n` - _common name_ of the entity, either applet class or package
+ * `%p` - package name
+ * `%a` - package AID
+ * `%j` - targeted JavaCard version
 
 ## License
  * [MIT](./LICENSE)
