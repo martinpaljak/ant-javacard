@@ -729,13 +729,13 @@ public final class JavaCard extends Task {
                 setTaskName("cap");
                 // Copy resources to final destination
                 try {
-                    // copy CAP file
-                    CAPFile capfile = CAPFile.fromBytes(Files.readAllBytes(cap.toPath()));
-
                     // check that a CAP file got created
                     if (!cap.exists()) {
                         throw new BuildException("Can not find CAP in " + jcsrc);
                     }
+
+                    // copy CAP file
+                    CAPFile capfile = CAPFile.fromBytes(Files.readAllBytes(cap.toPath()));
 
                     // Create output name, if not given.
                     output_cap = capFileName(capfile, output_cap);
@@ -828,34 +828,29 @@ public final class JavaCard extends Task {
                 throw new RuntimeException("Can not make temporary folder", e);
             }
         }
-    }
 
-    private static String capFileName(CAPFile cap, String template) {
-        String name = template;
-        final String n;
-        // Fallback if %n is requested with no applets
-        if (cap.getAppletAIDs().size() == 0) {
-            n = cap.getPackageName();
-        } else {
-            // JC SDK < 3.0 does not include metadata with applet name
-            String an = cap.getApplets().get(cap.getAppletAIDs().get(0));
-            if (an == null)
-                // So use the package name instead
+        private String capFileName(CAPFile cap, String template) {
+            String name = template;
+            final String n;
+            // Fallback if %n is requested with no applets
+            if (cap.getAppletAIDs().size() == 0) {
                 n = cap.getPackageName();
-            else
-                n = className(an);
+            } else {
+               n = className(raw_applets.get(0).klass);
+            }
+
+            // LFDBH-s
+            name = name.replace("%H", encodeHexString(cap.getLoadFileDataHash("SHA-256", false)).toLowerCase());
+            name = name.replace("%h", encodeHexString(cap.getLoadFileDataHash("SHA-256", false)).toLowerCase().substring(0, 8));
+            name = name.replace("%n", n); // "common name", applet or package
+            name = name.replace("%p", cap.getPackageName()); // package name
+            name = name.replace("%a", cap.getPackageAID().toString()); // package AID
+            name = name.replace("%j", cap.guessJavaCardVersion()); // JavaCard version
+
+            return name;
         }
-
-        // LFDBH-s
-        name = name.replace("%H", encodeHexString(cap.getLoadFileDataHash("SHA-256", false)).toLowerCase());
-        name = name.replace("%h", encodeHexString(cap.getLoadFileDataHash("SHA-256", false)).toLowerCase().substring(0, 8));
-        name = name.replace("%n", n); // "common name", applet or package
-        name = name.replace("%p", cap.getPackageName()); // package name
-        name = name.replace("%a", cap.getPackageAID().toString()); // package AID
-        name = name.replace("%j", cap.guessJavaCardVersion()); // JavaCard version
-
-        return name;
     }
+
 
     public static class JCImport {
         String exps = null;
