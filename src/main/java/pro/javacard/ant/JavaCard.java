@@ -472,11 +472,7 @@ public final class JavaCard extends Task {
 
             // Default output name
             if (output_cap == null) {
-                if (applet_counter == 0) {
-                    output_cap = "%p_%a_%h_%j.cap"; // package.name_010203040506_7e6fa608_3.0.4.cap
-                } else {
-                    output_cap = "%n_%a_%h_%j.cap"; // SomeApplet_010203040506_9a037e30_2.2.2.cap
-                }
+                output_cap = "%n_%a_%h_%j.cap"; // SomeApplet_010203040506_9a037e30_2.2.2.cap
             }
         }
 
