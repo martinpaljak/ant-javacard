@@ -41,7 +41,9 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
-import static pro.javacard.JavaCardSDK.Version.*;
+
+import static pro.javacard.JavaCardSDK.Version.V211;
+import static pro.javacard.JavaCardSDK.Version.V212;
 
 public final class JavaCard extends Task {
     private List<File> temporary = new ArrayList<>();
@@ -198,6 +200,8 @@ public final class JavaCard extends Task {
         private String classes_path = null;
         private String sources_path = null;
         private String sources2_path = null;
+        private String includes = null;
+        private String excludes = null;
         private String package_name = null;
         private byte[] package_aid = null;
         private String package_version = null;
@@ -260,6 +264,14 @@ public final class JavaCard extends Task {
 
         public void setSources2(String arg) {
             sources2_path = arg;
+        }
+
+        public void setIncludes(String arg) {
+            includes = arg;
+        }
+
+        public void setExcludes(String arg) {
+            excludes = arg;
         }
 
         public void setVerify(boolean arg) {
@@ -490,6 +502,11 @@ public final class JavaCard extends Task {
             if (sources2_path != null)
                 sources.append(new Path(project, sources2_path));
             j.setSrcdir(sources);
+
+            if (includes != null)
+                j.setIncludes(includes);
+            if (excludes != null)
+                j.setExcludes(excludes);
 
             log("Compiling files from " + sources, Project.MSG_INFO);
 
@@ -837,7 +854,7 @@ public final class JavaCard extends Task {
             }
 
             // LFDBH-s
-            name = name.replace("%H", encodeHexString(cap.getLoadFileDataHash("SHA-256" )).toLowerCase());
+            name = name.replace("%H", encodeHexString(cap.getLoadFileDataHash("SHA-256")).toLowerCase());
             name = name.replace("%h", encodeHexString(cap.getLoadFileDataHash("SHA-256")).toLowerCase().substring(0, 8));
             name = name.replace("%n", n); // "common name", applet or package
             name = name.replace("%p", cap.getPackageName()); // package name
