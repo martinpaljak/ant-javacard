@@ -197,6 +197,8 @@ public final class JavaCard extends Task {
         private String classes_path = null;
         private String sources_path = null;
         private String sources2_path = null;
+        private String includes = null;
+        private String excludes = null;
         private String package_name = null;
         private byte[] package_aid = null;
         private String package_version = null;
@@ -259,6 +261,14 @@ public final class JavaCard extends Task {
 
         public void setSources2(String arg) {
             sources2_path = arg;
+        }
+
+        public void setIncludes(String arg) {
+        	includes = arg;
+        }
+
+        public void setExcludes(String arg) {
+        	excludes = arg;
         }
 
         public void setVerify(boolean arg) {
@@ -490,6 +500,11 @@ public final class JavaCard extends Task {
             if (sources2_path != null)
                 sources.append(new Path(project, sources2_path));
             j.setSrcdir(sources);
+
+			if (includes != null)
+	            j.setIncludes(includes);
+	        if (excludes != null)
+	            j.setExcludes(excludes);
 
             log("Compiling files from " + sources, Project.MSG_INFO);
 
