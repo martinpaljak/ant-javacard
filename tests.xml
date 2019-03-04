@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="test" name="ant-javacard tests">
   <!-- Some handy shorthands -->
-  <property name="JC211" value="../oracle_javacard_sdks/jc211_kit"/>
+  <property name="JC211" value="sdks/jc211_kit"/>
   <property name="JC212" value="sdks/jc212_kit"/>
   <property name="JC221" value="sdks/jc221_kit"/>
   <property name="JC222" value="sdks/jc222_kit"/>
