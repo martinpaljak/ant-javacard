@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="test" name="ant-javacard tests">
   <!-- Some handy shorthands -->
+  <property name="JC211" value="../oracle_javacard_sdks/jc211_kit"/>
   <property name="JC212" value="sdks/jc212_kit"/>
   <property name="JC221" value="sdks/jc221_kit"/>
   <property name="JC222" value="sdks/jc222_kit"/>
@@ -42,6 +43,9 @@
       </cap>
       <cap jckit="${JC304}" sources="src/testapplets/integer" ints="true">
         <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+      </cap>
+      <cap jckit="${JC211}" sources="src/testapplets/empty" verify="false">
+        <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
       </cap>
     </javacard>
   </target>
@@ -97,12 +101,12 @@
   <!-- targetsdk -->
   <target name="test-targetsdk" depends="jcpro">
     <javacard>
-      <cap jckit="${JC304}" targetsdk="${JC222}" sources="src/testapplets/empty" fidesmoappid="8e5cdaae">
+      <cap jckit="${JC305}" targetsdk="${JC221}" sources="src/testapplets/empty" fidesmoappid="8e5cdaae">
         <applet class="testapplets.empty.Empty"/>
       </cap>
     </javacard>
   </target>
-  <!-- targetsdk -->
+  <!-- javaversion -->
   <target name="test-javaversion" depends="jcpro">
     <javacard>
       <cap jckit="${JC304}" javaversion="1.6" sources="src/testapplets/empty" fidesmoappid="8e5cdaae">
@@ -113,7 +117,8 @@
   <!-- Cross-compile against old SDK -->
   <target name="test-oldcross" depends="jcpro">
     <javacard jckit="${JC305}">
-      <cap targetsdk="${JC212}" sources="src/testapplets/empty" verify="false">
+      <!-- Verification is supported for 2.2.1 and upwards-->
+      <cap targetsdk="${JC211}" sources="src/testapplets/empty" verify="false">
         <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
       </cap>
     </javacard>
