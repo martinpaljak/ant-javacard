@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import static pro.javacard.JavaCardSDK.Version.*;
 
 public final class JavaCard extends Task {
     private List<File> temporary = new ArrayList<>();
@@ -454,14 +455,6 @@ public final class JavaCard extends Task {
             if (raw_applets.size() == 0) {
                 if (package_name == null)
                     throw new HelpingBuildException("Must specify package name if no applets");
-                if (output_jar == null) {
-                    // Last component of the package
-                    String ln = package_name;
-                    if (ln.lastIndexOf(".") != -1) {
-                        ln = ln.substring(ln.lastIndexOf(".") + 1);
-                    }
-                    output_jar = new File(output_exp, ln + ".jar").toString();
-                }
                 log("Building library from package " + package_name + " (AID: " + encodeHexString(package_aid) + ")", Project.MSG_INFO);
             } else {
                 log("Building CAP with " + applet_counter + " applet" + (applet_counter > 1 ? "s" : "") + " from package " + package_name + " (AID: " + encodeHexString(package_aid) + ")", Project.MSG_INFO);
@@ -469,7 +462,14 @@ public final class JavaCard extends Task {
                     log(app.klass + " " + encodeHexString(app.aid), Project.MSG_INFO);
                 }
             }
-
+            if (output_exp != null) {
+                // Last component of the package
+                String ln = package_name;
+                if (ln.lastIndexOf(".") != -1) {
+                    ln = ln.substring(ln.lastIndexOf(".") + 1);
+                }
+                output_jar = new File(output_exp, ln + ".jar").toString();
+            }
             // Default output name
             if (output_cap == null) {
                 output_cap = "%n_%a_%h_%j.cap"; // SomeApplet_010203040506_9a037e30_2.2.2.cap
@@ -518,7 +518,7 @@ public final class JavaCard extends Task {
 
             j.setTarget(javaVersion);
             j.setSource(javaVersion);
-            if (jckit.isVersion(JavaCardSDK.Version.V21)) {
+            if (jckit.getVersion().isOneOf(V211, V212)) {
                 // Always set debug to disable "contains local variables,
                 // but not local variable table." messages
                 j.setDebug(true);
@@ -616,7 +616,7 @@ public final class JavaCard extends Task {
             if (debug) {
                 j.createArg().setLine("-debug");
             }
-            if (!verify && !jckit.isVersion(JavaCardSDK.Version.V21)) {
+            if (!verify && !jckit.getVersion().isOneOf(V211, V212)) {
                 j.createArg().setLine("-noverify");
             }
             if (jckit.getVersion().isV3()) {
@@ -717,6 +717,7 @@ public final class JavaCard extends Task {
                     exps.add(exp);
                     try {
                         verifier.verifyAgainst(cap, targetsdk, new Vector<>(exps));
+                        log("Verification passed", Project.MSG_INFO);
                     } catch (VerifierError e) {
                         throw new BuildException("Verification failed: " + e.getMessage());
                     }
@@ -829,20 +830,20 @@ public final class JavaCard extends Task {
             String name = template;
             final String n;
             // Fallback if %n is requested with no applets
-            if (cap.getAppletAIDs().size() == 0) {
-                n = cap.getPackageName();
+            if (cap.getAppletAIDs().size() == 1 && !cap.getFlags().contains("exports")) {
+                n = className(raw_applets.get(0).klass);
             } else {
-               n = className(raw_applets.get(0).klass);
+                n = cap.getPackageName();
             }
 
             // LFDBH-s
-            name = name.replace("%H", encodeHexString(cap.getLoadFileDataHash("SHA-256", false)).toLowerCase());
-            name = name.replace("%h", encodeHexString(cap.getLoadFileDataHash("SHA-256", false)).toLowerCase().substring(0, 8));
+            name = name.replace("%H", encodeHexString(cap.getLoadFileDataHash("SHA-256" )).toLowerCase());
+            name = name.replace("%h", encodeHexString(cap.getLoadFileDataHash("SHA-256")).toLowerCase().substring(0, 8));
             name = name.replace("%n", n); // "common name", applet or package
             name = name.replace("%p", cap.getPackageName()); // package name
             name = name.replace("%a", cap.getPackageAID().toString()); // package AID
-            name = name.replace("%j", cap.guessJavaCardVersion()); // JavaCard version
-
+            name = name.replace("%j", cap.guessJavaCardVersion().orElse("unknown")); // JavaCard version
+            name = name.replace("%g", cap.guessGlobalPlatformVersion().orElse("unknown")); // JavaCard version
             return name;
         }
     }
