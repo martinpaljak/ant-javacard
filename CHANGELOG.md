@@ -1,3 +1,8 @@
+## 2019-05-06  Martin Paljak  <martin@martinpaljak.net>
+
+ - resolve all paths from project basedir so that ant -f would work as
+   expected
+
 ## 2019-03-04  Martin Paljak  <martin@martinpaljak.net>
 
  - add %g (GlobalPlatform version) to name template
