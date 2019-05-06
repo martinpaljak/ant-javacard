@@ -335,20 +335,20 @@ public final class JavaCard extends Task {
         private JavaCardSDK findSDK() {
             // try configuration first
             if (jckit_path != null) {
-                return JavaCardSDK.detectSDK(jckit_path);
+                return JavaCardSDK.detectSDK(getProject().resolveFile(jckit_path).getAbsolutePath());
             }
             if (master_jckit_path != null) {
-                return JavaCardSDK.detectSDK(master_jckit_path);
+                return JavaCardSDK.detectSDK(getProject().resolveFile(master_jckit_path).getAbsolutePath());
             }
             // now check via ant property
             String propPath = getProject().getProperty("jc.home");
             if (propPath != null) {
-                return JavaCardSDK.detectSDK(propPath);
+                return JavaCardSDK.detectSDK(getProject().resolveFile(propPath).getAbsolutePath());
             }
             // finally via the environment
             String envPath = System.getenv("JC_HOME");
             if (envPath != null) {
-                return JavaCardSDK.detectSDK(envPath);
+                return JavaCardSDK.detectSDK(getProject().resolveFile(envPath).getAbsolutePath());
             }
             // return null if no options
             return null;
@@ -680,7 +680,7 @@ public final class JavaCard extends Task {
                         try {
                             // Assume exp files in jar
                             f = makeTemp();
-                            OffCardVerifier.extractExps(new File(imp.jar), f);
+                            OffCardVerifier.extractExps(project.resolveFile(imp.jar), f);
                         } catch (IOException e) {
                             throw new BuildException("Can not extract EXP files from JAR", e);
                         }
