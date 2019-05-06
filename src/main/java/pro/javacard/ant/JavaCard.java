@@ -843,7 +843,7 @@ public final class JavaCard extends Task {
             name = name.replace("%p", cap.getPackageName()); // package name
             name = name.replace("%a", cap.getPackageAID().toString()); // package AID
             name = name.replace("%j", cap.guessJavaCardVersion().orElse("unknown")); // JavaCard version
-            name = name.replace("%g", cap.guessGlobalPlatformVersion().orElse("unknown")); // JavaCard version
+            name = name.replace("%g", cap.guessGlobalPlatformVersion().orElse("unknown")); // GlobalPlatform version
             return name;
         }
     }
