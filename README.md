@@ -143,7 +143,7 @@ A random list of users, with a public link:
    * :) Wraps ant-javacard for use with Gradle
  * gradle-javacard (Apache 2.0) - https://github.com/fidesmo/gradle-javacard
    * :) nice declarative interface
-   * :( requires gradle (40M download) 
+   * :( requires gradle (40M download)
    * :( JavaCard 2.2.2 only
  * EclipseJCDE (Eclipse 1.0) - http://eclipse-jcde.sourceforge.net/
    * :( JavaCard 2.2.2 only
