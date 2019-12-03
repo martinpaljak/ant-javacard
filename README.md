@@ -18,11 +18,11 @@
  * Loading JavaCard applets is equally pleasing with **[GlobalPlatformPro](https://github.com/martinpaljak/GlobalPlatformPro)**
 
 ## Download & Use
- * Download [`ant-javacard.jar`](https://github.com/martinpaljak/ant-javacard/releases/download/18.09.18/ant-javacard.jar) (be sure to get the [latest version](https://github.com/martinpaljak/ant-javacard/releases/latest))
+ * Download [`ant-javacard.jar`](https://github.com/martinpaljak/ant-javacard/releases/latest/download/ant-javacard.jar)
    * Java version usable with all SDK-s is 1.8! Use SDK 3.0.5u3 and `targetsdk` to compile with Java 10 for older versions.
  * Or use the download task:
 ```xml
-<get src="https://github.com/martinpaljak/ant-javacard/releases/download/18.09.25/ant-javacard.jar" dest="." skipexisting="true"/>
+<get src="https://github.com/martinpaljak/ant-javacard/releases/latest/download/ant-javacard.jar" dest="." skipexisting="true"/>
 ```
  * Then add the following to your `build.xml` file:
 ```xml
