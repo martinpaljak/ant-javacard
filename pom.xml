@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.github.martinpaljak</groupId>
-        <artifactId>javacard</artifactId>
-        <version>19.05.08</version>
+        <artifactId>metacard</artifactId>
+        <version>20.01.14</version>
     </parent>
     <artifactId>ant-javacard</artifactId>
-    <version>19.05.08</version>
+    <version>20.01.15</version>
     <description>Easy to use Ant task for building JavaCard applets</description>
     <name>ant-javacard</name>
     <url>https://github.com/martinpaljak/ant-javacard</url>
@@ -65,7 +65,7 @@
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>4.0.0</version>
                 <executions>
                     <execution>
                         <id>retrieve-git-info</id>
@@ -86,7 +86,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>3.2.0</version>
                 <configuration>
                     <archive>
                         <manifestEntries>
@@ -100,7 +100,7 @@
             <plugin>
                 <groupId>io.github.zlika</groupId>
                 <artifactId>reproducible-build-maven-plugin</artifactId>
-                <version>0.9</version>
+                <version>0.11</version>
                 <executions>
                     <execution>
                         <id>strip-jar</id>
