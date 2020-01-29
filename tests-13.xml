@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="test" name="ant-javacard tests">
+  <!-- Some handy shorthands -->
+  <property name="JC211" value="sdks/jc211_kit"/>
+  <property name="JC212" value="sdks/jc212_kit"/>
+  <property name="JC221" value="sdks/jc221_kit"/>
+  <property name="JC222" value="sdks/jc222_kit"/>
+  <property name="JC303" value="sdks/jc303_kit"/>
+  <property name="JC304" value="sdks/jc304_kit"/>
+  <property name="JC305_1" value="sdks/jc305u1_kit"/>
+  <property name="JC305_2" value="sdks/jc305u2_kit"/>
+  <property name="JC305" value="sdks/jc305u3_kit"/>
+  <property name="JC310" value="sdks/jc310b43_kit"/>
+  <!-- Build test applets -->
+  <target name="test" depends="jcpro,test-sdks"/>
+  <!-- Different SDK-s-->
+  <target name="test-sdks">
+    <javacard>
+      <cap jckit="${JC310}" sources="src/testapplets/integer" ints="true">
+        <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+      </cap>
+    </javacard>
+  </target>
+</project>
