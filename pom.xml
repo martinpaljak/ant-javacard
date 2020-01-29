@@ -5,13 +5,20 @@
     <parent>
         <groupId>com.github.martinpaljak</groupId>
         <artifactId>metacard</artifactId>
-        <version>20.01.14</version>
+        <version>20.02.19</version>
     </parent>
     <artifactId>ant-javacard</artifactId>
     <version>20.01.15</version>
     <description>Easy to use Ant task for building JavaCard applets</description>
     <name>ant-javacard</name>
     <url>https://github.com/martinpaljak/ant-javacard</url>
+    <repositories>
+        <repository>
+          <id>javacard-pro</id>
+          <name>javacard.pro</name>
+          <url>https://javacard.pro/maven/</url>
+        </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>org.apache.ant</groupId>
@@ -24,7 +31,7 @@
         <dependency>
             <groupId>com.github.martinpaljak</groupId>
             <artifactId>capfile</artifactId>
-            <version>19.03.04</version>
+            <version>20.02.19</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

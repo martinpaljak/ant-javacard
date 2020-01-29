@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="dist" name="ant-javacard build">
-  <property name="capfile.jar" value="${user.home}/.m2/repository/com/github/martinpaljak/capfile/19.03.04/capfile-19.03.04.jar"/>
+  <!-- Be sure to keep this in sync with pom.xml -->
+  <property name="capfile.jar" value="${user.home}/.m2/repository/com/github/martinpaljak/capfile/20.02.19/capfile-20.02.19.jar"/>
   <!-- Build and load the JavaCard task -->
   <target name="jcpro" depends="clean">
     <path id="capfile">
       <pathelement location="${capfile.jar}"/>
     </path>
     <mkdir dir="build"/>
-    <javac debug="true" srcdir="src/main/java" destdir="build" includeantruntime="true" target="1.8" source="1.8">
+    <javac debug="true" srcdir="src/main/java" destdir="build" includeantruntime="true" target="${ant.java.version}" source="${ant.java.version}">
       <compilerarg value="-Xlint:all"/>
       <classpath refid="capfile"/>
     </javac>
@@ -32,7 +33,7 @@
     <!-- <taskdef name="javacard" classname="pro.javacard.ant.JavaCard" classpath="lib/ant-javacard.jar"/> -->
   </target>
   <!-- Build test applets -->
-  <import file="tests.xml"/>
+  <import file="tests-${ant.java.version}.xml"/>
   <!-- Cleanup! -->
   <target name="clean">
     <delete dir="build"/>
