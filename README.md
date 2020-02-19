@@ -10,7 +10,7 @@
  * Supports **all available JavaCard SDK versions**: 2.1.2, 2.2.1, 2.2.2, 3.0.3, 3.0.4, 3.0.5 and 3.1
    * Get one from [oracle.com](http://www.oracle.com/technetwork/java/embedded/javacard/downloads/javacard-sdk-2043229.html) or use the [handy Github repository](https://github.com/martinpaljak/oracle_javacard_sdks)
  * **Works on all platforms** with Java 1.8+: Windows, OSX, Linux.
-   * Usable SDK-s depend on JDK version; 1.8 recommended!
+   * [Usable SDK-s depend on JDK version](https://github.com/martinpaljak/ant-javacard/wiki/Version-compatibility); 1.8 recommended!
  * Almost **everything integrates** or works with Ant.
    * Trigger it [from Maven](https://github.com/martinpaljak/ant-javacard/wiki/How-to-use-from-Maven) or via [Gradle wrapper](https://github.com/bertrandmartel/javacard-gradle-plugin)
  * Can be easily integrated into **continuous integration** workflows.
