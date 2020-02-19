@@ -8,7 +8,7 @@
         <version>20.02.19</version>
     </parent>
     <artifactId>ant-javacard</artifactId>
-    <version>20.02.19</version>
+    <version>20.02.20-SNAPSHOT</version>
     <description>Easy to use Ant task for building JavaCard applets</description>
     <name>ant-javacard</name>
     <url>https://github.com/martinpaljak/ant-javacard</url>
