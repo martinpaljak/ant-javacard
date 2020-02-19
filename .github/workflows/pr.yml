@@ -1,24 +1,6 @@
 on: pull_request
 name: PR check
 jobs:
-  mvn-java-11:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@master
-    - name: mvn-java-11
-      uses: docker://maven:3.6.3-jdk-11
-      with:
-        entrypoint: mvn
-        args: -U -B verify
-  mvn-java-8:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@master
-    - name: mvn-java-8
-      uses: docker://maven:3.6.3-jdk-8
-      with:
-        entrypoint: mvn
-        args: -U -B verify
   build:
     runs-on: ubuntu-latest
     strategy:
@@ -39,5 +21,3 @@ jobs:
           java-version: ${{ matrix.java }}
       - run: mvn verify
       - run: ant test
-
-
