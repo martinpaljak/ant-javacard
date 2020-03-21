@@ -287,7 +287,7 @@ public final class JavaCard extends Task {
         }
 
         public void setTargetsdk(String arg) {
-            targetsdk = JavaCardSDK.detectSDK(arg);
+            targetsdk = JavaCardSDK.detectSDK(getProject().resolveFile(arg).getAbsolutePath());
             if (targetsdk == null) {
                 throw new BuildException("Invalid targetsdk: " + arg);
             }
