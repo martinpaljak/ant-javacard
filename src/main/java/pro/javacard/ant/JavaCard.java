@@ -44,6 +44,9 @@ import java.util.*;
 
 import static pro.javacard.JavaCardSDK.Version.V211;
 import static pro.javacard.JavaCardSDK.Version.V212;
+import static pro.javacard.JavaCardSDK.Version.V304;
+import static pro.javacard.JavaCardSDK.Version.V305;
+import static pro.javacard.JavaCardSDK.Version.V310;
 
 public final class JavaCard extends Task {
     private List<File> temporary = new ArrayList<>();
@@ -584,6 +587,23 @@ public final class JavaCard extends Task {
             j.setClasspath(cp);
         }
 
+        private File getTargetSdkExportDir() {
+            if (jckit.getVersion() == V310) {
+                switch (targetsdk.getVersion()) {
+                case V310:
+                    return targetsdk.getExportDir();
+                case V305:
+                    return new File(jckit.getRoot().toString(), "api_export_files_3.0.5");
+                case V304:
+                    return new File(jckit.getRoot().toString(), "api_export_files_3.0.4");
+                default:
+                    throw new HelpingBuildException("targetsdk incompatible with jckit");
+
+                }
+            }
+            return targetsdk.getExportDir();
+        }
+
         private void convert(File applet_folder, List<File> exps) {
             setTaskName("convert");
             // construct java task
@@ -617,7 +637,24 @@ public final class JavaCard extends Task {
             StringJoiner expstringbuilder = new StringJoiner(File.pathSeparator);
 
             // Add targetSDK export files
-            expstringbuilder.add(targetsdk.getExportDir().toString());
+            if (jckit.getVersion() == V310) {
+                switch (targetsdk.getVersion()) {
+                case V310:
+                    j.createArg().setLine("-target 3.1.0");
+                    break;
+                case V305:
+                    j.createArg().setLine("-target 3.0.5");
+                    break;
+                case V304:
+                    j.createArg().setLine("-target 3.0.4");
+                    break;
+                default:
+                    throw new HelpingBuildException("targetsdk " + targetsdk.getRelease() +" incompatible with jckit " + jckit.getRelease());
+
+                }
+            } else {
+                expstringbuilder.add(getTargetSdkExportDir().toString());
+            }
 
             // imports
             for (File imp : exps) {
@@ -733,7 +770,8 @@ public final class JavaCard extends Task {
                     // Add current export file
                     exps.add(exp);
                     try {
-                        verifier.verifyAgainst(cap, targetsdk, new Vector<>(exps));
+                        exps.add(getTargetSdkExportDir());
+                        verifier.verify(cap, new Vector<>(exps));
                         log("Verification passed", Project.MSG_INFO);
                     } catch (VerifierError e) {
                         throw new BuildException("Verification failed: " + e.getMessage());
