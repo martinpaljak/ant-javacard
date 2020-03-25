@@ -10,3 +10,4 @@ hs_err_pid*
 /*.iml
 /target
 /testlib
+pom.xml.versionsBackup
