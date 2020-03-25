@@ -10,8 +10,9 @@
   <property name="JC305_1" value="sdks/jc305u1_kit"/>
   <property name="JC305_2" value="sdks/jc305u2_kit"/>
   <property name="JC305" value="sdks/jc305u3_kit"/>
+  <property name="JC310" value="sdks/jc310b43_kit"/>
   <!-- Build test applets -->
-  <target name="test" depends="jcpro,test-library-user,test-multiapp,test-no-output,test-fidesmo,test-sdks,test-stringdef,test-targetsdk,test-oldcross"/>
+  <target name="test" depends="jcpro,test-library-user,test-multiapp,test-no-output,test-fidesmo,test-sdks,test-stringdef,test-targetsdk,test-oldcross,test-exp-version"/>
   <!-- Different SDK-s-->
   <target name="test-sdks">
     <javacard>
@@ -121,6 +122,20 @@
       <cap targetsdk="${JC211}" sources="src/testapplets/empty" verify="false">
         <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
       </cap>
+    </javacard>
+  </target>
+  <target name="test-exp-version" depends="jcpro">
+    <javacard jckit="${JC310}">
+      <cap targetsdk="${JC310}" sources="src/testapplets/empty" verify="true">
+        <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+      </cap>
+      <cap targetsdk="${JC305}" sources="src/testapplets/empty" verify="true">
+        <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+      </cap>
+      <cap targetsdk="${JC304}" sources="src/testapplets/empty" verify="true">
+        <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+      </cap>
+      <!-- Compilation with 3.1.0 is not supported for 3.0.1 and downwards-->
     </javacard>
   </target>
 </project>
