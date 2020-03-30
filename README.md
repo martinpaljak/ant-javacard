@@ -2,7 +2,7 @@
 
 > Easy to use [Ant](https://ant.apache.org/) task for building JavaCard CAP files in a declarative way.
 
-[![Build Status](https://github.com/martinpaljak/ant-javacard/workflows/Release%20CI/badge.svg)](https://github.com/martinpaljak/ant-javacard/workflows) &nbsp; [![Latest release](https://img.shields.io/github/release/martinpaljak/ant-javacard.svg)](https://github.com/martinpaljak/ant-javacard/releases/latest) &nbsp; [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.martinpaljak/ant-javacard/badge.svg)](https://mvnrepository.com/artifact/com.github.martinpaljak/ant-javacard) &nbsp; [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/martinpaljak/ant-javacard/blob/master/LICENSE)
+[![Build Status](https://github.com/martinpaljak/ant-javacard/workflows/Release%20CI/badge.svg)](https://github.com/martinpaljak/ant-javacard/workflows) &nbsp; [![Latest release](https://img.shields.io/github/release/martinpaljak/ant-javacard.svg)](https://github.com/martinpaljak/ant-javacard/releases/latest) &nbsp; [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.martinpaljak/ant-javacard/badge.svg)](https://mvnrepository.com/artifact/com.github.martinpaljak/ant-javacard) &nbsp; [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/martinpaljak/ant-javacard/blob/master/LICENSE) [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/martinpaljak/ant-javacard.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/martinpaljak/ant-javacard/context:java)
 
 ## Features
  * **[Do What I Mean](http://en.wikipedia.org/wiki/DWIM)**. You will [love it](#happy-users)!
