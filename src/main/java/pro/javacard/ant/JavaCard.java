@@ -42,11 +42,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
-import static pro.javacard.JavaCardSDK.Version.V211;
-import static pro.javacard.JavaCardSDK.Version.V212;
-import static pro.javacard.JavaCardSDK.Version.V304;
-import static pro.javacard.JavaCardSDK.Version.V305;
-import static pro.javacard.JavaCardSDK.Version.V310;
+import static pro.javacard.JavaCardSDK.Version.*;
 
 public final class JavaCard extends Task {
     private List<File> temporary = new ArrayList<>();
@@ -399,9 +395,14 @@ public final class JavaCard extends Task {
             if (package_version == null) {
                 package_version = "0.0";
             } else {
-                if (!package_version.matches("^[0-9].[0-9]$")) {
-                    throw new HelpingBuildException("Incorrect package version: " + package_version);
+                // Allowed values are 0..127
+                if (!package_version.matches("^[0-9]{1,3}\\.[0-9]{1,3}$")) {
+                    throw new HelpingBuildException("Invalid package version: " + package_version);
                 }
+                Arrays.asList(package_version.split("\\.")).stream().map(e -> Integer.parseInt(e, 10)).forEach(e -> {
+                    if (e < 0 || e > 127)
+                        throw new HelpingBuildException("Illegal package version value: " + package_version);
+                });
             }
 
             // Check imports
@@ -590,14 +591,14 @@ public final class JavaCard extends Task {
         private File getTargetSdkExportDir() {
             if (jckit.getVersion() == V310) {
                 switch (targetsdk.getVersion()) {
-                case V310:
-                    return targetsdk.getExportDir();
-                case V305:
-                    return new File(jckit.getRoot().toString(), "api_export_files_3.0.5");
-                case V304:
-                    return new File(jckit.getRoot().toString(), "api_export_files_3.0.4");
-                default:
-                    throw new HelpingBuildException("targetsdk incompatible with jckit");
+                    case V310:
+                        return targetsdk.getExportDir();
+                    case V305:
+                        return new File(jckit.getRoot().toString(), "api_export_files_3.0.5");
+                    case V304:
+                        return new File(jckit.getRoot().toString(), "api_export_files_3.0.4");
+                    default:
+                        throw new HelpingBuildException("targetsdk incompatible with jckit");
 
                 }
             }
@@ -639,17 +640,17 @@ public final class JavaCard extends Task {
             // Add targetSDK export files
             if (jckit.getVersion() == V310) {
                 switch (targetsdk.getVersion()) {
-                case V310:
-                    j.createArg().setLine("-target 3.1.0");
-                    break;
-                case V305:
-                    j.createArg().setLine("-target 3.0.5");
-                    break;
-                case V304:
-                    j.createArg().setLine("-target 3.0.4");
-                    break;
-                default:
-                    throw new HelpingBuildException("targetsdk " + targetsdk.getRelease() +" incompatible with jckit " + jckit.getRelease());
+                    case V310:
+                        j.createArg().setLine("-target 3.1.0");
+                        break;
+                    case V305:
+                        j.createArg().setLine("-target 3.0.5");
+                        break;
+                    case V304:
+                        j.createArg().setLine("-target 3.0.4");
+                        break;
+                    default:
+                        throw new HelpingBuildException("targetsdk " + targetsdk.getRelease() + " incompatible with jckit " + jckit.getRelease());
 
                 }
             } else {

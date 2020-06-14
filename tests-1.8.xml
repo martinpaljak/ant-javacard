@@ -61,7 +61,7 @@
   <!-- Library -->
   <target name="test-library" depends="jcpro">
     <javacard jckit="${JC305}">
-      <cap targetsdk="${JC222}" sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" export="testlib" version="0.1"/>
+      <cap targetsdk="${JC222}" sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" export="testlib" version="0.127"/>
     </javacard>
   </target>
   <!-- JC 2.2.2 with 3.0.4 library -->
