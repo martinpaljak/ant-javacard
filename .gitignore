@@ -1,13 +1,13 @@
-*.class
+**/target
 *.cap
+*.class
+*.iml
 *~
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-/bin/
-/*.jar
-/lib/
-/.idea
 /*.iml
+/*.jar
+/.idea
+/.mvn/wrapper/maven-wrapper.jar
 /target
 /testlib
+hs_err_pid*
 pom.xml.versionsBackup

@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.github.martinpaljak</groupId>
         <artifactId>metacard</artifactId>
-        <version>20.02.19</version>
+        <version>20.06.04</version>
     </parent>
     <artifactId>ant-javacard</artifactId>
     <version>20.03.26-SNAPSHOT</version>

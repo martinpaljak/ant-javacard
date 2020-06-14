@@ -23,7 +23,7 @@ jobs:
       - name: Add known host key
         run: ssh-keyscan javacard.pro >> ~/.ssh/known_hosts
       - name: Package
-        run: mvn -B verify
+        run: ./mvnw -B verify
       - name: Release
         id: create_release
         uses: actions/create-release@v1.0.0
@@ -45,4 +45,4 @@ jobs:
           asset_name: ant-javacard.jar
           asset_content_type: application/zip
       - name: Deploy package
-        run: mvn deploy
+        run: ./mvnw deploy
