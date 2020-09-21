@@ -77,8 +77,8 @@ Details:
    * `sources` attribute - path to Java source code, to be compiled against the JavaCard SDK. Either `sources` or `classes` is required, unless `src/main/javacard` exists.
    * `sources2` attribute - additional sources to build per-platform applets. Optional.
    * `classes` attribute - path to pre-compiled class files to be assembled into a CAP file. If both `classes` and `sources` are specified, compiled class files will be put to `classes` folder, which is created if missing.
-   * `include` attribute - comma or space separated list of patterns of files that must be included.
-   * `exclude` attribute - comma or space separated list of pattersn of files that mus be excluded.
+   * `includes` attribute - comma or space separated list of patterns of files that must be included.
+   * `excludes` attribute - comma or space separated list of pattersn of files that mus be excluded.
    * `package` attribute - name of the package of the CAP file. Optional for applets - set to the parent package of the applet class if left unspecified, required for libraries
    * `version` attribute - version of the package. Optional - defaults to 0.1 if left unspecified.
    * `fidesmoappid` attribute - [Fidesmo](https://developer.fidesmo.com) appId, to create the package AID and applet AID-s automatically. Optional.
