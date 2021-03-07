@@ -109,6 +109,20 @@ Notes:
  * `%a` - package AID
  * `%j` - targeted JavaCard version
 
+## Maven dependency
+Releases are published to [`https://javacard.pro/maven/`](https://javacard.pro/maven/). To use it, add this to your `pom.xml`:
+
+```xml
+<repositories>
+    <repository>
+        <id>javacard-pro</id>
+        <url>https://javacard.pro/maven/</url>
+    </repository>
+</repositories>
+```
+
+Pushes to Maven Central happen manually and only for selected final versions.
+
 ## License
  * [MIT](./LICENSE)
 
