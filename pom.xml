@@ -33,7 +33,7 @@
         <dependency>
             <groupId>com.github.martinpaljak</groupId>
             <artifactId>capfile</artifactId>
-            <version>21.03.07</version>
+            <version>21.04.05</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

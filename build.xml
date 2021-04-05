@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="dist" name="ant-javacard build">
   <!-- Be sure to keep this in sync with pom.xml -->
-  <property name="capfile.jar" value="${user.home}/.m2/repository/com/github/martinpaljak/capfile/21.03.07/capfile-21.03.07.jar"/>
+  <property name="capfile.jar" value="${user.home}/.m2/repository/com/github/martinpaljak/capfile/21.04.05/capfile-21.04.05.jar"/>
   <!-- Build and load the JavaCard task -->
   <target name="jcpro" depends="clean">
     <path id="capfile">
