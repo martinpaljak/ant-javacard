@@ -214,7 +214,6 @@ public final class JavaCard extends Task {
         private String output_jca = null;
         private String jckit_path = null;
         private JavaCardSDK targetsdk = null;
-        private String java_version = null;
         private boolean verify = true;
         private boolean debug = false;
         private boolean ints = false;
@@ -225,10 +224,6 @@ public final class JavaCard extends Task {
 
         public void setJCKit(String msg) {
             jckit_path = msg;
-        }
-
-        public void setJavaversion(String msg) {
-            java_version = msg;
         }
 
         public void setOutput(String msg) {
@@ -540,13 +535,12 @@ public final class JavaCard extends Task {
             j.setDestdir(tmp);
             // See "Setting Java Compiler Options" in User Guide
             j.setDebug(true);
-            String javaVersion = jckit.getJavaVersion();
-            if (java_version != null) {
-                javaVersion = java_version;
-            }
 
+            // set the best option supported by jckit
+            String javaVersion = jckit.getJavaVersion();
             j.setTarget(javaVersion);
             j.setSource(javaVersion);
+
             j.setIncludeantruntime(false);
             j.createCompilerArg().setValue("-Xlint");
             j.createCompilerArg().setValue("-Xlint:-options");
