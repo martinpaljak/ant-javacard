@@ -156,6 +156,8 @@ public final class JavaCard extends Task {
     }
 
     private void cleanTemp() {
+        if (System.getenv("ANT_JAVACARD_TMP") != null)
+            return;
         // Clean temporary files.
         for (File f : temporary) {
             if (f.exists()) {
@@ -507,10 +509,16 @@ public final class JavaCard extends Task {
                 sources.append(new Path(project, sources2_path));
             j.setSrcdir(sources);
 
-            if (includes != null)
+            if (includes != null) {
                 j.setIncludes(includes);
-            if (excludes != null)
+            }
+
+            if (excludes != null) {
                 j.setExcludes(excludes);
+            }
+
+            // We resolve files to compile based on the sources/includes/excludes parameters, so don't set sourcepath
+            j.setSourcepath(new Path(project, null));
 
             log("Compiling files from " + sources, Project.MSG_INFO);
 
@@ -525,7 +533,7 @@ public final class JavaCard extends Task {
                 }
             } else {
                 // else generate temporary folder
-                tmp = makeTemp();
+                tmp = makeTemp("classes");
                 classes_path = tmp.getAbsolutePath();
             }
 
@@ -539,11 +547,6 @@ public final class JavaCard extends Task {
 
             j.setTarget(javaVersion);
             j.setSource(javaVersion);
-            if (jckit.getVersion().isOneOf(V211, V212)) {
-                // Always set debug to disable "contains local variables,
-                // but not local variable table." messages
-                j.setDebug(true);
-            }
             j.setIncludeantruntime(false);
             j.createCompilerArg().setValue("-Xlint");
             j.createCompilerArg().setValue("-Xlint:-options");
@@ -562,6 +565,7 @@ public final class JavaCard extends Task {
 
             j.setFailonerror(true);
             j.setFork(true);
+            j.setListfiles(true);
 
             // set classpath
             Path cp = j.createClasspath();
@@ -720,7 +724,7 @@ public final class JavaCard extends Task {
                 }
 
                 // Create temporary folder and add to cleanup
-                File applet_folder = makeTemp();
+                File applet_folder = makeTemp("applet");
 
                 // Construct exportpath
                 ArrayList<File> exps = new ArrayList<>();
@@ -734,7 +738,7 @@ public final class JavaCard extends Task {
                     } else {
                         try {
                             // Assume exp files in jar
-                            f = makeTemp();
+                            f = makeTemp("imports");
                             OffCardVerifier.extractExps(project.resolveFile(imp.jar), f);
                         } catch (IOException e) {
                             throw new BuildException("Can not extract EXP files from JAR", e);
@@ -871,12 +875,21 @@ public final class JavaCard extends Task {
             }
         }
 
-        private File makeTemp() {
+        private File makeTemp(String sub) {
             try {
-                java.nio.file.Path p = Files.createTempDirectory("jccpro");
-                File fp = p.toFile();
-                temporary.add(fp);
-                return fp;
+                if (System.getenv("ANT_JAVACARD_TMP") != null) {
+                    java.nio.file.Path tmp = Paths.get(System.getenv("ANT_JAVACARD_TMP"), sub);
+                    if (Files.exists(tmp, LinkOption.NOFOLLOW_LINKS)) {
+                        rmminusrf(tmp);
+                    }
+                    Files.createDirectories(tmp);
+                    return tmp.toFile();
+                } else {
+                    java.nio.file.Path p = Files.createTempDirectory("jccpro");
+                    File fp = p.toFile();
+                    temporary.add(fp);
+                    return fp;
+                }
             } catch (IOException e) {
                 throw new RuntimeException("Can not make temporary folder", e);
             }

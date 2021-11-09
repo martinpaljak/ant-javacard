@@ -11,16 +11,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ 8, 11, 16 ]
+        java: [ 8, 11, 17 ]
     name: Java ${{ matrix.java }}
     steps:
       - name: Checkout with submodules
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
         with:
           submodules: true
       - name: Setup java
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
           java-version: ${{ matrix.java }}
-      - run: ./mvnw verify
+          distribution: temurin
+      - run: ./mvnw -B -U verify
       - run: ant test
