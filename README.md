@@ -89,6 +89,7 @@ Details:
    * `jca` attribute - path where to save the generated JavaCard Assembly (JCA) file. Optional.
    * `verify` attribute - if set to false, disables verification of the resulting CAP file with offcardeverifier. Optional.
    * `debug` attribute - if set to true, generates debug CAP components. Optional.
+   * `strip` attribute - if set to true, removes class files from CAP. Optional.
    * `ints` attribute - if set to true, enables support for 32 bit `int` type. Optional.
  * `applet` tag - for creating an applet inside the CAP
    * `class` attribute - class of the Applet where install() method is defined. Required.

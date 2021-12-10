@@ -38,6 +38,7 @@ import pro.javacard.VerifierError;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
@@ -216,6 +217,7 @@ public final class JavaCard extends Task {
         private JavaCardSDK targetsdk = null;
         private boolean verify = true;
         private boolean debug = false;
+        private boolean strip = false;
         private boolean ints = false;
 
 
@@ -276,6 +278,10 @@ public final class JavaCard extends Task {
 
         public void setDebug(boolean arg) {
             debug = arg;
+        }
+
+        public void setStrip(boolean arg) {
+            strip = arg;
         }
 
         public void setInts(boolean arg) {
@@ -681,7 +687,7 @@ public final class JavaCard extends Task {
 
             // determine output types
             String outputs = "CAP";
-            if (output_exp != null) {
+            if (output_exp != null || (raw_applets.size() > 1 && verify)) {
                 outputs += " EXP";
             }
             if (output_jca != null) {
@@ -791,9 +797,41 @@ public final class JavaCard extends Task {
                     // Create output name, if not given.
                     output_cap = capFileName(capfile, output_cap);
 
-
                     // resolve output path
                     File outCap = project.resolveFile(output_cap);
+
+                    // strip classes, if asked
+                    if (strip) {
+                        Map<String, String> props = new HashMap<>();
+                        props.put("create", "false");
+
+                        URI zip_disk = URI.create("jar:" + cap.toURI());
+                        try (FileSystem zipfs = FileSystems.newFileSystem(zip_disk, props)) {
+                            if (Files.exists(zipfs.getPath("APPLET-INF", "classes"), LinkOption.NOFOLLOW_LINKS)) {
+                                // Can't delete a folder, so use walker
+                                Files.walkFileTree(zipfs.getPath("APPLET-INF", "classes"), new SimpleFileVisitor<java.nio.file.Path>() {
+
+                                    @Override
+                                    public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
+
+                                        Files.delete(file);
+                                        return FileVisitResult.CONTINUE;
+                                    }
+
+                                    @Override
+                                    public FileVisitResult postVisitDirectory(java.nio.file.Path dir, IOException exc) throws IOException {
+                                        if (exc == null) {
+                                            Files.delete(dir);
+                                            return FileVisitResult.CONTINUE;
+                                        } else {
+                                            throw exc;
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+
                     // perform the copy
                     Files.copy(cap.toPath(), outCap.toPath(), StandardCopyOption.REPLACE_EXISTING);
                     // report destination
