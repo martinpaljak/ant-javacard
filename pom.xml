@@ -21,6 +21,17 @@
             <url>https://javacard.pro/maven/</url>
         </repository>
     </repositories>
+    <!-- Default is publiashing to private Maven repo on javacard.pro -->
+    <distributionManagement>
+        <repository>
+            <id>javacard</id>
+            <url>scpexe://mvn@javacard.pro/home/mvn/maven/</url>
+        </repository>
+        <snapshotRepository>
+            <id>javacard</id>
+            <url>scpexe://mvn@javacard.pro/home/mvn/maven/SNAPSHOTS</url>
+        </snapshotRepository>
+    </distributionManagement>
     <dependencies>
         <dependency>
             <groupId>org.apache.ant</groupId>
@@ -38,6 +49,13 @@
         </dependency>
     </dependencies>
     <build>
+         <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh-external</artifactId>
+                <version>3.4.3</version>
+            </extension>
+        </extensions>
         <plugins>
             <!-- Compiler -->
             <plugin>
