@@ -10,7 +10,7 @@
   <property name="JC305_1" value="sdks/jc305u1_kit"/>
   <property name="JC305_2" value="sdks/jc305u2_kit"/>
   <property name="JC305" value="sdks/jc305u3_kit"/>
-  <property name="JC310" value="sdks/jc310b43_kit"/>
+  <property name="JC310" value="sdks/jc310r20210706_kit"/>
   <!-- Build test applets -->
   <target name="test" depends="jcpro,test-library-user,test-multiapp,test-no-output,test-fidesmo,test-sdks,test-stringdef,test-targetsdk,test-oldcross,test-exp-version"/>
   <!-- Different SDK-s-->
