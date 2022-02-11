@@ -10,7 +10,7 @@ import javacardx.annotations.StringPool;
 @StringPool(value = {
 		@StringDef(name = "hello", value = "Hello World!"),
 },
-		name = "HelloWorldString")
+		name = "HelloWorldStrings")
 
 public class Empty extends Applet {
 
@@ -23,6 +23,6 @@ public class Empty extends Applet {
 	}
 
 	public void process(APDU arg0) throws ISOException {
-		CryptoException.throwIt((short) 0x6666);
+		CryptoException.throwIt((short)HelloWorldStrings.hello.length);
 	}
 }

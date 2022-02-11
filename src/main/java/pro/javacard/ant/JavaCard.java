@@ -551,7 +551,8 @@ public final class JavaCard extends Task {
             j.createCompilerArg().setValue("-Xlint");
             j.createCompilerArg().setValue("-Xlint:-options");
             j.createCompilerArg().setValue("-Xlint:-serial");
-            if (jckit.getVersion() == JavaCardSDK.Version.V304) {
+            // FIXME jckit.getVersion().isOneOf(V304, V305, V310) once capfile location issue has been solved
+            if (jckit.getVersion().isOneOf(V304)) {
                 //-processor com.oracle.javacard.stringproc.StringConstantsProcessor \
                 //                -processorpath "JCDK_HOME/lib/tools.jar;JCDK_HOME/lib/api_classic_annotations.jar" \
                 j.createCompilerArg().setLine("-processor com.oracle.javacard.stringproc.StringConstantsProcessor");
