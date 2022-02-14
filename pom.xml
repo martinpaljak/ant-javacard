@@ -20,6 +20,10 @@
             <name>javacard.pro</name>
             <url>https://javacard.pro/maven/</url>
         </repository>
+        <repository>
+            <id>javacard-pro-snapshots</id>
+            <url>https://javacard.pro/maven/SNAPSHOTS/</url>
+        </repository>
     </repositories>
     <!-- Default is publiashing to private Maven repo on javacard.pro -->
     <distributionManagement>
