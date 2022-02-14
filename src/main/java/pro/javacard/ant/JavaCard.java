@@ -584,23 +584,6 @@ public final class JavaCard extends Task {
             j.setClasspath(cp);
         }
 
-        private Path getTargetSdkExportDir() {
-            if (jckit.getVersion() == V310) {
-                switch (targetsdk.getVersion()) {
-                    case V310:
-                        return targetsdk.getExportDir();
-                    case V305:
-                        return jckit.getRoot().resolve("api_export_files_3.0.5");
-                    case V304:
-                        return jckit.getRoot().resolve("api_export_files_3.0.4");
-                    default:
-                        throw new HelpingBuildException("targetsdk incompatible with jckit");
-
-                }
-            }
-            return targetsdk.getExportDir();
-        }
-
         private void convert(Path applet_folder, List<Path> exps) {
             setTaskName("convert");
             // construct java task
@@ -781,34 +764,7 @@ public final class JavaCard extends Task {
 
                     // strip classes, if asked
                     if (strip) {
-                        Map<String, String> props = new HashMap<>();
-                        props.put("create", "false");
-
-                        URI zip_disk = URI.create("jar:" + cap.toUri());
-                        try (FileSystem zipfs = FileSystems.newFileSystem(zip_disk, props)) {
-                            if (Files.exists(zipfs.getPath("APPLET-INF", "classes"), LinkOption.NOFOLLOW_LINKS)) {
-                                // Can't delete a folder, so use walker
-                                Files.walkFileTree(zipfs.getPath("APPLET-INF", "classes"), new SimpleFileVisitor<Path>() {
-
-                                    @Override
-                                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-
-                                        Files.delete(file);
-                                        return FileVisitResult.CONTINUE;
-                                    }
-
-                                    @Override
-                                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                                        if (exc == null) {
-                                            Files.delete(dir);
-                                            return FileVisitResult.CONTINUE;
-                                        } else {
-                                            throw exc;
-                                        }
-                                    }
-                                });
-                            }
-                        }
+                        CAPFile.strip(cap);
                     }
 
                     // perform the copy
