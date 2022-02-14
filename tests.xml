@@ -11,7 +11,7 @@
   <property name="JC305_2" value="sdks/jc305u2_kit"/>
   <property name="JC305" value="sdks/jc305u3_kit"/>
   <!-- Build test applets -->
-  <target name="test" depends="jcpro,test-library-user,test-multiapp,test-no-output,test-fidesmo,test-sdks,test-stringdef,test-targetsdk,test-oldcross"/>
+  <target name="test" depends="jcpro,test-library-user,test-multiapp,test-no-output,test-sdks,test-stringdef,test-targetsdk,test-oldcross"/>
   <!-- Different SDK-s-->
   <target name="test-sdks">
     <javacard>
@@ -82,18 +82,10 @@
       </cap>
     </javacard>
   </target>
-  <!-- Fidesmo -->
-  <target name="test-fidesmo" depends="jcpro">
-    <javacard>
-      <cap jckit="${JC304}" output="Fidesmo.cap" sources="src/testapplets/empty" fidesmoappid="8e5cdaae">
-        <applet class="testapplets.empty.Empty"/>
-      </cap>
-    </javacard>
-  </target>
   <!-- Stringdefs -->
   <target name="test-stringdef" depends="jcpro">
     <javacard>
-      <cap jckit="${JC304}" output="StringDefs.cap" sources="src/testapplets/stringdefs" fidesmoappid="8e5cdaae">
+      <cap jckit="${JC304}" output="StringDefs.cap" sources="src/testapplets/stringdefs" aid="010203040506">
         <applet class="testapplets.stringdefs.Empty"/>
       </cap>
     </javacard>
@@ -101,7 +93,7 @@
   <!-- targetsdk -->
   <target name="test-targetsdk" depends="jcpro">
     <javacard>
-      <cap jckit="${JC305}" targetsdk="${JC221}" sources="src/testapplets/empty" fidesmoappid="8e5cdaae">
+      <cap jckit="${JC305}" targetsdk="${JC221}" sources="src/testapplets/empty" aid="010203040506">
         <applet class="testapplets.empty.Empty"/>
       </cap>
     </javacard>
@@ -109,7 +101,7 @@
   <!-- javaversion -->
   <target name="test-javaversion" depends="jcpro">
     <javacard>
-      <cap jckit="${JC304}" javaversion="1.6" sources="src/testapplets/empty" fidesmoappid="8e5cdaae">
+      <cap jckit="${JC304}" javaversion="1.6" sources="src/testapplets/empty" aid="010203040506">
         <applet class="testapplets.empty.Empty"/>
       </cap>
     </javacard>
