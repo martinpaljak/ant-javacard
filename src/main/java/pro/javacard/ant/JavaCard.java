@@ -65,18 +65,18 @@ public final class JavaCard extends Task {
     }
 
     // For cleaning up temporary files
-    private static void rmminusrf(java.nio.file.Path path) {
+    private static void rmminusrf(Path path) {
         try {
-            Files.walkFileTree(path, new SimpleFileVisitor<java.nio.file.Path>() {
+            Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
                 @Override
-                public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs)
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                         throws IOException {
                     Files.delete(file);
                     return FileVisitResult.CONTINUE;
                 }
 
                 @Override
-                public FileVisitResult postVisitDirectory(java.nio.file.Path dir, IOException e)
+                public FileVisitResult postVisitDirectory(Path dir, IOException e)
                         throws IOException {
                     if (e == null) {
                         Files.delete(dir);
@@ -584,7 +584,7 @@ public final class JavaCard extends Task {
             j.setClasspath(cp);
         }
 
-        private java.nio.file.Path getTargetSdkExportDir() {
+        private Path getTargetSdkExportDir() {
             if (jckit.getVersion() == V310) {
                 switch (targetsdk.getVersion()) {
                     case V310:
@@ -788,17 +788,17 @@ public final class JavaCard extends Task {
                         try (FileSystem zipfs = FileSystems.newFileSystem(zip_disk, props)) {
                             if (Files.exists(zipfs.getPath("APPLET-INF", "classes"), LinkOption.NOFOLLOW_LINKS)) {
                                 // Can't delete a folder, so use walker
-                                Files.walkFileTree(zipfs.getPath("APPLET-INF", "classes"), new SimpleFileVisitor<java.nio.file.Path>() {
+                                Files.walkFileTree(zipfs.getPath("APPLET-INF", "classes"), new SimpleFileVisitor<Path>() {
 
                                     @Override
-                                    public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
+                                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 
                                         Files.delete(file);
                                         return FileVisitResult.CONTINUE;
                                     }
 
                                     @Override
-                                    public FileVisitResult postVisitDirectory(java.nio.file.Path dir, IOException exc) throws IOException {
+                                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
                                         if (exc == null) {
                                             Files.delete(dir);
                                             return FileVisitResult.CONTINUE;
