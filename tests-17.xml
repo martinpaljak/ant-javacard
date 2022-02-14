@@ -19,6 +19,12 @@
       <cap jckit="${JC310}" sources="src/testapplets/integer" ints="true">
         <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
       </cap>
+      <cap jckit="${JC310}" targetsdk="3.0.4" sources="src/testapplets/integer" ints="true">
+        <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+      </cap>
+      <cap jckit="${JC310}" targetsdk="3.1.0" sources="src/testapplets/integer" ints="true">
+        <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+      </cap>
     </javacard>
   </target>
 </project>
