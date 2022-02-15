@@ -2,6 +2,7 @@ on:
   push:
     branches:
     - master
+    - next
   pull_request:
     branches:
     - master
@@ -25,3 +26,6 @@ jobs:
           distribution: temurin
       - run: ./mvnw -B -U verify
       - run: ant test
+      - name: Deploy snapshot on next branch
+        if: github.ref == 'refs/heads/next'
+        run: ./mvnw -B -U deploy
