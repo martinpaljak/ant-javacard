@@ -24,8 +24,14 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: temurin
+      - name: Set SSH key
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+      - name: Add host key
+        run: ssh-keyscan javacard.pro >> ~/.ssh/known_hosts
       - run: ./mvnw -B -U verify
       - run: ant test
       - name: Deploy snapshot on next branch
-        if: github.ref == 'refs/heads/next'
+        if: github.ref == 'refs/heads/next' && matrix.java == 8
         run: ./mvnw -B -U deploy
