@@ -38,10 +38,10 @@ import pro.javacard.sdk.VerifierError;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import static pro.javacard.sdk.SDKVersion.*;
 
@@ -367,9 +367,17 @@ public final class JavaCard extends Task {
                 log("INFO: targeting JavaCard " + targetsdk.getVersion() + " SDK in " + targetsdk.getRoot(), Project.MSG_INFO);
             }
 
-            // Shorthand for simple small projects - take javacard sources from src/main/javacard
-            if (getProject().resolveFile("src/main/javacard").isDirectory() && sources_path == null && classes_path == null) {
-                sources_path = "src/main/javacard";
+            // Warn about deprecation in future
+            if (sources_path != null && sources2_path != null) {
+                log("WARN: sources2 is deprecated in favor of multiple paths in sources", Project.MSG_WARN);
+            }
+
+            // Shorthand for simple small projects - use Maven conventions
+            if (sources_path == null && classes_path == null) {
+                if (getProject().resolveFile("src/main/javacard").isDirectory())
+                    sources_path = "src/main/javacard";
+                else if (getProject().resolveFile("src/main/java").isDirectory())
+                    sources_path = "src/main/java";
             }
 
             // sources or classes must be set
@@ -495,9 +503,16 @@ public final class JavaCard extends Task {
             j.setTaskName("compile");
 
             org.apache.tools.ant.types.Path sources = mkPath(null);
-            sources.append(mkPath(sources_path));
+
+            // New style - multiple folders
+            String pattern = Pattern.quote(File.pathSeparator);
+            String[] sources_paths = sources_path.split(pattern);
+            for (String path : sources_paths)
+                sources.append(mkPath(path));
+
+            // Old style - second folder
             if (sources2_path != null)
-                sources.append(mkPath(sources_path));
+                sources.append(mkPath(sources2_path));
             j.setSrcdir(sources);
 
             if (includes != null) {
