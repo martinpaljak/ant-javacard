@@ -73,14 +73,14 @@ Details:
    * `jckit` attribute - path to the JavaCard SDK that is used if individual `cap` does not specify one. Optional if `cap` defines one, required otherwise.
  * `cap` tag - construct a CAP file
    * `jckit` attribute - path to the JavaCard SDK to be used. Optional if `javacard` defines one, required otherwise.
-   * `targetsdk` attribute - path to the target JavaCard SDK (or 3.0.X target version when using JavaCard SDK v3.1), to be used for this CAP. Optional, value of `jckit` used by default. Allows to use a more recent converter to target older JavaCard platforms.
-   * `sources` attribute - path to Java source code, to be compiled against the JavaCard SDK. Either `sources` or `classes` is required, unless `src/main/javacard` exists.
-   * `sources2` attribute - additional sources to build per-platform applets. Optional.
+   * `targetsdk` attribute - path to the target JavaCard SDK (or `"3.0.X"` target version when using JavaCard SDK v3.1), to be used for this CAP. Optional, value of `jckit` used by default. Allows to use a more recent converter to target older JavaCard platforms.
+   * `sources` attribute - path(s) to Java source code, to be compiled against the JavaCard SDK. Either `sources` or `classes` is required, unless `src/main/javacard` or `src/main/java` exists.
+   * `sources2` attribute - additional sources to build per-platform applets. Optional, deprecated (use multiple paths for `sources`)
    * `classes` attribute - path to pre-compiled class files to be assembled into a CAP file. If both `classes` and `sources` are specified, compiled class files will be put to `classes` folder, which is created if missing.
-   * `includes` attribute - comma or space separated list of patterns of files that must be included.
+   * `includes` attribute - comma or space separated list of patterns of files that must be included (like `**/SomeFile.java`).
    * `excludes` attribute - comma or space separated list of patterns of files that must be excluded.
    * `package` attribute - name of the package of the CAP file. Optional for applets - set to the parent package of the applet class if left unspecified, required for libraries
-   * `version` attribute - version of the package. Optional - defaults to 0.1 if left unspecified.
+   * `version` attribute - version of the package. Optional - defaults to 0.0 if left unspecified.
    * `aid` attribute - AID (hex) of the package. Recommended - or set to the 5 first bytes of the applet AID if left unspecified.
    * `output` attribute - path where to save the generated CAP file. Optional, see below for variables.
    * `export` attribtue - path (folder) where to place the JAR and generated EXP file. Optional.
@@ -149,6 +149,7 @@ A random list of users, with a public link:
 
 ## Contact
  * See [javacard.pro](https://javacard.pro)
+ * [GlobalPlatform/JavaCard discussions](https://github.com/martinpaljak/GlobalPlatformPro/discussions)
 
 ## Similar projects
  * standard JavaCard SDK Ant tasks
