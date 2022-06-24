@@ -52,8 +52,28 @@
   <!-- Library -->
   <target name="test-library" depends="jcpro">
     <javacard jckit="${JC305}">
-      <cap targetsdk="${JC222}" sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" export="testlib" version="0.1"/>
+      <cap targetsdk="${JC222}" sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" export="testlib" version="0.1" />
     </javacard>
+  </target>
+  <target name="test-library-strip" depends="jcpro">
+  	<sequential>
+      <javacard jckit="${JC305}">
+	      <cap targetsdk="${JC222}" sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" export="testlib" version="0.1" 
+	           output="test.library-unstripped.cap"/>
+	  </javacard>
+  	  <javacard jckit="${JC305}">
+  		  <cap targetsdk="${JC222}" sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" export="testlib" version="0.1" 
+  		       strip = "true" output="test.library-stripped.cap"/>
+  	  </javacard>
+  	  <length file="test.library-unstripped.cap" property="length.unstripped"/>
+  	  <length file="test.library-stripped.cap" property="length.stripped"/>
+  		<echo>length unstripped : ${length.unstripped}</echo>
+  		<echo>length   stripped : ${length.stripped}</echo>
+  		<condition property="bigger">
+  			<length file="test.library-stripped.cap" when="greater" length="${length.unstripped}"/>
+  		</condition>
+  		<fail if="bigger"/>
+  	</sequential>
   </target>
   <!-- JC 2.2.2 with 3.0.4 library -->
   <target name="test-library-user" depends="jcpro,test-library">

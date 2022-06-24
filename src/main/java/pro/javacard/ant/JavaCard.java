@@ -829,6 +829,30 @@ public final class JavaCard extends Task {
                                         }
                                     }
                                 });
+                            } else if (package_name != null) {                                
+                                // previous branch is good for applet. 
+                                // In case of a package, class files are located following their package name
+                                // for instance package testapplets.library; => testapplets\library\
+                                String path = package_name.replace(".", "/");
+                                Files.walkFileTree(zipfs.getPath(path), new SimpleFileVisitor<java.nio.file.Path>() {
+
+                                    @Override
+                                    public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
+                                        if (file.toString().endsWith(".class")) {
+                                            Files.delete(file);
+                                        }
+                                        return FileVisitResult.CONTINUE;
+                                    }
+ 
+                                    @Override
+                                    public FileVisitResult postVisitDirectory(java.nio.file.Path dir, IOException exc) throws IOException {
+                                        if (exc == null) {
+                                            return FileVisitResult.CONTINUE;
+                                        } else {
+                                            throw exc;
+                                        }
+                                    }
+                                });
                             }
                         }
                     }
