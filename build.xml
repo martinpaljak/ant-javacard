@@ -8,7 +8,8 @@
             <pathelement location="${capfile.jar}"/>
         </path>
         <mkdir dir="build"/>
-        <javac debug="true" srcdir="src/main/java" destdir="build" includeantruntime="true" target="${ant.java.version}" source="${ant.java.version}">
+        <javac debug="true" srcdir="src/main/java" destdir="build" includeantruntime="true" target="8" source="8">
+            <compilerarg value="-Xlint:-options"/>
             <compilerarg value="-Xlint:all"/>
             <classpath refid="capfile"/>
         </javac>
