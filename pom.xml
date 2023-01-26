@@ -36,7 +36,7 @@
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
-            <version>1.10.12</version>
+            <version>1.10.13</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
@@ -90,8 +90,7 @@
                         <configuration>
                             <finalName>ant-javacard</finalName>
                             <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>pro.javacard.ant.DummyMain</mainClass>
                                 </transformer>
                             </transformers>
