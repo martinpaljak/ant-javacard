@@ -360,7 +360,7 @@ public final class JavaCard extends Task {
         private void check() {
             jckit = findSDK().orElseThrow(() -> new HelpingBuildException("No usable JavaCard SDK referenced"));
 
-            log("INFO: using JavaCard " + jckit.getVersion() + " SDK in " + jckit.getRoot(), Project.MSG_INFO);
+            log("INFO: using JavaCard " + jckit.getVersion() + " SDK in " + jckit.getRoot() + " with JDK " + getCurrentJDKVersion(), Project.MSG_INFO);
             if (targetsdk == null) {
                 targetsdk = jckit;
             } else {
@@ -552,6 +552,15 @@ public final class JavaCard extends Task {
 
             // set the best option supported by jckit
             String javaVersion = JavaCardSDK.getJavaVersion(jckit.getVersion());
+            // Warn in human readable way if Java not compatible with JC Kit
+            // See https://github.com/martinpaljak/ant-javacard/issues/79
+            int jdkver = getCurrentJDKVersion();
+            if (jckit.getVersion().isOneOf(V211, V212, V221, V222) && jdkver > 8) {
+                throw new BuildException("Use JDK 8 with JavaCard kit v2.x");
+            } else if (jdkver > 11 && !jckit.getVersion().isOneOf(V310)) {
+                throw new BuildException("Must use JavaCard kit v3.1+ with JDK " + jdkver);
+            }
+
             j.setTarget(javaVersion);
             j.setSource(javaVersion);
 
@@ -919,5 +928,14 @@ public final class JavaCard extends Task {
             ln = ln.substring(ln.lastIndexOf(".") + 1);
         }
         return ln;
+    }
+
+    // Dirty way to get major version of JDK: 8, 11, 17
+    private static int getCurrentJDKVersion() {
+        String v = System.getProperty("java.version", "0.0.0");
+        if (v.startsWith("1.8."))
+            v = "8." + v.substring(4);
+        int m = Integer.parseInt(v.substring(0, v.indexOf(".")));
+        return m;
     }
 }
