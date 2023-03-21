@@ -24,26 +24,16 @@ jobs:
       - name: Add known host key
         run: ssh-keyscan javacard.pro >> ~/.ssh/known_hosts
       - name: Package
-        run: ./mvnw -T1C -U -B verify
+        run: ./mvnw -T1C -U -B verify && ant
       - name: Release
         id: create_release
-        uses: actions/create-release@v1.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v0.1.15
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-      - name: Upload JAR
-        id: jar
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./target/ant-javacard.jar
-          asset_name: ant-javacard.jar
-          asset_content_type: application/zip
+          files: |
+            ant-javacard.jar
+          fail_on_unmatched_files: true
+          body: Release ${{ github.ref_name }}
+          prerelease: true # manually promoted
+
       - name: Deploy package
         run: ./mvnw -B deploy
