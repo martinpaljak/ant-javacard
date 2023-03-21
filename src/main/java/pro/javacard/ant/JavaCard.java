@@ -558,7 +558,7 @@ public final class JavaCard extends Task {
             if (jckit.getVersion().isOneOf(V211, V212, V221, V222) && jdkver > 8) {
                 throw new BuildException("Use JDK 8 with JavaCard kit v2.x");
             } else if (jdkver > 11 && !jckit.getVersion().isOneOf(V310)) {
-                throw new BuildException("Must use JavaCard kit v3.1+ with JDK " + jdkver);
+                throw new BuildException("Use JDK 11 with JavaCard kit " + jckit.getVersion());
             }
 
             j.setTarget(javaVersion);
