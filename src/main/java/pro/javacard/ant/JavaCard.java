@@ -289,15 +289,17 @@ public final class JavaCard extends Task {
         }
 
         public void setTargetsdk(String arg) {
-            jckit = findSDK().orElse(null); // XXX
+            jckit = findSDK().orElse(null); // XXX TODO: move to check()
             Optional<SDKVersion> targetVersion = SDKVersion.fromVersion(arg);
             if (jckit != null && jckit.getVersion() == V310 && targetVersion.isPresent()) {
                 SDKVersion target = targetVersion.get();
                 if (target.isOneOf(V304, V305, V310)) {
                     targetsdk = jckit.target(target);
+                } else {
+                    throw new HelpingBuildException("Can not target JavaCard " + targetVersion.get() + " with JavaCard kit " + jckit.getVersion());
                 }
             } else {
-                targetsdk = JavaCardSDK.detectSDK(getProject().resolveFile(arg).toPath()).orElseThrow(() -> new BuildException("Invalid targetsdk: " + arg));
+                targetsdk = JavaCardSDK.detectSDK(getProject().resolveFile(arg).toPath()).orElseThrow(() -> new HelpingBuildException("Invalid targetsdk: " + arg));
                 if (jckit.getVersion() == V310 && !targetsdk.getVersion().isOneOf(V304, V305, V310)) {
                     throw new HelpingBuildException("targetsdk " + targetsdk.getVersion() + " not compatible with jckit " + jckit.getVersion());
                 }

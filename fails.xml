@@ -36,4 +36,26 @@
             </cap>
         </javacard>
     </target>
+    <target name="noexport">
+        <javacard>
+            <cap jckit="${JC310}" sources="src/testapplets/integer" targetsdk="3.0.4" ints="true">
+                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+            </cap>
+        </javacard>
+    </target>
+    <!-- Library -->
+    <target name="test-library">
+        <javacard jckit="${JC305}">
+            <cap targetsdk="${JC304}" sources="src/testapplets/library" package="testapplets.library"
+                 aid="01020304050607" export="testlib" version="0.1"/>
+        </javacard>
+    </target>
+    <target name="test-library-user" depends="test-library">
+        <javacard>
+            <cap jckit="${JC310}" sources="src/testapplets/libraryuser">
+                <applet class="testapplets.libraryuser.LibraryUser" aid="0102030405060708"/>
+                <import jar="testlib/library.jar"/>
+            </cap>
+        </javacard>
+    </target>
 </project>
