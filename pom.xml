@@ -5,7 +5,7 @@
     <!-- Not using metacard, as this is meant to be compilable with Java 1.8 as well -->
     <groupId>com.github.martinpaljak</groupId>
     <artifactId>ant-javacard</artifactId>
-    <version>23.03.21</version>
+    <version>-SNAPSHOT</version>
     <description>Easy to use Ant task for building JavaCard applets</description>
     <name>ant-javacard</name>
     <url>https://github.com/martinpaljak/ant-javacard</url>
