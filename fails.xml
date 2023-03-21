@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." name="ant-javacard failed tests">
+    <!-- Some handy shorthands -->
+    <property name="JC211" value="sdks/jc211_kit"/>
+    <property name="JC212" value="sdks/jc212_kit"/>
+    <property name="JC221" value="sdks/jc221_kit"/>
+    <property name="JC222" value="sdks/jc222_kit"/>
+    <property name="JC303" value="sdks/jc303_kit"/>
+    <property name="JC304" value="sdks/jc304_kit"/>
+    <property name="JC305_1" value="sdks/jc305u1_kit"/>
+    <property name="JC305_2" value="sdks/jc305u2_kit"/>
+    <property name="JC305" value="sdks/jc305u3_kit"/>
+    <property name="JC310" value="sdks/jc310r20210706_kit"/>
+
+    <taskdef name="javacard" classname="pro.javacard.ant.JavaCard" classpath="ant-javacard.jar"/>
+
+    <!-- Different SDK/JDK incompatibilities -->
+    <target name="latestkit">
+        <javacard>
+            <cap jckit="${JC310}" sources="src/testapplets/integer" targetsdk="${JC222}">
+                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+            </cap>
+        </javacard>
+    </target>
+    <target name="newjdk">
+        <javacard>
+            <cap jckit="${JC304}" sources="src/testapplets/integer" targetsdk="${JC222}">
+                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+            </cap>
+        </javacard>
+    </target>
+    <target name="oldkit">
+        <javacard>
+            <cap jckit="${JC222}" sources="src/testapplets/integer" targetsdk="${JC221}">
+                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+            </cap>
+        </javacard>
+    </target>
+</project>
