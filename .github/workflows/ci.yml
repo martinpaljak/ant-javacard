@@ -16,17 +16,17 @@ jobs:
     name: Java ${{ matrix.java }}
     steps:
       - name: Checkout with submodules
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3.5.0
         with:
           submodules: true
       - name: Setup java
-        uses: actions/setup-java@v3.6.0
+        uses: actions/setup-java@v3.11.0
         with:
           java-version: ${{ matrix.java }}
           distribution: temurin
           cache: maven
       - name: Set SSH key
-        uses: webfactory/ssh-agent@v0.7.0
+        uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
       - name: Add host key
