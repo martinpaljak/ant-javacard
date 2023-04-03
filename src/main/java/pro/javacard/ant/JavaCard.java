@@ -190,10 +190,10 @@ public final class JavaCard extends Task {
         }
     }
 
-    @SuppressWarnings("serial")
     public static class HelpingBuildException extends BuildException {
+        private final static long serialVersionUID = -2365126253968479314L;
         public HelpingBuildException(String msg) {
-            super(msg + "\n\nPLEASE READ https://github.com/martinpaljak/ant-javacard#syntax");
+            super(msg + "\n\nPLEASE READ https://github.com/martinpaljak/ant-javacard#readme");
         }
     }
 
@@ -557,10 +557,12 @@ public final class JavaCard extends Task {
             // Warn in human readable way if Java not compatible with JC Kit
             // See https://github.com/martinpaljak/ant-javacard/issues/79
             int jdkver = getCurrentJDKVersion();
-            if (jckit.getVersion().isOneOf(V211, V212, V221, V222) && jdkver > 8) {
-                throw new BuildException("Use JDK 8 with JavaCard kit v2.x");
+            if (jdkver > 17) {
+                throw new HelpingBuildException("JDK 17 LTS is the latest supported JDK.");
+            } else if (jckit.getVersion().isOneOf(V211, V212, V221, V222) && jdkver > 8) {
+                throw new HelpingBuildException("Use JDK 8 with JavaCard kit v2.x");
             } else if (jdkver > 11 && !jckit.getVersion().isOneOf(V310)) {
-                throw new BuildException("Use JDK 11 with JavaCard kit " + jckit.getVersion());
+                throw new HelpingBuildException("Use JDK 11 with JavaCard kit " + jckit.getVersion());
             }
 
             j.setTarget(javaVersion);
