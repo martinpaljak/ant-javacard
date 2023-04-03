@@ -6,7 +6,7 @@ on:
   pull_request:
     branches:
     - master
-name: Continuous Integration
+name: Robot builder
 jobs:
   build:
     runs-on: ubuntu-latest
