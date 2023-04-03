@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ 8, 11, 17 ]
+        java: [ 8, 11, 17, 20 ]
     name: Java ${{ matrix.java }}
     steps:
       - name: Checkout with submodules
@@ -24,13 +24,14 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: temurin
+          cache: maven
       - name: Set SSH key
         uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
       - name: Add host key
         run: ssh-keyscan javacard.pro >> ~/.ssh/known_hosts
-      - run: ./mvnw -B -U verify
+      - run: ./mvnw -T1C -B -U verify
       - run: ant test
       - name: Deploy snapshot on next branch
         if: github.ref == 'refs/heads/next' && matrix.java == 8
