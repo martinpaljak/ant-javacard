@@ -937,7 +937,8 @@ public final class JavaCard extends Task {
         String v = System.getProperty("java.version", "0.0.0");
         if (v.startsWith("1.8."))
             v = "8." + v.substring(4);
-        int m = Integer.parseInt(v.substring(0, v.indexOf(".")));
+        int dot = v.indexOf(".");
+        int m = Integer.parseInt(v.substring(0, dot == -1 ? v.length() : dot));
         return m;
     }
 }
