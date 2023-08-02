@@ -12,7 +12,7 @@
     <property name="JC305" value="sdks/jc305u3_kit"/>
     <property name="JC310" value="sdks/jc310r20210706_kit"/>
     <!-- Build test applets -->
-    <target name="test" depends="jcpro,test-library-user,test-multiapp,test-no-output,test-sdks,test-stringdef,test-targetsdk,test-oldcross"/>
+    <target name="test" depends="jcpro,test-library-user,test-multiapp,test-no-output,test-sdks,test-stringdef,test-targetsdk,test-oldcross,test-jca"/>
     <!-- Different SDK-s-->
     <target name="test-sdks">
         <javacard>
@@ -52,7 +52,7 @@
     <!-- Library -->
     <target name="test-library" depends="jcpro">
         <javacard jckit="${JC305}">
-            <cap targetsdk="${JC222}" sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" export="testlib" version="0.1"/>
+            <cap targetsdk="${JC222}" sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" export="testlib" version="0.1" strip="false"/>
         </javacard>
     </target>
     <!-- JC 2.2.2 with 3.0.4 library -->
@@ -94,6 +94,14 @@
     <target name="test-javaversion" depends="jcpro">
         <javacard>
             <cap jckit="${JC304}" javaversion="1.6" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+        </javacard>
+    </target>
+    <!-- jca -->
+    <target name="test-jca" depends="jcpro">
+        <javacard>
+            <cap jckit="${JC304}" sources="src/testapplets/empty" jca="foobar.jca">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
         </javacard>
