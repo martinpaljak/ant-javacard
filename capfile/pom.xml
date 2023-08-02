@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.github.martinpaljak</groupId>
         <artifactId>ant-javacard-package</artifactId>
-        <version>23.08.03-SNAPSHOT</version>
+        <version>23.08.03</version>
     </parent>
     <artifactId>capfile</artifactId>
     <name>JavaCard CAP file library</name>
