@@ -5,7 +5,7 @@
     <packaging>pom</packaging>
     <groupId>com.github.martinpaljak</groupId>
     <artifactId>ant-javacard-package</artifactId>
-    <version>23.04.04-SNAPSHOT</version>
+    <version>23.08.02</version>
     <description>Easy to use Ant task for building JavaCard applets</description>
     <name>ant-javacard package</name>
     <url>https://github.com/martinpaljak/ant-javacard</url>
