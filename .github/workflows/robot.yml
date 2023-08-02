@@ -42,7 +42,7 @@ jobs:
         if: matrix.java != 20
         run: ant test dist
       - name: Deploy package or snapshot
-        if: ( github.ref == 'refs/heads/next' || github.ref == 'refs/heads/master' ) && matrix.java == 11
+        if: github.event_name != 'pull_request' && matrix.java == '11'
         run: ./mvnw -B -U deploy
       - name: Release
         if: startsWith(github.ref, 'refs/tags/v') && matrix.java == '11'
