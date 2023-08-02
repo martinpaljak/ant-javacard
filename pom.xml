@@ -4,10 +4,10 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <groupId>com.github.martinpaljak</groupId>
-    <artifactId>ant-javacard</artifactId>
+    <artifactId>ant-javacard-package</artifactId>
     <version>23.04.04-SNAPSHOT</version>
     <description>Easy to use Ant task for building JavaCard applets</description>
-    <name>ant-javacard</name>
+    <name>ant-javacard package</name>
     <url>https://github.com/martinpaljak/ant-javacard</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -46,51 +46,9 @@
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ssh-external</artifactId>
-                <version>3.5.2</version>
+                <version>3.5.3</version>
             </extension>
         </extensions>
-        <plugins>
-            <!-- Compiler -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
-                <executions>
-                    <execution>
-                        <id>default-compile</id>
-                        <configuration>
-                            <source>8</source>
-                            <target>8</target>
-                            <compilerArgs>
-                                <arg>-Werror</arg>
-                                <arg>-Xlint:all</arg>
-                            </compilerArgs>
-                            <excludes>
-                                <exclude>**/module-info.java</exclude>
-                            </excludes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!--plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <configuration>
-                            <target>
-                                <ant antfile="build.xml" inheritAll="false"/>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin-->
-        </plugins>
     </build>
 
     <!-- Metadata -->
