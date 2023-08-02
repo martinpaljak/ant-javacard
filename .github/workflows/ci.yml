@@ -1,11 +1,13 @@
 on:
   push:
+    tags:
+      - 'v*'
     branches:
-    - master
-    - next
+      - master
+      - next
   pull_request:
     branches:
-    - master
+      - master
 name: Robot builder
 jobs:
   build:
@@ -26,6 +28,7 @@ jobs:
           distribution: temurin
           cache: maven
       - name: Set SSH key
+        if: github.event_name != 'pull_request'
         uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
@@ -37,6 +40,16 @@ jobs:
       - name: Run ANT tests
         if: matrix.java != 20
         run: ant test
-      - name: Deploy snapshot on next branch
-        if: github.ref == 'refs/heads/next' && matrix.java == 11
+      - name: Deploy package or snapshot
+        if: ( github.ref == 'refs/heads/next' || github.ref == 'refs/heads/master' ) && matrix.java == 11
         run: ./mvnw -B -U deploy
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/v') && matrix.java == '11'
+        id: create_release
+        uses: softprops/action-gh-release@v0.1.15
+        with:
+          files: |
+            ant-javacard.jar
+          fail_on_unmatched_files: true
+          body: Release ${{ github.ref_name }}
+          prerelease: true # manually promoted
