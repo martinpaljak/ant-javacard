@@ -33,6 +33,7 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
       - name: Add host key
+        if: github.event_name != 'pull_request'
         run: ssh-keyscan javacard.pro >> ~/.ssh/known_hosts
       - name: Run Maven for capfile
         if: matrix.java != 8
