@@ -40,7 +40,7 @@ jobs:
         run: ./mvnw -T1C -B -U verify
       - name: Run ANT tests
         if: matrix.java != 20
-        run: ant test
+        run: ant test dist
       - name: Deploy package or snapshot
         if: ( github.ref == 'refs/heads/next' || github.ref == 'refs/heads/master' ) && matrix.java == 11
         run: ./mvnw -B -U deploy

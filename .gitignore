@@ -5,6 +5,7 @@
 *~
 /*.iml
 /*.jar
+/*.jca
 /.idea
 /.mvn/wrapper/maven-wrapper.jar
 /target
