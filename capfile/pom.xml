@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.github.martinpaljak</groupId>
-        <artifactId>ant-javacard</artifactId>
+        <artifactId>ant-javacard-package</artifactId>
         <version>23.04.04-SNAPSHOT</version>
     </parent>
     <artifactId>capfile</artifactId>
@@ -39,6 +39,7 @@
                             <compilerArgs combine.children="append">
                                 <arg>-Werror</arg>
                                 <arg>-Xlint:all</arg>
+                                <arg>-Xlint:-options</arg>
                             </compilerArgs>
                         </configuration>
                     </execution>
