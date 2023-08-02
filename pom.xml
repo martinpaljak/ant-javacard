@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <!-- Not using metacard, as this is meant to be compilable with Java 1.8 as well -->
+    <packaging>pom</packaging>
     <groupId>com.github.martinpaljak</groupId>
     <artifactId>ant-javacard</artifactId>
     <version>23.04.04-SNAPSHOT</version>
@@ -26,7 +26,7 @@
             <url>https://javacard.pro/maven/SNAPSHOTS/</url>
         </repository>
     </repositories>
-    <!-- Default is publiashing to private Maven repo on javacard.pro -->
+    <!-- Default is publishing to private Maven repo on javacard.pro -->
     <distributionManagement>
         <repository>
             <id>javacard</id>
@@ -37,22 +37,10 @@
             <url>scpexe://mvn@javacard.pro/home/mvn/maven/SNAPSHOTS</url>
         </snapshotRepository>
     </distributionManagement>
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant</artifactId>
-            <version>1.10.13</version>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-        <!-- Ant and build.xml use Maven dependecy in a hacky way. Change build.xml as well -->
-        <dependency>
-            <groupId>com.github.martinpaljak</groupId>
-            <artifactId>capfile</artifactId>
-            <version>21.12.32-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
+    <modules>
+        <module>capfile</module>
+        <module>task</module>
+    </modules>
     <build>
         <extensions>
             <extension>
@@ -71,106 +59,40 @@
                     <execution>
                         <id>default-compile</id>
                         <configuration>
-                            <!-- 1.8 is the JDK that can easily target JC2.2.2 -->
                             <source>8</source>
                             <target>8</target>
                             <compilerArgs>
                                 <arg>-Werror</arg>
                                 <arg>-Xlint:all</arg>
                             </compilerArgs>
+                            <excludes>
+                                <exclude>**/module-info.java</exclude>
+                            </excludes>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            <!-- Package -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.4.0</version>
+
+            <!--plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
                         <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <finalName>ant-javacard</finalName>
-                            <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>pro.javacard.ant.DummyMain</mainClass>
-                                </transformer>
-                            </transformers>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/maven/**</exclude>
-                                        <exclude>META-INF/MANIFEST.MF</exclude>
-                                        <exclude>**/module-info.class</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
+                            <target>
+                                <ant antfile="build.xml" inheritAll="false"/>
+                            </target>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- Reproducible -->
-            <plugin>
-                <!-- FIXME Can't upgrade to v5.0 as compilation with JDK8 should be possible -->
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-                <version>4.0.0</version>
-                <executions>
-                    <execution>
-                        <id>retrieve-git-info</id>
-                        <phase>prepare-package</phase>
                         <goals>
-                            <goal>revision</goal>
+                            <goal>run</goal>
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <injectAllReactorProjects>true</injectAllReactorProjects>
-                    <runOnlyOnce>true</runOnlyOnce>
-                    <skipPoms>false</skipPoms>
-                    <dateFormat>yyyyMMddHHmmss</dateFormat>
-                    <dateFormatTimeZone>UTC</dateFormatTimeZone>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.3.0</version>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Last-Commit-Id>${git.commit.id}</Last-Commit-Id>
-                            <Last-Commit-Time>${git.commit.time}</Last-Commit-Time>
-                            <Reproducible-Build>true</Reproducible-Build>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>io.github.zlika</groupId>
-                <artifactId>reproducible-build-maven-plugin</artifactId>
-                <version>0.15</version>
-                <executions>
-                    <execution>
-                        <id>strip-jar</id>
-                        <goals>
-                            <goal>strip-jar</goal>
-                        </goals>
-                        <configuration>
-                            <zipDateTime>${git.commit.time}</zipDateTime>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+            </plugin-->
         </plugins>
     </build>
+
     <!-- Metadata -->
     <licenses>
         <license>

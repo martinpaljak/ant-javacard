@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <!-- Not using metacard, as this is meant to be compilable with Java 1.8 as well -->
+    <parent>
+        <groupId>com.github.martinpaljak</groupId>
+        <artifactId>ant-javacard</artifactId>
+        <version>23.04.04-SNAPSHOT</version>
+    </parent>
+    <artifactId>ant-javacard-task</artifactId>
+    <description>Easy to use Ant task for building JavaCard applets</description>
+    <name>ant-javacard task</name>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant</artifactId>
+            <version>1.10.13</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.github.martinpaljak</groupId>
+            <artifactId>capfile</artifactId>
+            <version>21.12.32-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+</project>

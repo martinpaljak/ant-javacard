@@ -1,22 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="dist" name="ant-javacard build">
-    <!-- Be sure to keep this in sync with pom.xml -->
-    <property name="capfile.jar" value="${user.home}/.m2/repository/com/github/martinpaljak/capfile/21.12.32-SNAPSHOT/capfile-21.12.32-SNAPSHOT.jar"/>
     <!-- Build and load the JavaCard task -->
     <target name="jcpro" depends="clean">
-        <path id="capfile">
-            <pathelement location="${capfile.jar}"/>
-        </path>
         <mkdir dir="build"/>
-        <javac debug="true" srcdir="src/main/java" destdir="build" includeantruntime="true" target="8" source="8">
+        <javac debug="true" destdir="build" includeantruntime="true" target="8" source="8">
+            <src path="capfile/src/main/java"/>
+            <src path="task/src/main/java"/>
             <compilerarg value="-Xlint:-options"/>
             <compilerarg value="-Xlint:all"/>
-            <classpath refid="capfile"/>
+            <exclude name="**/module-info.java"/>
         </javac>
         <!-- Load the fresh task -->
         <path id="task">
             <pathelement path="build"/>
-            <pathelement location="${capfile.jar}"/>
         </path>
         <taskdef name="javacard" classname="pro.javacard.ant.JavaCard" classpathref="task"/>
     </target>
@@ -27,7 +23,7 @@
             <manifest>
                 <attribute name="Main-Class" value="pro.javacard.ant.DummyMain"/>
             </manifest>
-            <zipfileset src="${capfile.jar}"/>
+            <exclude name="/META-INF/maven/**"/>
         </jar>
         <!-- Now this JAR can be used in your build.xml by placing the jar to -->
         <!-- lib folder and having the following in your target: -->
@@ -38,5 +34,8 @@
     <!-- Cleanup! -->
     <target name="clean">
         <delete dir="build"/>
+        <delete>
+            <fileset dir="." includes="*.cap"/>
+        </delete>
     </target>
 </project>

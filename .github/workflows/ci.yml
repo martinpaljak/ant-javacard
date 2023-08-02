@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ 8, 11, 17 ]
+        java: [ 8, 11, 17, 20 ]
     name: Java ${{ matrix.java }}
     steps:
       - name: Checkout with submodules
@@ -31,8 +31,12 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_KEY }}
       - name: Add host key
         run: ssh-keyscan javacard.pro >> ~/.ssh/known_hosts
-      - run: ./mvnw -T1C -B -U verify
-      - run: ant test
+      - name: Run Maven for capfile
+        if: matrix.java != 8
+        run: ./mvnw -T1C -B -U verify
+      - name: Run ANT tests
+        if: matrix.java != 20
+        run: ant test
       - name: Deploy snapshot on next branch
-        if: github.ref == 'refs/heads/next' && matrix.java == 8
+        if: github.ref == 'refs/heads/next' && matrix.java == 11
         run: ./mvnw -B -U deploy

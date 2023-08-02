@@ -8,6 +8,7 @@
 /.idea
 /.mvn/wrapper/maven-wrapper.jar
 /target
+/build
 /testlib
 hs_err_pid*
 pom.xml.versionsBackup
