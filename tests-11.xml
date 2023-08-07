@@ -112,6 +112,13 @@
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
         </javacard>
+        <fail message="jca file missing">
+            <condition>
+                 <not>
+                   <available file="foobar.jca"/>
+                 </not>
+             </condition>
+         </fail>
     </target>
     <!-- Cross-compile against old SDK -->
     <target name="test-oldcross" depends="jcpro">
