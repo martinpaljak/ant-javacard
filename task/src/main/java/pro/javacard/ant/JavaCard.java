@@ -815,12 +815,10 @@ public final class JavaCard extends Task {
                         // create directories
                         if (!Files.exists(outExpPkgJc)) {
                             Files.createDirectories(outExpPkgJc);
-                            //if (!outExpPkgJc.mkdirs()fi) {
-                            //    throw new HelpingBuildException("Could not create directory " + outExpPkgJc);
-                            //}
                         }
                         // perform the copy
-                        Path exp_file = outExpPkgJc.resolve(exp); // XXX messed up I think?
+                        Path exp_file = outExpPkgJc.resolve(exp.getFileName());
+
                         Files.copy(exp, exp_file, StandardCopyOption.REPLACE_EXISTING);
                         // report destination
                         log("EXP saved to " + exp_file, Project.MSG_INFO);

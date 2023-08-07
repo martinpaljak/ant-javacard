@@ -54,6 +54,13 @@
         <javacard jckit="${JC305}">
             <cap targetsdk="${JC222}" sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" export="testlib" version="0.1" strip="false"/>
         </javacard>
+        <fail message="export file missing">
+            <condition>
+                 <not>
+                   <available file="testlib/testapplets/library/javacard/library.exp"/>
+                 </not>
+             </condition>
+         </fail>
     </target>
     <!-- JC 2.2.2 with 3.0.4 library -->
     <target name="test-library-user" depends="jcpro,test-library">
