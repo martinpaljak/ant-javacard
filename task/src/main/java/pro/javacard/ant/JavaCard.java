@@ -215,6 +215,8 @@ public final class JavaCard extends Task {
         private String output_jca = null;
         private String jckit_path = null;
         private JavaCardSDK targetsdk = null;
+        private String raw_targetsdk = null;
+
         private boolean verify = true;
         private boolean debug = false;
         private boolean strip = false;
@@ -289,21 +291,7 @@ public final class JavaCard extends Task {
         }
 
         public void setTargetsdk(String arg) {
-            jckit = findSDK().orElse(null); // XXX TODO: move to check()
-            Optional<SDKVersion> targetVersion = SDKVersion.fromVersion(arg);
-            if (jckit != null && jckit.getVersion() == V310 && targetVersion.isPresent()) {
-                SDKVersion target = targetVersion.get();
-                if (target.isOneOf(V304, V305, V310)) {
-                    targetsdk = jckit.target(target);
-                } else {
-                    throw new HelpingBuildException("Can not target JavaCard " + targetVersion.get() + " with JavaCard kit " + jckit.getVersion());
-                }
-            } else {
-                targetsdk = JavaCardSDK.detectSDK(getProject().resolveFile(arg).toPath()).orElseThrow(() -> new HelpingBuildException("Invalid targetsdk: " + arg));
-                if (jckit.getVersion() == V310 && !targetsdk.getVersion().isOneOf(V304, V305, V310)) {
-                    throw new HelpingBuildException("targetsdk " + targetsdk.getVersion() + " not compatible with jckit " + jckit.getVersion());
-                }
-            }
+            raw_targetsdk = arg;
         }
 
         public void setAID(String msg) {
@@ -363,6 +351,24 @@ public final class JavaCard extends Task {
             jckit = findSDK().orElseThrow(() -> new HelpingBuildException("No usable JavaCard SDK referenced"));
 
             log("INFO: using JavaCard " + jckit.getVersion() + " SDK in " + jckit.getRoot() + " with JDK " + getCurrentJDKVersion(), Project.MSG_INFO);
+
+            if (raw_targetsdk != null) {
+                Optional<SDKVersion> targetVersion = SDKVersion.fromVersion(raw_targetsdk);
+                if (jckit != null && jckit.getVersion() == V310 && targetVersion.isPresent()) {
+                    SDKVersion target = targetVersion.get();
+                    if (target.isOneOf(V304, V305, V310)) {
+                        targetsdk = jckit.target(target);
+                    } else {
+                        throw new HelpingBuildException("Can not target JavaCard " + targetVersion.get() + " with JavaCard kit " + jckit.getVersion());
+                    }
+                } else {
+                    targetsdk = JavaCardSDK.detectSDK(getProject().resolveFile(raw_targetsdk).toPath()).orElseThrow(() -> new HelpingBuildException("Invalid targetsdk: " + raw_targetsdk));
+                    if (jckit.getVersion() == V310 && !targetsdk.getVersion().isOneOf(V304, V305, V310)) {
+                        throw new HelpingBuildException("targetsdk " + targetsdk.getVersion() + " is not compatible with jckit " + jckit.getVersion());
+                    }
+                }
+            }
+
             if (targetsdk == null) {
                 targetsdk = jckit;
             } else {
