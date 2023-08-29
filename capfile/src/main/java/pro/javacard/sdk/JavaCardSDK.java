@@ -29,7 +29,6 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -170,8 +169,9 @@ public final class JavaCardSDK {
     }
 
     // Returns the classloader of verifier
+    @SuppressWarnings("removal") // AccessController
     public ClassLoader getClassLoader() {
-        return AccessController.doPrivileged(new PrivilegedAction<URLClassLoader>() {
+        return java.security.AccessController.doPrivileged(new PrivilegedAction<URLClassLoader>() {
             public URLClassLoader run() {
                 try {
                     if (version.isV3()) {
