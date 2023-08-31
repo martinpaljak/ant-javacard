@@ -557,6 +557,7 @@ public final class JavaCard extends Task {
             j.setDestdir(tmp.toFile());
             // See "Setting Java Compiler Options" in User Guide
             j.setDebug(true);
+            j.setDebugLevel("lines,vars,source");
 
             // set the best option supported by jckit
             String javaVersion = JavaCardSDK.getJavaVersion(jckit.getVersion());
