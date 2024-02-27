@@ -57,8 +57,8 @@ public class OffCardVerifier {
 
     public void verifyAgainst(Path f, JavaCardSDK target, List<Path> exps) throws VerifierError, IOException {
         // Warn about recommended usage
-        if (target.getVersion().isOneOf(SDKVersion.V304, SDKVersion.V305) && sdk.getVersion() != SDKVersion.V310) {
-            System.err.println("NB! Please use JavaCard SDK 3.1.0 for verifying!");
+        if (target.getVersion().isOneOf(SDKVersion.V304, SDKVersion.V305, SDKVersion.V310) && sdk.getVersion() != SDKVersion.V320) {
+            System.err.println("NB! Please use JavaCard SDK 3.2.0 for verifying!");
         } else {
             if (!sdk.getRelease().equals("3.0.5u3")) {
                 System.err.println("NB! Please use JavaCard SDK 3.0.5u3 or later for verifying!");
@@ -97,7 +97,7 @@ public class OffCardVerifier {
 
             try (FileInputStream input = new FileInputStream(f.toFile())) {
                 // 3.0.5u1 still uses old signature
-                if (sdk.getRelease().equals("3.0.5u3") || sdk.getRelease().equals("3.0.5u2") || sdk.getRelease().equals("3.1.0")) {
+                if (sdk.getRelease().equals("3.0.5u3") || sdk.getRelease().equals("3.0.5u2") || sdk.getVersion().isOneOf(SDKVersion.V310, SDKVersion.V320)) {
                     Method m = verifier.getMethod("verifyCap", File.class, String.class, Vector.class);
                     m.invoke(null, f.toFile(), packagename, expfiles);
                 } else {
