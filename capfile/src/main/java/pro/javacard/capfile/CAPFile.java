@@ -111,6 +111,7 @@ public class CAPFile {
         }
     }
 
+    // FIXME: 21 rightfully complains about this (getComponent leaking this)
     protected CAPFile(InputStream in) throws IOException {
         try (ZipInputStream zip = new ZipInputStream(in)) {
             // All ZIP entries
