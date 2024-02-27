@@ -29,7 +29,7 @@ jobs:
           cache: maven
       - name: Set SSH key
         if: github.event_name != 'pull_request'
-        uses: webfactory/ssh-agent@v0.9.0
+        uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
       - name: Add host key
