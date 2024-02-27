@@ -354,9 +354,10 @@ public final class JavaCard extends Task {
 
             if (raw_targetsdk != null) {
                 Optional<SDKVersion> targetVersion = SDKVersion.fromVersion(raw_targetsdk);
-                if (jckit != null && jckit.getVersion() == V310 && targetVersion.isPresent()) {
+                if (jckit != null && jckit.getVersion().isOneOf(V310, V320) && targetVersion.isPresent()) {
                     SDKVersion target = targetVersion.get();
-                    if (target.isOneOf(V304, V305, V310)) {
+                    // FIXME: can't target 3.2.0 with 3.1.0
+                    if (target.isOneOf(V304, V305, V310, V320)) {
                         targetsdk = jckit.target(target);
                     } else {
                         throw new HelpingBuildException("Can not target JavaCard " + targetVersion.get() + " with JavaCard kit " + jckit.getVersion());
@@ -568,7 +569,7 @@ public final class JavaCard extends Task {
                 throw new HelpingBuildException("JDK 17 LTS is the latest supported JDK.");
             } else if (jckit.getVersion().isOneOf(V211, V212, V221, V222) && jdkver > 8) {
                 throw new HelpingBuildException("Use JDK 8 with JavaCard kit v2.x");
-            } else if (jdkver > 11 && !jckit.getVersion().isOneOf(V310)) {
+            } else if (jdkver > 11 && !jckit.getVersion().isOneOf(V310, V320)) {
                 throw new HelpingBuildException("Use JDK 11 with JavaCard kit " + jckit.getVersion());
             }
 
@@ -652,7 +653,7 @@ public final class JavaCard extends Task {
             StringJoiner expstringbuilder = new StringJoiner(File.pathSeparator);
 
             // Add targetSDK export files
-            if (jckit.getVersion() == V310 && targetsdk.getVersion().isOneOf(V304, V305, V310)) {
+            if (jckit.getVersion().isOneOf(V310, V320) && targetsdk.getVersion().isOneOf(V304, V305, V310)) {
                 j.createArg().setLine("-target " + targetsdk.getVersion().toString());
             } else {
                 expstringbuilder.add(targetsdk.getExportDir().toString());

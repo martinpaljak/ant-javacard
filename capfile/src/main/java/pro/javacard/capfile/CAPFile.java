@@ -357,6 +357,8 @@ public class CAPFile {
                         return Optional.of("3.0.5");
                     case 8:
                         return Optional.of("3.1.0");
+                    case 9:
+                        return Optional.of("3.2.0");
                     default:
                         return Optional.of(String.format("unknown: %d.%d", p.major, p.minor));
                 }
