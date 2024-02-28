@@ -24,7 +24,7 @@ package pro.javacard.capfile;
 import java.util.Objects;
 import java.util.Optional;
 
-public class CAPPackage {
+public final class CAPPackage {
     final AID aid;
     final int minor;
     final int major;

@@ -34,7 +34,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
-public class OffCardVerifier {
+public final class OffCardVerifier {
     private final JavaCardSDK sdk;
 
     public static OffCardVerifier withSDK(JavaCardSDK sdk) {
