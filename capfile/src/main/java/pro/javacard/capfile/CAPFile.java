@@ -52,7 +52,7 @@ import java.util.zip.ZipOutputStream;
  * Parses a CAP file as specified in JavaCard 2.2 VM Specification, chapter 6.
  * CAP files are tiny, so we keep it in memory.
  */
-public class CAPFile {
+public final class CAPFile {
     public static final String DAP_RSA_V1_SHA1_FILE = "dap.rsa.sha1";
     public static final String DAP_RSA_V1_SHA256_FILE = "dap.rsa.sha256";
     public static final String DAP_P256_SHA1_FILE = "dap.p256.sha1";
@@ -93,8 +93,8 @@ public class CAPFile {
         return Optional.ofNullable(file);
     }
 
-    protected byte[] getComponent(String name) {
-        return entries.get(pkg2jcdir(getPackageName()) + name + ".cap");
+    public byte[] getComponent(String name) {
+        return entries.get(pkg2jcdir(getPackageName()) + name + ".cap").clone();
     }
 
     public byte[] getMetaInfEntry(String name) {
@@ -111,33 +111,35 @@ public class CAPFile {
         }
     }
 
-    // FIXME: 21 rightfully complains about this (getComponent leaking this)
+    // XXX: 21 rightfully complains about this without final (getComponent leaking this)
     protected CAPFile(InputStream in) throws IOException {
         try (ZipInputStream zip = new ZipInputStream(in)) {
             // All ZIP entries
             entries = readEntries(zip);
-            // Parse manifest
-            byte[] mf = entries.get("META-INF/MANIFEST.MF");
-            if (mf != null) {
-                ByteArrayInputStream mfi = new ByteArrayInputStream(mf);
-                manifest = new Manifest(mfi);
-            }
+        }
 
-            // Only if there are applets
-            byte[] ai = entries.get("APPLET-INF/applet.xml");
-            if (ai != null) {
-                try {
-                    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-                    // Not really a threat (intended for self-generated local files) but still nice to have
-                    dbFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-                    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-                    appletxml = dBuilder.parse(new ByteArrayInputStream(ai));
-                    appletxml.getDocumentElement().normalize();
-                } catch (SAXException | ParserConfigurationException e) {
-                    throw new IOException(e);
-                }
+        // Parse manifest
+        byte[] mf = entries.get("META-INF/MANIFEST.MF");
+        if (mf != null) {
+            ByteArrayInputStream mfi = new ByteArrayInputStream(mf);
+            manifest = new Manifest(mfi);
+        }
+
+        // Only if there are applets
+        byte[] ai = entries.get("APPLET-INF/applet.xml");
+        if (ai != null) {
+            try {
+                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                // Not really a threat (intended for self-generated local files) but still nice to have
+                dbFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                appletxml = dBuilder.parse(new ByteArrayInputStream(ai));
+                appletxml.getDocumentElement().normalize();
+            } catch (SAXException | ParserConfigurationException e) {
+                throw new IOException(e);
             }
         }
+
 
         // Figure out package name. Failsafe without metadata as well, for 2.1.X support.
         String pkgname = null;
@@ -203,7 +205,7 @@ public class CAPFile {
         }
     }
 
-    private Map<String, byte[]> readEntries(ZipInputStream in) throws IOException {
+    private static Map<String, byte[]> readEntries(ZipInputStream in) throws IOException {
         Map<String, byte[]> result = new LinkedHashMap<>();
         ZipEntry entry = in.getNextEntry();
         while (entry != null) {
@@ -216,7 +218,7 @@ public class CAPFile {
             result.put(entry.getName(), bos.toByteArray());
             entry = in.getNextEntry();
         }
-        return result;
+        return Collections.unmodifiableMap(result);
     }
 
     public AID getPackageAID() {

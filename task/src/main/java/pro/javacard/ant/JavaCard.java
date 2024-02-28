@@ -360,7 +360,7 @@ public final class JavaCard extends Task {
                     if (target.isOneOf(V304, V305, V310, V320)) {
                         targetsdk = jckit.target(target);
                     } else {
-                        throw new HelpingBuildException("Can not target JavaCard " + targetVersion.get() + " with JavaCard kit " + jckit.getVersion());
+                        throw new HelpingBuildException("Can not target JavaCard " + target + " with JavaCard kit " + jckit.getVersion());
                     }
                 } else {
                     targetsdk = JavaCardSDK.detectSDK(getProject().resolveFile(raw_targetsdk).toPath()).orElseThrow(() -> new HelpingBuildException("Invalid targetsdk: " + raw_targetsdk));
