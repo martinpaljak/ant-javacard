@@ -94,7 +94,8 @@ public final class CAPFile {
     }
 
     public byte[] getComponent(String name) {
-        return entries.get(pkg2jcdir(getPackageName()) + name + ".cap").clone();
+        byte[] c = entries.get(pkg2jcdir(getPackageName()) + name + ".cap");
+        return c == null ? null : c.clone();
     }
 
     public byte[] getMetaInfEntry(String name) {
