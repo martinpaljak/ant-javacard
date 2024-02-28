@@ -19,11 +19,11 @@
         <repository>
             <id>javacard-pro</id>
             <name>javacard.pro</name>
-            <url>https://javacard.pro/maven/</url>
+            <url>https://mvn.javacard.pro/maven/</url>
         </repository>
         <repository>
             <id>javacard-pro-snapshots</id>
-            <url>https://javacard.pro/maven/SNAPSHOTS/</url>
+            <url>https://mvn.javacard.pro/maven/SNAPSHOTS/</url>
         </repository>
     </repositories>
     <!-- Default is publishing to private Maven repo on javacard.pro -->

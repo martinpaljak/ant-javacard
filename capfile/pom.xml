@@ -13,13 +13,19 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>7.8.0</version>
+            <version>7.9.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.12</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>2.0.7</version>
+            <version>2.0.12</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -29,7 +35,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.12.1</version>
                 <executions>
                     <execution>
                         <id>default-compile</id>
@@ -63,6 +69,9 @@
                             <excludes>
                                 <exclude>module-info.java</exclude>
                             </excludes>
+                            <compilerArgs combine.children="append">
+                                <arg>-Xlint:-options</arg>
+                            </compilerArgs>
                         </configuration>
                     </execution>
                 </executions>
@@ -70,7 +79,7 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>4.7.3.4</version>
+                <version>4.8.3.1</version>
                 <configuration>
                     <excludeFilterFile>spotbugs.xml</excludeFilterFile>
                 </configuration>
