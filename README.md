@@ -7,7 +7,7 @@
 ## Features
  * **[Do What I Mean](http://en.wikipedia.org/wiki/DWIM)**. You will [love it](#happy-users)!
  * **No dependencies**, no extra or unrelated downloads. Just **a jar file smaller than 100KB**.
- * Supports **all available JavaCard SDK versions**: 2.1.2, 2.2.1, 2.2.2, 3.0.3, 3.0.4, 3.0.5 and 3.1.0
+ * Supports **all available JavaCard SDK versions**: 2.1.2, 2.2.1, 2.2.2, 3.0.3, 3.0.4, 3.0.5, 3.1.0 and 3.2.0
    * Get one from [oracle.com](https://www.oracle.com/java/technologies/javacard-sdk-downloads.html) or use the [handy Github repository](https://github.com/martinpaljak/oracle_javacard_sdks)
  * **Works on all platforms** with LTS Java 1.8+: Windows, OSX, Linux.
    * **[Usable SDK-s depend on JDK version](https://github.com/martinpaljak/ant-javacard/wiki/JavaCard-SDK-and-JDK-version-compatibility)**; 1.8 recommended!
@@ -57,6 +57,14 @@ target:
  [javacard] NB! Please use JavaCard SDK 3.0.5u3 or later for verifying!
       [cap] CAP saved to /Users/martin/projects/ant-javacard/Empty_A000000617008E5CDAAE_50da91a4_2.2.2.cap
 ```
+## Recommended setup
+- Targeting JC 3.0.4 or later
+  - Use JDK 17 (don't forget to set `$JAVA_HOME`)
+  - Use JavaCard SDK 3.2.0 (`jckit="sdks/jc320v24.0_kit"`) with right target (`targetsdk="3.x.y"`)
+- Targeting JC 2.x.y or 3.0.1
+  - Use JDK 8 (don't forget to set `$JAVA_HOME`)
+  - Use JavaCard SDK 3.0.5u4 (`jckit="sdks/jc305u4_kit"`) with right target (`targetsdk="sdks/jc222_kit"`)
+
 ## Syntax
 Sample:
 
@@ -109,13 +117,13 @@ Notes:
  * `%j` - targeted JavaCard version
 
 ## Maven dependency
-Releases are published to [`https://javacard.pro/maven/`](https://javacard.pro/maven/). To use it, add this to your `pom.xml`:
+Releases are published to [`https://mvn.javacard.pro/maven/`](https://mvn.javacard.pro/maven/). To use it, add this to your `pom.xml`:
 
 ```xml
 <repositories>
     <repository>
         <id>javacard-pro</id>
-        <url>https://javacard.pro/maven/</url>
+        <url>https://mvn.javacard.pro/maven/</url>
     </repository>
 </repositories>
 ```
