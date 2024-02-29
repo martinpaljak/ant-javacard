@@ -34,12 +34,14 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
+import static pro.javacard.sdk.SDKVersion.*;
+
 public final class OffCardVerifier {
     private final JavaCardSDK sdk;
 
     public static OffCardVerifier withSDK(JavaCardSDK sdk) {
         // Only main method in 2.1 SDK
-        if (sdk.getVersion().isOneOf(SDKVersion.V211, SDKVersion.V212))
+        if (sdk.getVersion().isOneOf(V211, V212))
             throw new RuntimeException("Verification is supported with JavaCard SDK 2.2.1 or later");
         return new OffCardVerifier(sdk);
     }
@@ -57,7 +59,7 @@ public final class OffCardVerifier {
 
     public void verifyAgainst(Path f, JavaCardSDK target, List<Path> exps) throws VerifierError, IOException {
         // Warn about recommended usage
-        if (target.getVersion().isOneOf(SDKVersion.V304, SDKVersion.V305, SDKVersion.V310) && sdk.getVersion() != SDKVersion.V320) {
+        if (target.getVersion().isOneOf(V304, V305, V310) && sdk.getVersion() != V320) {
             System.err.println("NB! Please use JavaCard SDK 3.2.0 for verifying!");
         } else {
             if (!sdk.getRelease().equals("3.0.5u3")) {
@@ -97,7 +99,7 @@ public final class OffCardVerifier {
 
             try (FileInputStream input = new FileInputStream(f.toFile())) {
                 // 3.0.5u1 still uses old signature
-                if (sdk.getRelease().equals("3.0.5u3") || sdk.getRelease().equals("3.0.5u2") || sdk.getVersion().isOneOf(SDKVersion.V310, SDKVersion.V320)) {
+                if (sdk.getRelease().equals("3.0.5u3") || sdk.getRelease().equals("3.0.5u2") || sdk.getVersion().isOneOf(V310, V320)) {
                     Method m = verifier.getMethod("verifyCap", File.class, String.class, Vector.class);
                     m.invoke(null, f.toFile(), packagename, expfiles);
                 } else {

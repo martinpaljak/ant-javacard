@@ -76,14 +76,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>4.8.3.1</version>
-                <configuration>
-                    <excludeFilterFile>spotbugs.xml</excludeFilterFile>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 </project>

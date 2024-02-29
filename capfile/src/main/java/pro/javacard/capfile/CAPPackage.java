@@ -26,8 +26,8 @@ import java.util.Optional;
 
 public final class CAPPackage {
     final AID aid;
-    final int minor;
     final int major;
+    final int minor;
     final String name;
 
     public CAPPackage(AID aid, int major, int minor) {
