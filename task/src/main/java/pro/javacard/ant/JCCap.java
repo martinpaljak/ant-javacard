@@ -724,12 +724,12 @@ public class JCCap extends Task {
         }
     }
 
-    private static String capFileName(CAPFile cap, String template) {
+    private String capFileName(CAPFile cap, String template) {
         String name = template;
         final String n;
         // Fallback if %n is requested with no applets
         if (cap.getAppletAIDs().size() == 1 && !cap.getFlags().contains("exports")) {
-            n = Misc.className(cap.getApplets().entrySet().iterator().next().getValue());
+            n = Misc.className(raw_applets.get(0).klass); // XXX: this is because in 2.x or severely stripped .cap file applet name is not present.
         } else {
             n = cap.getPackageName();
         }
