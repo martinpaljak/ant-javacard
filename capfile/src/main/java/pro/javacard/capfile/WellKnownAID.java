@@ -76,7 +76,9 @@ public final class WellKnownAID {
 
         // Load internal
         try (InputStream in = WellKnownAID.class.getResourceAsStream("aid_list.properties")) {
-            load(in);
+            // If run differently, might not have the list
+            if (in != null)
+                load(in);
         } catch (IOException e) {
             throw new RuntimeException("Can not load builtin list of AID-s: " + e.getMessage(), e);
         }

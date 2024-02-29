@@ -24,11 +24,11 @@ package pro.javacard.sdk;
 public class VerifierError extends Exception {
     private final static long serialVersionUID = 9099882918121440945L;
 
-    VerifierError(String message, Throwable cause) {
+    public VerifierError(String message, Throwable cause) {
         super(message, cause);
     }
 
-    VerifierError(String message) {
+    public VerifierError(String message) {
         super(message);
     }
 }
