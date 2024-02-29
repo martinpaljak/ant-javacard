@@ -24,8 +24,11 @@ package pro.javacard.ant;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 // <javacard jckit="${env.JCKIT}"></javacard>
 // This is a wrapper task that can contain one or more <cap> subtasks.
