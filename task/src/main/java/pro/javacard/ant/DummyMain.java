@@ -39,12 +39,13 @@ public final class DummyMain {
     public static void main(String[] argv) {
         try {
             Vector<String> args = new Vector<>(Arrays.asList(argv));
-            System.out.println("args: " + args);
+
             if (args.isEmpty()) {
-                System.out.println("This is an ANT task, not a program!");
+                System.out.println("This is an ANT task.");
                 System.out.println("Read usage instructions from https://github.com/martinpaljak/ant-javacard#syntax");
                 System.out.println();
                 System.out.println("But you can use it to dump/verify CAP files, like this:");
+                System.out.println("$ java -jar ant-javacard.jar <capfile>");
                 System.exit(1);
             } else if (args.size() == 1) {
                 final String capfile = args.remove(0);
@@ -87,7 +88,7 @@ public final class DummyMain {
                     System.exit(1);
                 }
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             System.err.printf("Error: %s: %s%n", e.getClass().getSimpleName(), e.getMessage());
             if (System.getenv("DEBUG") != null) {
                 e.printStackTrace();

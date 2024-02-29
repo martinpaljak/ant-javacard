@@ -53,10 +53,6 @@ import java.util.zip.ZipOutputStream;
  * CAP files are tiny, so we keep it in memory.
  */
 public final class CAPFile {
-    public static final String DAP_RSA_V1_SHA1_FILE = "dap.rsa.sha1";
-    public static final String DAP_RSA_V1_SHA256_FILE = "dap.rsa.sha256";
-    public static final String DAP_P256_SHA1_FILE = "dap.p256.sha1";
-    public static final String DAP_P256_SHA256_FILE = "dap.p256.sha256";
 
     private static final String[] componentNames = {"Header", "Directory", "Import", "Applet", "Class", "Method", "StaticField", "Export",
             "ConstantPool", "RefLocation", "Descriptor", "Debug"};
@@ -66,7 +62,7 @@ public final class CAPFile {
     private final List<CAPPackage> imports = new ArrayList<>();
     private CAPPackage pkg;
     private byte flags;
-    private String cap_version; // 2.1 and 2.2 supported, 2.3 new format not
+    private String cap_version;
     // Metadata
     private Manifest manifest = null; // From 2.2.2
     private Document appletxml = null; // From 3.0.1
@@ -100,6 +96,10 @@ public final class CAPFile {
 
     public byte[] getMetaInfEntry(String name) {
         return entries.get("META-INF/" + name);
+    }
+
+    public Optional<byte[]> getZipComponent(String name) {
+        return Optional.ofNullable(entries.get(name));
     }
 
     public void store(OutputStream to) throws IOException {
@@ -246,16 +246,20 @@ public final class CAPFile {
     }
 
     byte[] _getCode(boolean includeDebug) {
-        byte[] result = new byte[0];
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
         for (String name : componentNames) {
             byte[] c = getComponent(name);
             if (c == null)
                 continue;
             if (!includeDebug && (name.equals("Debug") || name.equals("Descriptor")))
                 continue;
-            result = concat(result, c);
+            try {
+                result.write(c);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         }
-        return result;
+        return result.toByteArray();
     }
 
     public byte[] getLoadFileDataHash(String hash) {
@@ -316,6 +320,10 @@ public final class CAPFile {
     }
 
     public List<String> getFlags() {
+        return flags2strings(flags);
+    }
+
+    public static List<String> flags2strings(byte flags) {
         ArrayList<String> result = new ArrayList<>();
         // Table 6-3: CAP File Package Flags
         if ((flags & 0x01) == 0x01) {
@@ -423,12 +431,6 @@ public final class CAPFile {
 
     private static String jcdir2pkg(String jcdir) {
         return jcdir.substring(0, jcdir.lastIndexOf("/javacard/")).replace('/', '.');
-    }
-
-    private static byte[] concat(byte[] a, byte[] b) {
-        byte[] r = Arrays.copyOf(a, a.length + b.length);
-        System.arraycopy(b, 0, r, a.length, b.length);
-        return r;
     }
 
     public static void uncheckedDelete(Path p) throws UncheckedIOException {

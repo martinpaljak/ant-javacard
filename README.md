@@ -125,6 +125,11 @@ Notes:
 - run off-card verifier
   - `java -jar ant-javacard.jar <sdk> <capfile> <expfiles>`
 
+### Environment variables
+- `JAVA_HOME` - path to the JDK to be used.
+- `JC_HOME` - path to the JavaCard SDK to be used if not specified in the build file.
+- `ANT_JAVACARD_TMP` - path to the temporary folder to be used for building CAP files. This is not cleaned after use.
+- `DEBUG` - if set, shows debug output.
 
 ## Maven dependency
 Releases are published to [`https://mvn.javacard.pro/maven/`](https://mvn.javacard.pro/maven/). To use it, add this to your `pom.xml`:
