@@ -47,6 +47,7 @@ public class JCCap extends Task {
     private boolean debug = false;
     private boolean strip = false;
     private boolean ints = false;
+    private boolean exportmap = false;
 
 
     public JCCap(String master_jckit_path) {
@@ -115,6 +116,10 @@ public class JCCap extends Task {
 
     public void setInts(boolean arg) {
         ints = arg;
+    }
+
+    public void setExportmap(boolean arg) {
+        exportmap = arg;
     }
 
     public void setTargetsdk(String arg) {
@@ -510,6 +515,9 @@ public class JCCap extends Task {
         if (ints) {
             j.createArg().setLine("-i");
         }
+        if (exportmap) {
+            j.createArg().setLine("-exportmap");
+	}
 
         // determine output types
         String outputs = "CAP";
