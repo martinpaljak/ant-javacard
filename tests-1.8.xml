@@ -12,7 +12,7 @@
     <property name="JC305" value="sdks/jc305u3_kit"/>
     <property name="JC310" value="sdks/jc310r20210706_kit"/>
     <!-- Build test applets -->
-    <target name="test" depends="jcpro,test-library-user,test-multiapp,test-no-output,test-sdks,test-stringdef,test-targetsdk,test-oldcross,test-exp-version"/>
+    <target name="test" depends="jcpro,test-library-user,test-library-reimplementation,test-multiapp,test-no-output,test-sdks,test-stringdef,test-targetsdk,test-oldcross,test-exp-version"/>
     <!-- Different SDK-s-->
     <target name="test-sdks">
         <javacard>
@@ -62,6 +62,14 @@
     <target name="test-library" depends="jcpro">
         <javacard jckit="${JC305}">
             <cap targetsdk="${JC222}" sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" export="testlib" version="0.127"/>
+        </javacard>
+    </target>
+    <!-- Library reimplementation -->
+    <target name="test-library-reimplementation" depends="jcpro,test-library">
+        <javacard jckit="${JC305}">
+            <cap targetsdk="${JC222}" sources="src/testapplets/library-reimplementation" package="testapplets.library" aid="01020304050607" export="testlib" exportmap="true" version="0.127">
+            <import jar="testlib/library.jar"/>
+          </cap>
         </javacard>
     </target>
     <!-- JC 2.2.2 with 3.0.4 library -->
