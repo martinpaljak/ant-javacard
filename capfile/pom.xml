@@ -31,51 +31,7 @@
     </dependencies>
     <build>
         <plugins>
-            <!-- Compiler -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.12.1</version>
-                <executions>
-                    <execution>
-                        <id>default-compile</id>
-                        <configuration>
-                            <!-- compile everything to ensure module-info contains right entries -->
-                            <release>11</release>
-                            <compilerArgs combine.children="append">
-                                <arg>-Werror</arg>
-                                <arg>-Xlint:all</arg>
-                                <arg>-Xlint:-options</arg>
-                            </compilerArgs>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <!-- Run tests with 11 -->
-                        <id>default-testCompile</id>
-                        <configuration>
-                            <!-- compile everything to ensure module-info contains right entries -->
-                            <release>11</release>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>base-compile</id>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                        <!-- recompile everything for 1.8 except the module-info.java -->
-                        <configuration>
-                            <source>8</source>
-                            <target>8</target>
-                            <excludes>
-                                <exclude>module-info.java</exclude>
-                            </excludes>
-                            <compilerArgs combine.children="append">
-                                <arg>-Xlint:-options</arg>
-                            </compilerArgs>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+
         </plugins>
     </build>
 </project>
