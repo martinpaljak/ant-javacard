@@ -22,6 +22,7 @@
 package pro.javacard.ant;
 
 import pro.javacard.capfile.CAPFile;
+import pro.javacard.sdk.ExportFileHelper;
 import pro.javacard.sdk.JavaCardSDK;
 import pro.javacard.sdk.OffCardVerifier;
 import pro.javacard.sdk.VerifierError;
@@ -48,16 +49,22 @@ public final class DummyMain {
                 System.exit(1);
             } else if (args.size() == 1) {
                 final String capfile = args.remove(0);
-                if (Files.isRegularFile(Paths.get(capfile)) && capfile.endsWith(".cap")) {
+
+                Path path = Paths.get(capfile);
+                if (capfile.endsWith(".exp")) {
+                    System.err.println("Expfile version: " + ExportFileHelper.getVersion(path));
+                    System.exit(1);
+                }
+                if (Files.isRegularFile(path) && capfile.endsWith(".cap")) {
                     try {
-                        CAPFile cap = CAPFile.fromBytes(Files.readAllBytes(Paths.get(capfile)));
+                        CAPFile cap = CAPFile.fromBytes(Files.readAllBytes(path));
                         cap.dump(System.out);
                     } catch (Exception e) {
                         System.err.printf("Failed to read/parse CAP file: %s: %s%n", e.getClass().getSimpleName(), e.getMessage());
                         System.exit(1);
                     }
                 } else {
-                    System.err.println("Usage: java -jar ant-javacard.jar <capfile>");
+                    System.err.println("Usage: java -jar ant-javacard.jar <capfile|expfile>");
                     System.exit(1);
                 }
             } else {
