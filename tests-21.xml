@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="test" name="ant-javacard tests">
+    <!-- Build test applets -->
+    <target name="test">
+        <echo message="JDK 21 does not work with any JavaCard kit. See https://github.com/martinpaljak/ant-javacard/wiki/JavaCard-SDK-and-JDK-version-compatibility"/>
+    </target>
+</project>
