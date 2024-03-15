@@ -421,11 +421,14 @@ public class JCCap extends Task {
         // See https://github.com/martinpaljak/ant-javacard/issues/79
         int jdkver = Misc.getCurrentJDKVersion();
         if (jdkver > 17) {
+            // JDK 21 can't create 1.7 class files, last version supported by JC kit 3.2
             throw new HelpingBuildException("JDK 17 is the latest supported JDK.");
         } else if (jckit.getVersion().isOneOf(V211, V212, V221, V222) && jdkver > 8) {
+            // JDK 8 is the last version capable of creating 1.2 class files, latest version supported by all 2.x JC kits
             throw new HelpingBuildException("Use JDK 8 with JavaCard kit v2.x");
         } else if (jdkver > 11 && !jckit.getVersion().isOneOf(V310, V320)) {
-            throw new HelpingBuildException("Use JDK 11 with JavaCard kit " + jckit.getVersion());
+            // JDK 17+ minimal class file target is 1.7, but need 1.6
+            throw new HelpingBuildException(String.format("Can't use JDK %d with JavaCard kit %s (use JDK 11)", jdkver, jckit.getVersion()));
         }
 
         j.setTarget(javaVersion);
