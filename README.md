@@ -121,7 +121,7 @@ Notes:
  * `%a` - package AID
  * `%j` - targeted JavaCard version
 
-### Command line utility
+### Command line utility (still WIP until [#92](https://github.com/martinpaljak/ant-javacard/issues/92))
 `ant-javacard.jar` can be used to dump built .cap file metadata and to re-run off-card verifier.
 
 - dump .cap file metadata
