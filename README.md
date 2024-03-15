@@ -59,12 +59,14 @@ target:
       [cap] CAP saved to /Users/martin/projects/ant-javacard/Empty_A000000617008E5CDAAE_50da91a4_2.2.2.cap
 ```
 ## Recommended setup
-- Targeting JC 3.0.4 or later
+- Targeting JC 3.0.4 or later (modern JavaCard-s)
   - Use JDK 17 (don't forget to set `$JAVA_HOME`)
   - Use JavaCard SDK 3.2.0 (`jckit="sdks/jc320v24.0_kit"`) with right target (`targetsdk="3.x.y"`)
-- Targeting JC 2.x.y or 3.0.1
+- Targeting JC 2.x.y or 3.0.1 (legacy JavaCard-s)
   - Use JDK 8 (don't forget to set `$JAVA_HOME`)
   - Use JavaCard SDK 3.0.5u4 (`jckit="sdks/jc305u4_kit"`) with right target (`targetsdk="sdks/jc222_kit"`)
+
+> Note: ant-javacard will continue to support JavaCard 2 for as long as this is achievable with sane effort.
 
 ## Syntax
 Sample:
@@ -109,6 +111,7 @@ Details:
 
 Notes:
  * `jc.home` property has the highest precedence, followed by `jckit` path of `cap`, followed by path in `javacard`, followed by `JC_HOME` environment variable. SDK must be valid to be considered for use.
+ * All source files are expected to be UTF-8. It is a sane choice, please use it.
 
 ### Output file name variables
  * `%h` - 8 character prefix of the SHA-256 Load File Data Block hash of the CAP file
