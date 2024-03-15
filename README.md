@@ -2,7 +2,7 @@
 
 > Easy to use [Ant](https://ant.apache.org/) task for building JavaCard CAP files in a declarative way.
 
-Have a consistent and concise build declaration for JavaCard applets, no matter which which JavaCard version you target.
+Have a consistent and concise build declaration for JavaCard applets, no matter which JavaCard SDK you use or target.
 
 [![Build Status](https://github.com/martinpaljak/ant-javacard/workflows/Robot%20builder/badge.svg)](https://github.com/martinpaljak/ant-javacard/actions) [![Latest release](https://img.shields.io/github/release/martinpaljak/ant-javacard.svg)](https://github.com/martinpaljak/ant-javacard/releases/latest) [![Maven version](https://img.shields.io/maven-metadata/v?label=javacard.pro%20maven%20version&metadataUrl=https%3A%2F%2Fjavacard.pro%2Fmaven%2Fcom%2Fgithub%2Fmartinpaljak%2Fant-javacard%2Fmaven-metadata.xml)](https://gist.github.com/martinpaljak/c77d11d671260e24eef6c39123345cae) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/martinpaljak/ant-javacard/blob/master/LICENSE)
 
