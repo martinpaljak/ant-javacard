@@ -364,6 +364,8 @@ public class JCCap extends Task {
         // construct javac task
         Javac j = new Javac();
         j.setProject(project);
+        // See https://github.com/martinpaljak/ant-javacard/pull/96
+        j.setEncoding("utf-8");
         j.setTaskName("compile");
 
         org.apache.tools.ant.types.Path sources = mkPath(null);
