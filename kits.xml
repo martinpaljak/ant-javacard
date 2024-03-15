@@ -9,7 +9,8 @@
     <property name="JC304" value="sdks/jc304_kit"/>
     <property name="JC305_1" value="sdks/jc305u1_kit"/>
     <property name="JC305_2" value="sdks/jc305u2_kit"/>
-    <property name="JC305" value="sdks/jc305u3_kit"/>
+    <property name="JC305_3" value="sdks/jc305u3_kit"/>
+    <property name="JC305" value="sdks/jc305u4_kit"/>
     <property name="JC310" value="sdks/jc310r20210706_kit"/>
     <property name="JC320" value="sdks/jc320v24.0_kit"/>
 </project>    
