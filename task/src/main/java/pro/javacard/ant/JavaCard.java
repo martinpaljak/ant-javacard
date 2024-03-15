@@ -508,6 +508,7 @@ public final class JavaCard extends Task {
             // construct javac task
             Javac j = new Javac();
             j.setProject(project);
+            j.setEncoding("utf-8");
             j.setTaskName("compile");
 
             org.apache.tools.ant.types.Path sources = mkPath(null);
