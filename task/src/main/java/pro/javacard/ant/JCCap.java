@@ -45,6 +45,8 @@ import static pro.javacard.sdk.SDKVersion.*;
 
 // <cap ...>...</cap> and actual execution of core task.
 public class JCCap extends Task {
+
+    static final String DEFAULT_CAP_NAME_TEMPLATE = "%n_%a_%h_%j_%J.cap"; // SomeApplet_010203040506_9a037e30_2.2.2_jdk11.cap
     private final String master_jckit_path;
     private JavaCardSDK jckit = null;
     private String classes_path = null;
@@ -346,7 +348,7 @@ public class JCCap extends Task {
         }
         // Default output name
         if (output_cap == null) {
-            output_cap = "%n_%a_%h_%j.cap"; // SomeApplet_010203040506_9a037e30_2.2.2.cap
+            output_cap = DEFAULT_CAP_NAME_TEMPLATE;
         }
     }
 
@@ -777,6 +779,7 @@ public class JCCap extends Task {
         name = name.replace("%a", cap.getPackageAID().toString()); // package AID
         name = name.replace("%j", cap.guessJavaCardVersion().orElse("unknown")); // JavaCard version
         name = name.replace("%g", cap.guessGlobalPlatformVersion().orElse("unknown")); // GlobalPlatform version
+        name = name.replace("%J", String.format("jdk%d", Misc.getCurrentJDKVersion())); // JDK version
         return name;
     }
 }

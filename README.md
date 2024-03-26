@@ -62,11 +62,12 @@ target:
 - Targeting JC 3.0.4 or later (modern JavaCard-s)
   - Use JDK 17 (don't forget to set `$JAVA_HOME`)
   - Use JavaCard SDK 3.2.0 (`jckit="sdks/jc320v24.0_kit"`) with right target (`targetsdk="3.x.y"`)
+  - NOTE: depending on your external components, absence of v2.3 export files will force you to stick with JavaCard SDK 3.1
 - Targeting JC 2.x.y or 3.0.1 (legacy JavaCard-s)
   - Use JDK 8 (don't forget to set `$JAVA_HOME`)
   - Use JavaCard SDK 3.0.5u4 (`jckit="sdks/jc305u4_kit"`) with right target (`targetsdk="sdks/jc222_kit"`)
 
-> Note: ant-javacard will continue to support JavaCard 2 for as long as this is achievable with sane effort.
+> Note: ant-javacard will continue to support JavaCard 2 for as long as this is achievable with sane effort
 
 ## Syntax
 Sample:
@@ -114,12 +115,17 @@ Notes:
  * All source files are expected to be UTF-8. It is a sane choice, please use it.
 
 ### Output file name variables
- * `%h` - 8 character prefix of the SHA-256 Load File Data Block hash of the CAP file
- * `%H` - SHA-256 Load File Data Block hash of the CAP file
- * `%n` - _common name_ of the entity, either applet class or package
+
+The default file name template is `%n_%a_%h_%j_%J.cap` which results in a file name similar to `SomeApplet_010203040506_9a037e30_2.2.2_jdk11.cap`.
+
+Following substitutions are available:
+ * `%h` - 8 character prefix (hex) of the SHA-256 Load File Data Block hash of the CAP file
+ * `%H` - SHA-256 Load File Data Block hash (hex) of the CAP file
+ * `%n` - _common name_ of the entity, either applet class (if only one applet) or package name
  * `%p` - package name
- * `%a` - package AID
- * `%j` - targeted JavaCard version
+ * `%a` - package AID (hex)
+ * `%j` - targeted JavaCard version (ex: 3.0.5)
+ * `%J` - used JDK version (ex: jdk11)
 
 ### Command line utility (still WIP until [#92](https://github.com/martinpaljak/ant-javacard/issues/92))
 `ant-javacard.jar` can be used to dump built .cap file metadata and to re-run off-card verifier.

@@ -20,13 +20,13 @@ cap:
 	JAVA_HOME=$(JAVA21) ./mvnw package
 
 8:
-	JAVA_HOME=$(JAVA8) ant clean test
+	JAVA_HOME=$(JAVA8) ant test
 
 11:
-	JAVA_HOME=$(JAVA11) ant clean test
+	JAVA_HOME=$(JAVA11) ant test
 
 17:
-	JAVA_HOME=$(JAVA17) ant clean test
+	JAVA_HOME=$(JAVA17) ant test
 
 
 all: cap 8 11 17
