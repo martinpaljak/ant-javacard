@@ -1,18 +1,18 @@
 # Building JavaCard applet CAP files with Ant
 
-> Easy to use [Ant](https://ant.apache.org/) task for building JavaCard CAP files in a declarative way.
+> Easy to use [Apache Ant](https://ant.apache.org/) task for building JavaCard CAP files in a declarative way.
 
-Have a consistent and concise build declaration for JavaCard applets, no matter which JavaCard SDK you use or target.
+Have a consistent and concise build declaration for JavaCard applets, no matter which JavaCard SDK version you use or target.
 
 [![Build Status](https://github.com/martinpaljak/ant-javacard/workflows/Robot%20builder/badge.svg)](https://github.com/martinpaljak/ant-javacard/actions) [![Latest release](https://img.shields.io/github/release/martinpaljak/ant-javacard.svg)](https://github.com/martinpaljak/ant-javacard/releases/latest) [![Maven version](https://img.shields.io/maven-metadata/v?label=javacard.pro%20maven%20version&metadataUrl=https%3A%2F%2Fjavacard.pro%2Fmaven%2Fcom%2Fgithub%2Fmartinpaljak%2Fant-javacard%2Fmaven-metadata.xml)](https://gist.github.com/martinpaljak/c77d11d671260e24eef6c39123345cae) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/martinpaljak/ant-javacard/blob/master/LICENSE)
 
 ## Features
  * **[Do What I Mean](http://en.wikipedia.org/wiki/DWIM)**. You will [love it](#happy-users)!
- * **No dependencies**, no extra or unrelated downloads. Just **a jar file smaller than 100KB**.
+ * **No dependencies**, no extra or unrelated downloads. Just **a ~50KB jar file**.
  * Supports **all available JavaCard SDK versions**: 2.1.2, 2.2.1, 2.2.2, 3.0.3, 3.0.4, 3.0.5, 3.1.0 and 3.2.0
    * Get one from [oracle.com](https://www.oracle.com/java/technologies/javacard-sdk-downloads.html) or use the [handy Github repository](https://github.com/martinpaljak/oracle_javacard_sdks)
  * **Works on all platforms** with LTS Java 1.8+: Windows, OSX, Linux.
-   * **[Usable SDK-s depend on JDK version](https://github.com/martinpaljak/ant-javacard/wiki/JavaCard-SDK-and-JDK-version-compatibility)**; 1.8 recommended!
+   * **[Usable SDK-s depend on JDK version](https://github.com/martinpaljak/ant-javacard/wiki/JavaCard-SDK-and-JDK-version-compatibility)**
  * Almost **everything integrates** or works with Ant.
    * Trigger it [from Maven](https://github.com/martinpaljak/ant-javacard/wiki/How-to-use-from-Maven) or via [Gradle wrapper](https://github.com/bertrandmartel/javacard-gradle-plugin)
  * Can be easily integrated into **continuous integration** workflows.
@@ -27,7 +27,7 @@ Have a consistent and concise build declaration for JavaCard applets, no matter 
 ```xml
 <get src="https://github.com/martinpaljak/ant-javacard/releases/latest/download/ant-javacard.jar" dest="." skipexisting="true"/>
 ```
- * Then add the following to your `build.xml` file:
+ * Then load the task with the following in your `build.xml` file:
 ```xml
 <taskdef name="javacard" classname="pro.javacard.ant.JavaCard" classpath="ant-javacard.jar"/>
 ```
@@ -127,19 +127,19 @@ Following substitutions are available:
  * `%j` - targeted JavaCard version (ex: 3.0.5)
  * `%J` - used JDK version (ex: jdk11)
 
-### Command line utility (still WIP until [#92](https://github.com/martinpaljak/ant-javacard/issues/92))
+### Command line utility
 `ant-javacard.jar` can be used to dump built .cap file metadata and to re-run off-card verifier.
 
 - dump .cap file metadata
   - `java -jar ant-javacard.jar <capfile>`
-- run off-card verifier
+- run off-card verifier (still WIP until [#92](https://github.com/martinpaljak/ant-javacard/issues/92))
   - `java -jar ant-javacard.jar <sdk> <capfile> <expfiles>`
 
 ### Environment variables
 - `JAVA_HOME` - path to the JDK to be used.
 - `JC_HOME` - path to the JavaCard SDK to be used if not specified in the build file.
 - `ANT_JAVACARD_TMP` - path to the temporary folder to be used for building CAP files. This is not cleaned after use.
-- `DEBUG` - if set, shows debug output.
+- `ANT_JAVACARD_DEBUG` - if set, shows debug output.
 
 ## Maven dependency
 Releases are published to [`https://mvn.javacard.pro/maven/`](https://mvn.javacard.pro/maven/). To use it, add this to your `pom.xml`:

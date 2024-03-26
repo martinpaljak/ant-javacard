@@ -96,7 +96,7 @@ public final class DummyMain {
             }
         } catch (Throwable e) {
             System.err.printf("Error: %s: %s%n", e.getClass().getSimpleName(), e.getMessage());
-            if (System.getenv("DEBUG") != null) {
+            if (System.getenv("ANT_JAVACARD_DEBUG") != null) {
                 e.printStackTrace();
             }
             System.exit(1);
