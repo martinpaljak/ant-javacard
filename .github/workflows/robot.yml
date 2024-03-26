@@ -22,7 +22,7 @@ jobs:
         with:
           submodules: true
       - name: Setup java
-        uses: actions/setup-java@v4.0.0
+        uses: actions/setup-java@v4.2.1
         with:
           java-version: ${{ matrix.java }}
           distribution: temurin
@@ -47,7 +47,7 @@ jobs:
       - name: Release
         if: startsWith(github.ref, 'refs/tags/v') && matrix.java == '11'
         id: create_release
-        uses: softprops/action-gh-release@v0.1.15
+        uses: softprops/action-gh-release@v2.0.4
         with:
           files: |
             ant-javacard.jar
