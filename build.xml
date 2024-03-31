@@ -22,7 +22,9 @@
             <!-- It is possible to execute ant-javacard.jar... -->
             <manifest>
                 <attribute name="Main-Class" value="pro.javacard.ant.DummyMain"/>
+                <!-- Set dummy values for moving values, so that same jar could be built with slight variations in JDK/ant version-->
                 <attribute name="Created-By" value="ant-javacard build"/>
+                <attribute name="Ant-Version" value="unspecified"/>
             </manifest>
             <exclude name="/META-INF/maven/**"/>
         </jar>
