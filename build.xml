@@ -16,17 +16,44 @@
         </path>
         <taskdef name="javacard" classname="pro.javacard.ant.JavaCard" classpathref="task"/>
     </target>
-    <!-- Package it into a JAR -->
-    <target name="dist" depends="jcpro">
-        <jar destfile="ant-javacard.jar" level="9" basedir="build" modificationtime="0">
-            <!-- It is possible to execute ant-javacard.jar... -->
+    <!-- Get commit and timestamp from git -->
+    <target name="git" description="Get git values">
+        <exec executable="git" outputproperty="git.revision" failifexecutionfails="true" errorproperty="">
+            <arg value="describe"/>
+            <arg value="--tags"/>
+            <arg value="--always"/>
+            <arg value="--dirty"/>
+            <arg value="HEAD"/>
+        </exec>
+        <exec executable="git" outputproperty="git.timestamp" failifexecutionfails="true" errorproperty="">
+            <arg value="log"/>
+            <arg value="-1"/>
+            <arg value="--format=%at"/>
+        </exec>
+        <condition property="repository.version" value="${git.revision}" else="unknown">
+            <and>
+                <isset property="git.revision"/>
+                <length string="${git.revision}" trim="yes" length="0" when="greater"/>
+            </and>
+        </condition>
+        <condition property="repository.timestamp" value="${git.timestamp}" else="0">
+            <and>
+                <isset property="git.timestamp"/>
+                <length string="${git.timestamp}" trim="yes" length="0" when="greater"/>
+            </and>
+        </condition>
+    </target>
+    <!-- Package it into a reproducible JAR -->
+    <target name="dist" depends="jcpro,git">
+        <!-- Have the modification timestamp from last git commit (multiplied by 1000) -->
+        <jar destfile="ant-javacard.jar" level="9" basedir="build" modificationtime="${repository.timestamp}000">
             <manifest>
+                <!-- It is possible to execute ant-javacard.jar... -->
                 <attribute name="Main-Class" value="pro.javacard.ant.DummyMain"/>
-                <!-- Set dummy values for moving values, so that same jar could be built with slight variations in JDK/ant version-->
-                <attribute name="Created-By" value="ant-javacard build"/>
-                <attribute name="Ant-Version" value="unspecified"/>
+                <!-- Blank out volatile values, so the same jar could be built with slight variations in JDK/ant version -->
+                <attribute name="Created-By" value="ant-javacard build ${repository.version}"/>
+                <attribute name="Ant-Version" value="irrelevant"/>
             </manifest>
-            <exclude name="/META-INF/maven/**"/>
         </jar>
         <!-- Now this JAR can be used in your build.xml by placing the jar to -->
         <!-- lib folder and having the following in your target: -->
@@ -40,5 +67,6 @@
         <delete>
             <fileset dir="." includes="*.cap"/>
         </delete>
+        <delete file="ant-javacard.jar"/>
     </target>
 </project>
