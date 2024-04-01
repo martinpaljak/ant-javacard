@@ -46,7 +46,7 @@
     <!-- Package it into a reproducible JAR -->
     <target name="dist" depends="jcpro,git">
         <!-- Have the modification timestamp from last git commit (multiplied by 1000) -->
-        <jar destfile="ant-javacard.jar" level="9" basedir="build" modificationtime="${repository.timestamp}">
+        <jar destfile="ant-javacard.jar" level="9" basedir="build" modificationtime="0">
             <manifest>
                 <!-- It is possible to execute ant-javacard.jar... -->
                 <attribute name="Main-Class" value="pro.javacard.ant.DummyMain"/>
