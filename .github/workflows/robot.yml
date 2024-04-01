@@ -41,7 +41,6 @@ jobs:
         if: matrix.java != 8
         run: ./mvnw -T1C -B -U verify
       - name: Run ANT tests
-        if: matrix.java != 21
         run: ant test dist
       - name: Get SHA-256 of ant-javacard.jar
         run: echo "JARSUM=$(shasum -a 256 --tag ant-javacard.jar)" >> "$GITHUB_ENV"
