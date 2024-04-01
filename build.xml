@@ -23,7 +23,6 @@
             <arg value="--tags"/>
             <arg value="--always"/>
             <arg value="--dirty"/>
-            <arg value="HEAD"/>
         </exec>
         <exec executable="git" outputproperty="git.timestamp" failifexecutionfails="true" errorproperty="">
             <arg value="log"/>
