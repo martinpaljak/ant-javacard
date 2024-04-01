@@ -27,7 +27,7 @@
         <exec executable="git" outputproperty="git.timestamp" failifexecutionfails="true" errorproperty="">
             <arg value="log"/>
             <arg value="-1"/>
-            <arg value="--format=%at"/>
+            <arg value="--format=%aI"/>
         </exec>
         <condition property="repository.version" value="${git.revision}" else="unknown">
             <and>
@@ -41,11 +41,12 @@
                 <length string="${git.timestamp}" trim="yes" length="0" when="greater"/>
             </and>
         </condition>
+        <echo>${repository.version} @ ${repository.timestamp}</echo>
     </target>
     <!-- Package it into a reproducible JAR -->
     <target name="dist" depends="jcpro,git">
         <!-- Have the modification timestamp from last git commit (multiplied by 1000) -->
-        <jar destfile="ant-javacard.jar" level="9" basedir="build" modificationtime="${repository.timestamp}000">
+        <jar destfile="ant-javacard.jar" level="9" basedir="build" modificationtime="${repository.timestamp}">
             <manifest>
                 <!-- It is possible to execute ant-javacard.jar... -->
                 <attribute name="Main-Class" value="pro.javacard.ant.DummyMain"/>
