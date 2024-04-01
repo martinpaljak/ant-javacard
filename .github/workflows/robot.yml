@@ -44,7 +44,7 @@ jobs:
         if: matrix.java != 21
         run: ant test dist
       - name: Get SHA-256 of ant-javacard.jar
-        run: echo "JARSUM=$(shasum -a 256 ant-javacard.jar | cut -d' ' -f 1)" >> "$GITHUB_ENV"
+        run: echo "JARSUM=$(shasum -a 256 --tag ant-javacard.jar)" >> "$GITHUB_ENV"
       - name: Deploy package or snapshot
         if: github.event_name != 'pull_request' && matrix.java == '11'
         run: ./mvnw -B -U deploy
@@ -62,5 +62,5 @@ jobs:
           files: |
             ant-javacard.jar
           fail_on_unmatched_files: true
-          body: "Release ${{ github.ref_name }}, with SHA-256: `${{ env.JARSUM }}` (built with JDK-11)"
+          body: "Release ${{ github.ref_name }}, `${{ env.JARSUM }}` (built with JDK-11)"
           prerelease: true # manually promoted

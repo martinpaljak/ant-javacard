@@ -1,3 +1,4 @@
+TZ = UTC # same as Github
 SHELL := /bin/bash
 JDK := zulu
 JAVA8 := /Library/Java/JavaVirtualMachines/$(JDK)-8.jdk/Contents/Home
@@ -8,6 +9,10 @@ JAVA21 := /Library/Java/JavaVirtualMachines/$(JDK)-21.jdk/Contents/Home
 default: reportjava
 	./mvnw package
 	ant test
+
+dist: reportjava
+	ant clean dist
+	shasum -a 256 --tag ant-javacard.jar
 
 reportjava:
 	@echo using java $(shell java -version 2>&1 | grep version) from \"$(JAVA_HOME)\"
