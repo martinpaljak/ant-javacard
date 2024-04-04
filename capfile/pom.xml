@@ -9,6 +9,9 @@
     </parent>
     <artifactId>capfile</artifactId>
     <name>JavaCard CAP file library</name>
+    <properties>
+        <project.build.outputTimestamp>${git.commit.time}</project.build.outputTimestamp>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.testng</groupId>
@@ -29,9 +32,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <build>
-        <plugins>
-
-        </plugins>
-    </build>
 </project>

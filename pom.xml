@@ -14,6 +14,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- GH Actions fails sometimes on first try -->
         <maven.wagon.http.retryHandler.count>2</maven.wagon.http.retryHandler.count>
+        <project.build.outputTimestamp>${git.commit.time}</project.build.outputTimestamp>
     </properties>
     <repositories>
         <repository>
@@ -75,6 +76,22 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>8.0.2</version>
+                <executions>
+                    <execution>
+                        <id>get-git-timestamp</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <dateFormatTimeZone>UTC</dateFormatTimeZone>
+                </configuration>
             </plugin>
             <!-- Compiler -->
             <plugin>
