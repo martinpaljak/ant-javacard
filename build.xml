@@ -25,6 +25,8 @@
             <arg value="--dirty"/>
         </exec>
         <exec executable="git" outputproperty="git.timestamp" failifexecutionfails="true" errorproperty="">
+            <arg value="-c"/>
+            <arg value="log.showSignature=false"/>
             <arg value="log"/>
             <arg value="-1"/>
             <arg value="--format=%aI"/>
