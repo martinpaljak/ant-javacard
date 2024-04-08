@@ -1,4 +1,5 @@
 TZ = UTC # same as Github
+export TZ
 SHELL := /bin/bash
 JDK := zulu
 JAVA8 := /Library/Java/JavaVirtualMachines/$(JDK)-8.jdk/Contents/Home
@@ -11,7 +12,7 @@ default: reportjava
 	ant test
 
 dist: reportjava
-	ant clean dist
+	JAVA_HOME=$(JAVA11) ant clean dist
 	shasum -a 256 --tag ant-javacard.jar
 
 reportjava:
