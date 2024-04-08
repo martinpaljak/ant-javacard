@@ -24,16 +24,11 @@ package pro.javacard.ant;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Vector;
 
 // <javacard jckit="${env.JCKIT}">...</javacard>
 // This is a wrapper task that can contain one or more <cap> subtasks for building capfiles.
 public final class JavaCard extends Task {
-    static List<Path> temporary = new ArrayList<>();
 
     private String master_jckit_path = null;
     private Vector<JCCap> packages = new Vector<>();
@@ -52,7 +47,7 @@ public final class JavaCard extends Task {
     public void execute() {
         Thread cleanup = new Thread(() -> {
             log("Ctrl-C, cleaning up", Project.MSG_INFO);
-            cleanTemp();
+            Misc.cleanTemp();
         });
         Runtime.getRuntime().addShutdownHook(cleanup);
         try {
@@ -64,16 +59,4 @@ public final class JavaCard extends Task {
         }
     }
 
-    static void cleanTemp() {
-        // Do not clean temporary files if manually set temporary path is set. This is useful for debugging.
-        if (System.getenv("ANT_JAVACARD_TMP") != null)
-            return;
-
-        // Clean temporary files.
-        for (Path f : temporary) {
-            if (Files.exists(f)) {
-                Misc.rmminusrf(f);
-            }
-        }
-    }
 }

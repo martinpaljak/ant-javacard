@@ -25,11 +25,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
 
 final class Misc {
 
     // This code has been taken from Apache commons-codec 1.7 (License: Apache 2.0)
     private static final char[] LOWER_HEX = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+    static List<Path> temporary = new ArrayList<>();
 
     static String encodeHexString(final byte[] data) {
         final int l = data.length;
@@ -126,5 +129,37 @@ final class Misc {
             ln = ln.substring(ln.lastIndexOf(".") + 1);
         }
         return ln;
+    }
+
+    static Path makeTemp(String sub) {
+        try {
+            if (System.getenv("ANT_JAVACARD_TMP") != null) {
+                Path tmp = Paths.get(System.getenv("ANT_JAVACARD_TMP"), sub);
+                if (Files.exists(tmp, LinkOption.NOFOLLOW_LINKS)) {
+                    rmminusrf(tmp);
+                }
+                Files.createDirectories(tmp);
+                return tmp;
+            } else {
+                Path p = Files.createTempDirectory("jccpro");
+                temporary.add(p);
+                return p;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Can not make temporary folder", e);
+        }
+    }
+
+    static void cleanTemp() {
+        // Do not clean temporary files if manually set temporary path is set. This is useful for debugging.
+        if (System.getenv("ANT_JAVACARD_TMP") != null)
+            return;
+
+        // Clean temporary files.
+        for (Path f : temporary) {
+            if (Files.exists(f)) {
+                rmminusrf(f);
+            }
+        }
     }
 }

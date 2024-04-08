@@ -410,7 +410,7 @@ public class JCCap extends Task {
             }
         } else {
             // else generate temporary folder
-            tmp = makeTemp("classes");
+            tmp = Misc.makeTemp("classes");
             classes_path = tmp.toAbsolutePath().toString();
         }
 
@@ -587,7 +587,7 @@ public class JCCap extends Task {
             }
 
             // Create temporary folder and add to cleanup
-            Path applet_folder = makeTemp("applet");
+            Path applet_folder = Misc.makeTemp("applet");
 
             // Construct exportpath
             ArrayList<Path> exps = new ArrayList<>();
@@ -601,7 +601,7 @@ public class JCCap extends Task {
                 } else {
                     try {
                         // Assume exp files in jar
-                        f = makeTemp("imports");
+                        f = Misc.makeTemp("imports");
                         OffCardVerifier.extractExps(project.resolveFile(imp.jar).toPath(), f);
                     } catch (IOException e) {
                         throw new BuildException("Can not extract EXP files from JAR", e);
@@ -738,26 +738,7 @@ public class JCCap extends Task {
                 throw new BuildException("Can not copy output CAP, EXP or JCA", e);
             }
         } finally {
-            JavaCard.cleanTemp();
-        }
-    }
-
-    private Path makeTemp(String sub) {
-        try {
-            if (System.getenv("ANT_JAVACARD_TMP") != null) {
-                Path tmp = Paths.get(System.getenv("ANT_JAVACARD_TMP"), sub);
-                if (Files.exists(tmp, LinkOption.NOFOLLOW_LINKS)) {
-                    Misc.rmminusrf(tmp);
-                }
-                Files.createDirectories(tmp);
-                return tmp;
-            } else {
-                Path p = Files.createTempDirectory("jccpro");
-                JavaCard.temporary.add(p);
-                return p;
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Can not make temporary folder", e);
+            Misc.cleanTemp();
         }
     }
 

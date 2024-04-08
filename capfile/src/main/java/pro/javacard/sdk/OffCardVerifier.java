@@ -62,8 +62,8 @@ public final class OffCardVerifier {
         if (target.getVersion().isOneOf(V304, V305, V310) && sdk.getVersion() != V320) {
             System.err.println("NB! Please use JavaCard SDK 3.2.0 for verifying!");
         } else {
-            if (!sdk.getRelease().equals("3.0.5u3")) {
-                System.err.println("NB! Please use JavaCard SDK 3.0.5u3 or later for verifying!");
+            if (!sdk.getRelease().equals("3.0.5u4")) {
+                System.err.println("NB! Please use JavaCard SDK 3.0.5u4 or later for verifying!");
             }
         }
         List<Path> exports = new ArrayList<>(exps.stream().collect(Collectors.toList()));

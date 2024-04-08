@@ -132,8 +132,8 @@ Following substitutions are available:
 
 - dump .cap file metadata
   - `java -jar ant-javacard.jar <capfile>`
-- run off-card verifier (still WIP until [#92](https://github.com/martinpaljak/ant-javacard/issues/92))
-  - `java -jar ant-javacard.jar <sdk> <capfile> <expfiles>`
+- run off-card verifier
+  - `java -jar ant-javacard.jar <sdk> [<targetsdk>] <capfile> <expfiles>`
 
 ### Environment variables
 - `JAVA_HOME` - path to the JDK to be used.
