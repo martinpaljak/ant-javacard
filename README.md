@@ -175,6 +175,7 @@ A random list of users, with a public link:
   * [SatochipApplet](https://github.com/Toporin/SatochipApplet) (Bitcoin Hardware Wallet) by [@Toporin](https://github.com/Toporin)
   * [SIMple-ID](https://github.com/alan-turing-institute/SIMple-ID) by [@alan-turing-institute](https://github.com/alan-turing-institute)
   * [HelloSTK2](https://github.com/mrlnc/HelloSTK2) (SIM toolkit sample app) by [@mrlnc](https://github.com/mrlnc)
+  * [NeoPGP](https://github.com/mwalle/NeoPGP) by [@mwalle](https://github.com/mwalle)
   * Plus loads of academic projects, classes and papers.
 * Integration projects:
   * [JavaCard Gradle plugin](https://github.com/bertrandmartel/javacard-gradle-plugin) by [@bertrandmartel](https://github.com/bertrandmartel)
