@@ -176,6 +176,7 @@ A random list of users, with a public link:
   * [SIMple-ID](https://github.com/alan-turing-institute/SIMple-ID) by [@alan-turing-institute](https://github.com/alan-turing-institute)
   * [HelloSTK2](https://github.com/mrlnc/HelloSTK2) (SIM toolkit sample app) by [@mrlnc](https://github.com/mrlnc)
   * [NeoPGP](https://github.com/mwalle/NeoPGP) by [@mwalle](https://github.com/mwalle)
+  * [EUCLEAK](https://ninjalab.io/eucleak/) by [NinjaLab](https://ninjalab.io)
   * Plus loads of academic projects, classes and papers.
 * Integration projects:
   * [JavaCard Gradle plugin](https://github.com/bertrandmartel/javacard-gradle-plugin) by [@bertrandmartel](https://github.com/bertrandmartel)
