@@ -37,6 +37,7 @@ import pro.javacard.sdk.VerifierError;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -72,7 +73,18 @@ public class JCCap extends Task {
     private boolean strip = false;
     private boolean ints = false;
     private boolean exportmap = false;
+    final static String _logconf;
 
+    static {
+        // Setting the java.util.logging configuration for convert task will prevent the creation of ~/java0.log.0 file
+        Path logconf = Misc.makeTemp("logging").resolve("logging.properties");
+        _logconf = logconf.toAbsolutePath().normalize().toString();
+        try {
+            Files.write(logconf, String.format(".level = SEVERE%n").getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            System.err.println("Could not write temporary logging configuration: " + e.getMessage());
+        }
+    }
 
     public JCCap(String master_jckit_path) {
         this.master_jckit_path = master_jckit_path;
@@ -496,11 +508,21 @@ public class JCCap extends Task {
         // set class depending on SDK
         if (jckit.getVersion().isV3()) {
             j.setClassname("com.sun.javacard.converter.Main");
+
+            // Don't create java0.log.0 files in home folder
+            // As a Java process is executed, we need to store it in a config file
+            Environment.Variable jclog = new Environment.Variable();
+            jclog.setKey("java.util.logging.config.file");
+            jclog.setValue(_logconf);
+            j.addSysproperty(jclog);
+
             // XXX: See https://community.oracle.com/message/10452555
-            Environment.Variable jchome = new Environment.Variable();
-            jchome.setKey("jc.home");
-            jchome.setValue(jckit.getRoot().toString());
-            j.addSysproperty(jchome);
+            // This is disabled, because for whatever reason, having jc.home property set, the above logging suppression does not work.
+            // make all shows no need for it on macos either.
+            //Environment.Variable jchome = new Environment.Variable();
+            //jchome.setKey("jc.home");
+            //jchome.setValue(jckit.getRoot().toString());
+            //j.addSysproperty(jchome);
         } else {
             j.setClassname("com.sun.javacard.converter.Converter");
         }
@@ -546,7 +568,7 @@ public class JCCap extends Task {
         }
         if (exportmap) {
             j.createArg().setLine("-exportmap");
-	}
+        }
 
         // determine output types
         String outputs = "CAP";
