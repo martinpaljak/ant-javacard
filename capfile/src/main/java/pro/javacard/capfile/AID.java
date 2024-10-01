@@ -22,8 +22,6 @@
 
 package pro.javacard.capfile;
 
-import pro.javacard.HexUtils;
-
 import java.util.Arrays;
 
 public final class AID {
