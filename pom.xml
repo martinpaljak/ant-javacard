@@ -69,7 +69,7 @@
                                     <message>Project requires JDK 11+</message>
                                 </requireJavaVersion>
                                 <requireMavenVersion>
-                                    <version>[3.9.8,)</version>
+                                    <version>[3.9.9,)</version>
                                 </requireMavenVersion>
                                 <requirePluginVersions/>
                             </rules>
@@ -141,7 +141,7 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>4.8.6.2</version>
+                <version>4.8.6.4</version>
                 <configuration>
                     <excludeFilterFile>spotbugs.xml</excludeFilterFile>
                 </configuration>
@@ -163,22 +163,22 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
-                <version>3.1.2</version>
+                <version>3.1.3</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>3.1.2</version>
+                <version>3.1.3</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>4.0.0-M12</version>
+                <version>3.20.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.3.1</version>
+                <version>3.5.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
