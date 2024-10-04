@@ -181,6 +181,7 @@ A random list of users, with a public link:
 * Integration projects:
   * [JavaCard Gradle plugin](https://github.com/bertrandmartel/javacard-gradle-plugin) by [@bertrandmartel](https://github.com/bertrandmartel)
   * [JavaCard Template project with Gradle](https://github.com/ph4r05/javacard-gradle-template) by [@ph4r05](https://github.com/ph4r05)
+  * [ant-javacard in Docker](https://github.com/xoryouyou/docker-javacard) by [@xoryouyou](https://github.com/xoryouyou)
 * Other:
   * **You!** Don't torture yourself with complexity, **KISS!**
 
