@@ -42,7 +42,7 @@ Have a consistent and concise build declaration for JavaCard applets, no matter 
 (which results in output similar to this)
 ```
 target:
-      [cap] INFO: using JavaCard 3.0.4 SDK in sdks/jc304_kit
+      [cap] INFO: using JavaCard 3.0.5 SDK in sdks/jc305u4_kit
       [cap] INFO: targeting JavaCard 2.2.2 SDK in sdks/jc222_kit
       [cap] Setting package name to testapplets.empty
       [cap] INFO: generated applet AID: A000000617008E5CDAAE01 for testapplets.empty.Empty
@@ -50,12 +50,6 @@ target:
       [cap] testapplets.empty.Empty A000000617008E5CDAAE01
   [compile] Compiling files from /Users/martin/projects/ant-javacard/src/testapplets/empty
   [compile] Compiling 1 source file to /var/folders/gf/_m9mq9td3lz32qv1hd4r12yw0000gn/T/jccpro841338375581620546
-  [convert] [ INFO: ] Converter [v3.0.4]
-  [convert] [ INFO: ]     Copyright (c) 2011, Oracle and/or its affiliates. All rights reserved.
-  [convert]
-  [convert]
-  [convert] [ INFO: ] conversion completed with 0 errors and 0 warnings.
- [javacard] NB! Please use JavaCard SDK 3.0.5u3 or later for verifying!
       [cap] CAP saved to /Users/martin/projects/ant-javacard/Empty_A000000617008E5CDAAE_50da91a4_2.2.2.cap
 ```
 ## Recommended setup
@@ -64,12 +58,12 @@ Based on the [JavaCard SDK and JDK version compatibility matrix](https://github.
   - Use JDK 17 (don't forget to set `$JAVA_HOME`)
   - Use JavaCard SDK 3.2.0 (`jckit="sdks/jc320v24.0_kit"`) with right target (`targetsdk="3.x.y"`)
   - NOTE: depending on your external components, absence of v2.3 export files will force you to stick with JavaCard SDK 3.1
-- Targeting JC 2.x.y or 3.0.1 (older JavaCard-s)
+- Targeting JC 2.2.x or 3.0.1 (older JavaCard-s)
   - Use JDK 11 (don't forget to set `$JAVA_HOME`)
   - Use JavaCard SDK 3.0.5u4 (`jckit="sdks/jc305u4_kit"`) with right target (`targetsdk="sdks/jc222_kit"`)
 
 > [!NOTE]
-> ant-javacard will continue to support using JavaCard 2.X SDK-s (and thus JDK-8) for as long as this is achievable with sane effort
+> ant-javacard will continue to support using legacy JavaCard 2.X SDK-s (and thus JDK-8) for as long as this is achievable with sane effort
 
 ## Syntax
 Sample:
