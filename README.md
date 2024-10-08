@@ -19,7 +19,9 @@ Have a consistent and concise build declaration for JavaCard applets, no matter 
  * Generates CAP files from **sources** or **pre-compiled** class files.
  * Import **external libraries**: natural use of `.jar` libraries and/or `.exp` files.
  * **No restrictions** on project folder layout (but `src/main/javacard` works).
- * Loading JavaCard applets is equally pleasing with **[GlobalPlatformPro](https://github.com/martinpaljak/GlobalPlatformPro)**
+
+> [!TIP]
+> Loading JavaCard applets is equally pleasing with **[GlobalPlatformPro](https://github.com/martinpaljak/GlobalPlatformPro)**
 
 ## Download & Use
  * Download [`ant-javacard.jar`](https://github.com/martinpaljak/ant-javacard/releases/latest/download/ant-javacard.jar)
