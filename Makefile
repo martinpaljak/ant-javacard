@@ -36,3 +36,6 @@ cap:
 
 
 all: cap 8 11 17
+
+clean:
+	rm -f *~ *.cap
