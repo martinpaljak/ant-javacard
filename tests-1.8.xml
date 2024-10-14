@@ -6,10 +6,6 @@
     <!-- Different SDK-s-->
     <target name="test-sdks">
         <javacard>
-            <!-- JC 3.2.0 -->
-            <cap jckit="${JC320}" sources="src/testapplets/empty">
-                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
-            </cap>
             <!-- JC 3.1.0 -->
             <cap jckit="${JC310}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
@@ -68,7 +64,7 @@
     </target>
     <!-- Library -->
     <target name="test-library" depends="jcpro,test-library-old">
-        <javacard jckit="${JC320}">
+        <javacard jckit="${JC310}">
             <cap targetsdk="3.0.4" sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" export="testlib" version="0.127"/>
         </javacard>
     </target>

@@ -34,8 +34,10 @@ cap:
 17:
 	JAVA_HOME=$(JAVA17) ant test
 
+21:
+	JAVA_HOME=$(JAVA21) ant test
 
-all: cap 8 11 17
+all: cap 8 11 17 21
 
 clean:
 	rm -f *~ *.cap

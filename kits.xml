@@ -12,5 +12,5 @@
     <property name="JC305_3" value="sdks/jc305u3_kit"/>
     <property name="JC305" value="sdks/jc305u4_kit"/>
     <property name="JC310" value="sdks/jc310r20210706_kit"/>
-    <property name="JC320" value="sdks/jc320v24.0_kit"/>
+    <property name="JC320" value="sdks/jc320v24.1_kit"/>
 </project>    
