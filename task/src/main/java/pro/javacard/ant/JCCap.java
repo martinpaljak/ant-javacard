@@ -445,6 +445,9 @@ public class JCCap extends Task {
         } else if (jdkver > 11 && !jckit.getVersion().isOneOf(V310, V320)) {
             // JDK 17+ minimal class file target is 1.7, but need 1.6
             throw new HelpingBuildException(String.format("Can't use JDK %d with JavaCard kit %s (use JDK 11)", jdkver, jckit.getVersion()));
+        } else if (jdkver == 8 && jckit.getVersion().isOneOf(V320)) {
+            // 24.1 requires JDK-11 to run (while 24.0 can work with JDK-8, encourage updating)
+            throw new HelpingBuildException(String.format("Can't use JDK %d with JavaCard kit %s (use JDK 11 or 17)", jdkver, jckit.getVersion()));
         }
 
         j.setTarget(javaVersion);
