@@ -575,7 +575,7 @@ public class JCCap extends Task {
 
         // determine output types
         String outputs = "CAP";
-        if (output_exp != null || (raw_applets.size() > 1 && verify)) {
+        if (output_exp != null || (raw_applets.size() > 0 && verify)) {
             outputs += " EXP";
         }
         if (output_jca != null) {
