@@ -5,9 +5,9 @@
 Have a consistent and concise build declaration for JavaCard applets, no matter which JavaCard SDK version you use or target.
 
 [![Latest release](https://img.shields.io/github/release/martinpaljak/ant-javacard.svg)](https://github.com/martinpaljak/ant-javacard/releases/latest)
-&nbsp;[![Maven version](https://img.shields.io/maven-metadata/v?label=mvn.javacard.pro&metadataUrl=https%3A%2F%2Fjavacard.pro%2Fmaven%2Fcom%2Fgithub%2Fmartinpaljak%2Fant-javacard%2Fmaven-metadata.xml)](https://gist.github.com/martinpaljak/c77d11d671260e24eef6c39123345cae)
+&nbsp;[![Maven version](https://img.shields.io/maven-metadata/v?label=mvn.javacard.pro&metadataUrl=https%3A%2F%2Fmvn.javacard.pro%2Fmaven%2Fcom%2Fgithub%2Fmartinpaljak%2Fant-javacard%2Fmaven-metadata.xml)](https://gist.github.com/martinpaljak/c77d11d671260e24eef6c39123345cae)
 &nbsp;[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/martinpaljak/ant-javacard/blob/master/LICENSE)
-&nbsp;[![Build Status](https://github.com/martinpaljak/ant-javacard/workflows/Robot%20builder/badge.svg)](https://github.com/martinpaljak/ant-javacard/actions)
+&nbsp;[![Build Status](https://github.com/martinpaljak/ant-javacard/workflows/robot.yml/badge.svg?branch=master)](https://github.com/martinpaljak/ant-javacard/actions)
 &nbsp;[![Made in Estonia](https://img.shields.io/badge/Made_in-Estonia-0072CE)](https://estonia.ee)
 
 ## Features
