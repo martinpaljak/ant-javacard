@@ -48,6 +48,8 @@ import static pro.javacard.sdk.SDKVersion.*;
 public class JCCap extends Task {
 
     static final String DEFAULT_CAP_NAME_TEMPLATE = "%n_%a_%h_%j_%J.cap"; // SomeApplet_010203040506_9a037e30_2.2.2_jdk11.cap
+    static final String DEFAULT_CAP_NAME_TEMPLATE_LIB = "%n_%a_%v_%h.cap"; // some.library_010203040506_v1.2_9a037e30.cap
+
     private final String master_jckit_path;
     private JavaCardSDK jckit = null;
     private String classes_path = null;
@@ -360,7 +362,7 @@ public class JCCap extends Task {
         }
         // Default output name
         if (output_cap == null) {
-            output_cap = DEFAULT_CAP_NAME_TEMPLATE;
+            output_cap = raw_applets.size() == 0 ? DEFAULT_CAP_NAME_TEMPLATE_LIB : DEFAULT_CAP_NAME_TEMPLATE;
         }
     }
 
