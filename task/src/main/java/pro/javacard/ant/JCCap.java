@@ -80,7 +80,7 @@ public class JCCap extends Task {
         Path logconf = Misc.makeTemp("logging").resolve("logging.properties");
         _logconf = logconf.toAbsolutePath().normalize().toString();
         try {
-            Files.write(logconf, String.format(".level = SEVERE%n").getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.write(logconf, String.format("handlers = java.util.logging.ConsoleHandler%n.level = WARNING").getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
             System.err.println("Could not write temporary logging configuration: " + e.getMessage());
         }
