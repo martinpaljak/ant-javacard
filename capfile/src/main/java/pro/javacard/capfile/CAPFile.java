@@ -231,6 +231,10 @@ public final class CAPFile {
         return result;
     }
 
+    public String getPackageVersion() {
+        return pkg.getVersionString();
+    }
+
     public String getPackageName() {
         return pkg.getName().orElseThrow(() -> new IllegalStateException("No package name"));
     }
