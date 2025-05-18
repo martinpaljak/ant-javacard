@@ -135,9 +135,8 @@ final class Misc {
         try {
             if (System.getenv("ANT_JAVACARD_TMP") != null) {
                 Path tmp = Paths.get(System.getenv("ANT_JAVACARD_TMP"), sub);
-                if (Files.exists(tmp, LinkOption.NOFOLLOW_LINKS)) {
-                    rmminusrf(tmp);
-                }
+                // NOTE: would like to make sure that the folder is cleaned, but tmp/imports is shared between
+                // all imports and would result in just final import files to survive.
                 Files.createDirectories(tmp);
                 return tmp;
             } else {
