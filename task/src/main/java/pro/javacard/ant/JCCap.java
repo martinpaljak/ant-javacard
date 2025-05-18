@@ -783,6 +783,7 @@ public class JCCap extends Task {
         name = name.replace("%n", n); // "common name", applet or package
         name = name.replace("%p", cap.getPackageName()); // package name
         name = name.replace("%a", cap.getPackageAID().toString()); // package AID
+        name = name.replace("%v", "v" + cap.getPackageVersion()); // package version
         name = name.replace("%j", cap.guessJavaCardVersion().orElse("unknown")); // JavaCard version
         name = name.replace("%g", cap.guessGlobalPlatformVersion().orElse("unknown")); // GlobalPlatform version
         name = name.replace("%J", String.format("jdk%d", Misc.getCurrentJDKVersion())); // JDK version

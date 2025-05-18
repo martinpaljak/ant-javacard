@@ -128,6 +128,7 @@ Following substitutions are available:
  * `%a` - package AID (hex)
  * `%j` - targeted JavaCard version (ex: 3.0.5)
  * `%J` - used JDK version (ex: jdk11)
+ * `%v` - applet package version (same as `version` attribute for `cap`, ex: v1.0)
 
 ### Command line utility
 `ant-javacard.jar` can be used to dump built .cap file metadata and to re-run off-card verifier.
