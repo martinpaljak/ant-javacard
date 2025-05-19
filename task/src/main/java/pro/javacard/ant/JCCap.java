@@ -60,8 +60,8 @@ public class JCCap extends Task {
     private String package_name = null;
     private byte[] package_aid = null;
     private String package_version = null;
-    private Vector<JCApplet> raw_applets = new Vector<>();
-    private Vector<JCImport> raw_imports = new Vector<>();
+    private List<JCApplet> raw_applets = new ArrayList<>();
+    private List<JCImport> raw_imports = new ArrayList<>();
     private String output_cap = null;
     private String output_exp = null;
     private String output_jar = null;
