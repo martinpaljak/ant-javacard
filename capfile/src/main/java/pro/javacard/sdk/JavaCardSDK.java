@@ -59,20 +59,33 @@ public final class JavaCardSDK {
     private static SDKVersion detectSDKVersion(Path root) {
         SDKVersion version = null;
         Path libDir = root.resolve("lib");
-        if (Files.exists(libDir.resolve("tools.jar"))) {
-            if (Files.exists(libDir.resolve("api_classic-3.2.0.jar")))
-                return SDKVersion.V320;
-            if (Files.exists(libDir.resolve("api_classic-3.1.0.jar")))
-                return SDKVersion.V310;
-            Path api = libDir.resolve("api_classic.jar");
-            try (ZipFile apiZip = new ZipFile(api.toFile())) {
-                if (apiZip.getEntry("javacard/framework/SensitiveArrays.class") != null) {
-                    return SDKVersion.V305;
+        Path tools = libDir.resolve("tools.jar");
+        if (Files.exists(tools)) {
+            try (ZipFile apiZip = new ZipFile(tools.toFile())) {
+                ZipEntry toolsver = apiZip.getEntry("com/sun/javacard/toolsversion.properties");
+                if (toolsver != null) {
+                    Properties verprop = new Properties();
+                    verprop.load(apiZip.getInputStream(toolsver));
+                    String ver = verprop.getProperty("converter.version");
+                    switch (ver) {
+                        case "3.0.3":
+                            return SDKVersion.V301; // XXX
+                        case "3.0.4":
+                            return SDKVersion.V304;
+                        case "3.0.5":
+                            return SDKVersion.V305;
+                        case "3.1.0":
+                            return SDKVersion.V310;
+                        case "3.2.0":
+                            return SDKVersion.V320; // 24.0
+                        case "24.1":
+                            return SDKVersion.V320_24_1;
+                        case "25.0":
+                            return SDKVersion.V320_25_0;
+                        default:
+                            throw new IllegalStateException("Unknown SDK release: " + ver);
+                    }
                 }
-                if (apiZip.getEntry("javacardx/framework/string/StringUtil.class") != null) {
-                    return SDKVersion.V304;
-                }
-                return SDKVersion.V301;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -141,7 +154,7 @@ public final class JavaCardSDK {
 
     // This is for build and verification tools
     public JavaCardSDK target(SDKVersion targetVersion) {
-        if (version.isOneOf(SDKVersion.V310, SDKVersion.V320) && targetVersion.isOneOf(SDKVersion.V304, SDKVersion.V305, SDKVersion.V310)) {
+        if ((version == SDKVersion.V310 || version.isV32()) && targetVersion.isOneOf(SDKVersion.V304, SDKVersion.V305, SDKVersion.V310, SDKVersion.V320)) {
             List<Path> apiJars = new ArrayList<>();
             apiJars.add(Paths.get("lib", "api_classic-" + targetVersion.v + ".jar"));
             apiJars.add(Paths.get("lib", "api_classic_annotations-" + targetVersion.v + ".jar"));
@@ -155,6 +168,9 @@ public final class JavaCardSDK {
     // This indicates the highest class file version edible by SDK-s converter
     public static String getJavaVersion(SDKVersion version) {
         switch (version) {
+            case V320_25_0:
+                return "1.8";
+            case V320_24_1:
             case V320:
             case V310:
                 return "1.7";
@@ -248,6 +264,8 @@ public final class JavaCardSDK {
                 break;
             case V310:
             case V320:
+            case V320_24_1:
+            case V320_25_0:
                 jars.add(Paths.get("lib", String.format("api_classic-%s.jar", version.v)));
                 jars.add(Paths.get("lib", String.format("api_classic_annotations-%s.jar", version.v)));
                 break;
@@ -280,7 +298,7 @@ public final class JavaCardSDK {
         if (version.isOneOf(SDKVersion.V304, SDKVersion.V305)) {
             jars.add(Paths.get("lib", "tools.jar"));
             jars.add(Paths.get("lib", "api_classic_annotations.jar"));
-        } else if (version == SDKVersion.V310 || version == SDKVersion.V320) {
+        } else if (version == SDKVersion.V310 || version.isV32()) {
             jars.add(Paths.get("lib", "tools.jar"));
             jars.add(Paths.get("lib", String.format("api_classic_annotations-%s.jar", version.v)));
         }

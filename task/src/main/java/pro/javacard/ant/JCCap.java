@@ -225,9 +225,10 @@ public class JCCap extends Task {
 
         if (raw_targetsdk != null) {
             Optional<SDKVersion> targetVersion = SDKVersion.fromVersion(raw_targetsdk);
-            if (jckit != null && jckit.getVersion().isOneOf(V310, V320) && targetVersion.isPresent()) {
+            if (jckit != null && (jckit.getVersion().isOneOf(V310) || jckit.getVersion().isV32()) && targetVersion.isPresent()) {
                 SDKVersion target = targetVersion.get();
                 // FIXME: can't target 3.2.0 with 3.1.0
+                // FIXME: really need a table structure, this is getting out of hand.
                 if (target.isOneOf(V304, V305, V310, V320)) {
                     targetsdk = jckit.target(target);
                 } else {
@@ -438,17 +439,17 @@ public class JCCap extends Task {
         // Warn in human readable way if Java not compatible with JC Kit
         // See https://github.com/martinpaljak/ant-javacard/issues/79
         int jdkver = Misc.getCurrentJDKVersion();
-        if (jdkver > 17) {
+        if (jdkver > 17 && !jckit.getVersion().isOneOf(V320_25_0)) {
             // JDK 21 can't create 1.7 class files, last version supported by JC kit 3.2
             throw new HelpingBuildException("JDK 17 is the latest supported JDK.");
         } else if (jckit.getVersion().isOneOf(V211, V212, V221, V222) && jdkver > 8) {
             // JDK 8 is the last version capable of creating 1.2 class files, latest version supported by all 2.x JC kits
             throw new HelpingBuildException("Use JDK 8 with JavaCard kit v2.x");
-        } else if (jdkver > 11 && !jckit.getVersion().isOneOf(V310, V320)) {
+        } else if (jdkver > 11 && !jckit.getVersion().isOneOf(V310, V320, V320_24_1, V320_25_0)) {
             // JDK 17+ minimal class file target is 1.7, but need 1.6
             throw new HelpingBuildException(String.format("Can't use JDK %d with JavaCard kit %s (use JDK 11)", jdkver, jckit.getVersion()));
         } else if (jdkver == 8 && jckit.getVersion().isOneOf(V320)) {
-            // 24.1 requires JDK-11 to run (while 24.0 can work with JDK-8, encourage updating)
+            // 24.1 requires JDK-11 to run (while 24.0 and 25.1 can work with JDK-8, encourage updating)
             throw new HelpingBuildException(String.format("Can't use JDK %d with JavaCard kit %s (use JDK 11 or 17)", jdkver, jckit.getVersion()));
         }
 

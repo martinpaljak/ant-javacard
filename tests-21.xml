@@ -1,7 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="test" name="ant-javacard tests">
+    <import file="kits.xml"/>
+
     <!-- Build test applets -->
-    <target name="test">
-        <echo message="JDK 21 does not work with any JavaCard kit. See https://github.com/martinpaljak/ant-javacard/wiki/JavaCard-SDK-and-JDK-version-compatibility"/>
+    <target name="test" depends="jcpro,test-sdks"/>
+
+    <!-- Different SDK-s-->
+    <target name="test-sdks">
+        <javacard>
+            <!-- JC 3.2.0 -->
+            <cap jckit="${JC320_2}" sources="src/testapplets/integer" ints="true">
+                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+            </cap>
+            <cap jckit="${JC320_2}" targetsdk="3.0.4" sources="src/testapplets/integer" ints="true">
+                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+            </cap>
+            <cap jckit="${JC320_2}" targetsdk="3.0.5" sources="src/testapplets/integer" ints="true">
+                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+            </cap>
+            <cap jckit="${JC320_2}" targetsdk="3.1.0" sources="src/testapplets/integer" ints="true">
+                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+            </cap>
+        </javacard>
     </target>
 </project>

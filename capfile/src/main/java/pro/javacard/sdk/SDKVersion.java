@@ -33,7 +33,9 @@ public enum SDKVersion {
     V304("3.0.4"),
     V305("3.0.5"),
     V310("3.1.0"),
-    V320("3.2.0");
+    V320("3.2.0"),
+    V320_24_1("3.2.0"),
+    V320_25_0("3.2.0");
 
     final String v;
 
@@ -48,6 +50,10 @@ public enum SDKVersion {
 
     public boolean isV3() {
         return this.name().startsWith("V3");
+    }
+
+    public boolean isV32() {
+        return this.v.startsWith("3.2");
     }
 
     public boolean isOneOf(SDKVersion... versions) {
