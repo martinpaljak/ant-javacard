@@ -69,7 +69,7 @@
                                     <message>Project requires JDK 11+</message>
                                 </requireJavaVersion>
                                 <requireMavenVersion>
-                                    <version>[3.9.9,)</version>
+                                    <version>[3.9.10,)</version>
                                 </requireMavenVersion>
                                 <requirePluginVersions/>
                             </rules>
@@ -141,7 +141,7 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>4.9.3.0</version>
+                <version>4.9.3.1</version>
                 <configuration>
                     <excludeFilterFile>spotbugs.xml</excludeFilterFile>
                 </configuration>
