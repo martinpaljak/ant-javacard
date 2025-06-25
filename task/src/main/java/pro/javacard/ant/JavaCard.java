@@ -50,6 +50,7 @@ public final class JavaCard extends Task {
             Misc.cleanTemp();
         });
         Runtime.getRuntime().addShutdownHook(cleanup);
+        log("ant-javacard " + JavaCard.class.getPackage().getImplementationVersion(), Project.MSG_INFO);
         try {
             for (JCCap p : packages) {
                 p.execute();

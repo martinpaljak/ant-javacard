@@ -42,7 +42,7 @@ public final class DummyMain {
         Vector<String> args = new Vector<>(Arrays.asList(argv));
 
         if (args.isEmpty()) {
-            System.out.println("This is an ANT task.");
+            System.out.println("This is an ANT task (ant-javacard " + DummyMain.class.getPackage().getImplementationVersion() + ")");
             System.out.println("Read usage instructions from https://github.com/martinpaljak/ant-javacard#syntax");
             System.out.println();
             System.out.println("But you can use it to dump/verify CAP files, like this:");

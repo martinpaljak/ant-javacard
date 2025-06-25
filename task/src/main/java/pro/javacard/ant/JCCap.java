@@ -77,14 +77,21 @@ public class JCCap extends Task {
     private boolean exportmap = false;
     final static String _logconf;
 
+    static final boolean loghack = Boolean.parseBoolean(System.getenv().getOrDefault("_ANT_JAVACARD_LOGHACK", "true"));
+
     static {
-        // Setting the java.util.logging configuration for convert task will prevent the creation of ~/java0.log.0 file
-        Path logconf = Misc.makeTemp("logging").resolve("logging.properties");
-        _logconf = logconf.toAbsolutePath().normalize().toString();
-        try {
-            Files.write(logconf, String.format("handlers = java.util.logging.ConsoleHandler%n.level = WARNING").getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (IOException e) {
-            System.err.println("Could not write temporary logging configuration: " + e.getMessage());
+        if (loghack) {
+            // Setting the java.util.logging configuration for convert task will prevent the creation of ~/java0.log.0 file
+            Path logconf = Misc.makeTemp("logging").resolve("logging.properties");
+            _logconf = logconf.toAbsolutePath().normalize().toString();
+            try {
+                Files.write(logconf, String.format("handlers = java.util.logging.ConsoleHandler%n.level = WARNING").getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            } catch (IOException e) {
+                System.err.println("Could not write temporary logging configuration: " + e.getMessage());
+            }
+        } else {
+            _logconf = null;
+            System.err.println("Loghack disabled");
         }
     }
 
@@ -515,13 +522,15 @@ public class JCCap extends Task {
         if (jckit.getVersion().isV3()) {
             j.setClassname("com.sun.javacard.converter.Main");
 
+
             // Don't create java0.log.0 files in home folder
             // As a Java process is executed, we need to store it in a config file
-            Environment.Variable jclog = new Environment.Variable();
-            jclog.setKey("java.util.logging.config.file");
-            jclog.setValue(_logconf);
-            j.addSysproperty(jclog);
-
+            if (loghack) {
+                Environment.Variable jclog = new Environment.Variable();
+                jclog.setKey("java.util.logging.config.file");
+                jclog.setValue(_logconf);
+                j.addSysproperty(jclog);
+            }
             // XXX: See https://community.oracle.com/message/10452555
             // This is disabled, because for whatever reason, having jc.home property set, the above logging suppression does not work.
             // make all shows no need for it on macos either.

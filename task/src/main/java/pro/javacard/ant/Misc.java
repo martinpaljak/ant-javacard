@@ -151,8 +151,14 @@ final class Misc {
 
     static void cleanTemp() {
         // Do not clean temporary files if manually set temporary path is set. This is useful for debugging.
-        if (System.getenv("ANT_JAVACARD_TMP") != null)
+        if (System.getenv("ANT_JAVACARD_TMP") != null) {
             return;
+        }
+
+        if (Boolean.parseBoolean(System.getenv().getOrDefault("_ANT_JAVACARD_LITTER", "false"))) {
+            System.err.println("Littering filesystem due to _ANT_JAVACARD_LITTER");
+            return;
+        }
 
         // Clean temporary files.
         for (Path f : temporary) {

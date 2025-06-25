@@ -54,6 +54,7 @@
                 <attribute name="Main-Class" value="pro.javacard.ant.DummyMain"/>
                 <!-- Blank out volatile values, so the same jar could be built with slight variations in JDK/ant version -->
                 <attribute name="Created-By" value="ant-javacard build ${repository.version}"/>
+                <attribute name="Implementation-Version" value="${repository.version}"/>
                 <attribute name="Ant-Version" value="irrelevant"/>
             </manifest>
         </jar>

@@ -8,7 +8,7 @@
         <version>24.11.20-SNAPSHOT</version>
     </parent>
     <artifactId>capfile</artifactId>
-    <name>JavaCard CAP file library</name>
+    <name>JavaCard SDK and CAP file library</name>
     <properties>
         <project.build.outputTimestamp>2024-11-19T08:11:51Z</project.build.outputTimestamp>
     </properties>
