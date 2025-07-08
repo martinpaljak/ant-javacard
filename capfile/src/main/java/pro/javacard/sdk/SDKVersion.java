@@ -56,6 +56,10 @@ public enum SDKVersion {
         return this.v.startsWith("3.2");
     }
 
+    public boolean isMultitarget() {
+        return this.equals(V310) || isV32();
+    }
+
     public boolean isOneOf(SDKVersion... versions) {
         for (SDKVersion v : versions)
             if (this.equals(v))

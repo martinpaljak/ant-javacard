@@ -232,7 +232,7 @@ public class JCCap extends Task {
 
         if (raw_targetsdk != null) {
             Optional<SDKVersion> targetVersion = SDKVersion.fromVersion(raw_targetsdk);
-            if (jckit != null && (jckit.getVersion().isOneOf(V310) || jckit.getVersion().isV32()) && targetVersion.isPresent()) {
+            if (jckit != null && jckit.getVersion().isMultitarget() && targetVersion.isPresent()) {
                 SDKVersion target = targetVersion.get();
                 // FIXME: can't target 3.2.0 with 3.1.0
                 // FIXME: really need a table structure, this is getting out of hand.
@@ -457,7 +457,7 @@ public class JCCap extends Task {
             throw new HelpingBuildException(String.format("Can't use JDK %d with JavaCard kit %s (use JDK 11)", jdkver, jckit.getVersion()));
         } else if (jdkver == 8 && jckit.getVersion().isOneOf(V320)) {
             // 24.1 requires JDK-11 to run (while 24.0 and 25.1 can work with JDK-8, encourage updating)
-            throw new HelpingBuildException(String.format("Can't use JDK %d with JavaCard kit %s (use JDK 11 or 17)", jdkver, jckit.getVersion()));
+            throw new HelpingBuildException(String.format("Should not use JDK %d with JavaCard kit %s (use JDK 11 or 17)", jdkver, jckit.getVersion()));
         }
 
         j.setTarget(javaVersion);
@@ -552,7 +552,7 @@ public class JCCap extends Task {
         StringJoiner expstringbuilder = new StringJoiner(File.pathSeparator);
 
         // Add targetSDK export files
-        if (jckit.getVersion().isOneOf(V310, V320) && targetsdk.getVersion().isOneOf(V304, V305, V310)) {
+        if (jckit.getVersion().isMultitarget() && targetsdk.getVersion().isOneOf(V304, V305, V310)) {
             j.createArg().setLine("-target " + targetsdk.getVersion().toString());
         } else {
             expstringbuilder.add(targetsdk.getExportDir().toString());

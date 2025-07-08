@@ -242,7 +242,10 @@ public final class JavaCardSDK {
             case V212:
                 return Paths.get("api21_export_files");
             case V310:
-                return Paths.get("api_export_files_3.1.0");
+            case V320:
+            case V320_24_1:
+            case V320_25_0:
+                return Paths.get("api_export_files_" + version.v);
             default:
                 return Paths.get("api_export_files");
         }

@@ -7,7 +7,7 @@ JAVA11 := /Library/Java/JavaVirtualMachines/$(JDK)-11.jdk/Contents/Home
 JAVA17 := /Library/Java/JavaVirtualMachines/$(JDK)-17.jdk/Contents/Home
 JAVA21 := /Library/Java/JavaVirtualMachines/$(JDK)-21.jdk/Contents/Home
 
-default: reportjava
+default: today reportjava
 	./mvnw package
 	ant test
 
@@ -41,3 +41,6 @@ all: cap 8 11 17 21
 
 clean:
 	rm -f *~ *.cap
+today:
+	# for a dirty tree, set the date to today
+	test -z "$(shell git status --porcelain)" || ./mvnw versions:set -DnewVersion=$(shell date +%y.%m.%d)-SNAPSHOT -DgenerateBackupPoms=false
