@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.github.martinpaljak</groupId>
         <artifactId>ant-javacard-package</artifactId>
-        <version>25.07.08-SNAPSHOT</version>
+        <version>25.07.10-SNAPSHOT</version>
     </parent>
     <artifactId>capfile</artifactId>
     <name>JavaCard SDK and CAP file library</name>
     <properties>
-        <project.build.outputTimestamp>2025-07-08T05:25:02Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2025-07-10T06:35:56Z</project.build.outputTimestamp>
     </properties>
     <dependencies>
         <dependency>
