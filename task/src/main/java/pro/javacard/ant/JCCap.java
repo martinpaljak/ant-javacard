@@ -29,6 +29,7 @@ import org.apache.tools.ant.taskdefs.Java;
 import org.apache.tools.ant.taskdefs.Javac;
 import org.apache.tools.ant.types.Environment;
 import org.apache.tools.ant.types.FileSet;
+import org.apache.tools.ant.types.LogLevel;
 import pro.javacard.capfile.CAPFile;
 import pro.javacard.sdk.JavaCardSDK;
 import pro.javacard.sdk.OffCardVerifier;
@@ -432,7 +433,7 @@ public class JCCap extends Task {
             }
         } else {
             // else generate temporary folder
-            tmp = Misc.makeTemp("classes");
+            tmp = Misc.makeTemp("classes-" + runIdentifier());
             classes_path = tmp.toAbsolutePath().toString();
         }
 
@@ -507,7 +508,7 @@ public class JCCap extends Task {
         j.setClasspath(cp);
     }
 
-    private void convert(Path applet_folder, List<Path> exps) {
+    private void convert(Path applet_folder, Set<Path> exps) {
         setTaskName("convert");
         // construct java task
         Java j = new Java(this);
@@ -562,7 +563,9 @@ public class JCCap extends Task {
         for (Path imp : exps) {
             expstringbuilder.add(imp.toString());
         }
-        j.createArg().setLine("-exportpath '" + expstringbuilder + "'");
+        if (expstringbuilder.length() > 0) {
+            j.createArg().setLine("-exportpath '" + expstringbuilder + "'");
+        }
 
         // always be a little verbose
         j.createArg().setLine("-verbose");
@@ -608,11 +611,19 @@ public class JCCap extends Task {
 
         // execute the converter
         j.execute();
+
+    }
+
+    // Return an identifier that uniquely identifies "this run", so that temporary
+    // subfolder in $ANT_JAVACARD_TMP would be sufficiently scoped to a <cap/>
+    private int runIdentifier() {
+        return Objects.hash(output_cap) + Objects.hash(package_name);
     }
 
     @Override
     public void execute() {
         Project project = getProject();
+        setTaskName("javacard");
 
         // perform checks
         check();
@@ -624,10 +635,10 @@ public class JCCap extends Task {
             }
 
             // Create temporary folder and add to cleanup
-            Path applet_folder = Misc.makeTemp("applet");
+            Path applet_folder = Misc.makeTemp("applet-" + runIdentifier());
 
             // Construct exportpath
-            ArrayList<Path> exps = new ArrayList<>();
+            Set<Path> exps = new TreeSet<>();
 
             // add imports
             for (JCImport imp : raw_imports) {
@@ -638,16 +649,13 @@ public class JCCap extends Task {
                 } else {
                     try {
                         // Assume exp files in jar
-                        f = Misc.makeTemp("imports");
+                        f = Misc.makeTemp("imports-" + runIdentifier());
                         OffCardVerifier.extractExps(project.resolveFile(imp.jar).toPath(), f);
                     } catch (IOException e) {
                         throw new BuildException("Can not extract EXP files from JAR", e);
                     }
                 }
-                // Avoid duplicates
-                if (!exps.contains(f)) {
-                    exps.add(f);
-                }
+                exps.add(f);
             }
 
             // perform conversion
@@ -676,10 +684,10 @@ public class JCCap extends Task {
                 exps.add(exp);
                 exps.add(targetsdk.getExportDir());
                 try {
-                    verifier.verify(cap, exps);
-                    log("Verification passed", Project.MSG_INFO);
+                    verifier.verify(cap, new ArrayList<>(exps));
+                    log("Verification of " + cap + " passed", Project.MSG_INFO);
                 } catch (VerifierError | IOException e) {
-                    throw new BuildException("Verification failed: " + e.getMessage());
+                    throw new BuildException("Verification of " + cap + " failed: " + e.getMessage());
                 }
             }
 

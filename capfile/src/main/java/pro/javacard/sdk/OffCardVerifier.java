@@ -108,9 +108,11 @@ public final class OffCardVerifier {
                 }
             } catch (InvocationTargetException e) {
                 throw new VerifierError(e.getTargetException().getMessage(), e.getTargetException());
+            } catch (Exception e) {
+                throw new VerifierError("Verification failed: " + e.getMessage(), e);
             }
         } catch (ReflectiveOperationException | IOException e) {
-            throw new RuntimeException("Could not run verifier: " + e.getMessage());
+            throw new RuntimeException("Could not run verifier: " + e.getMessage(), e);
         } finally {
             // Clean extracted exps
             rmminusrf(tmp);

@@ -60,8 +60,6 @@ public final class WellKnownAID {
         javaCardRegistry.put(AID.fromString("A000000062020502"), "javacardx.security.derivation");
         javaCardRegistry.put(AID.fromString("A000000062020503"), "javacardx.security.util");
 
-
-
         javaCardRegistry.put(AID.fromString("A000000062020801"), "javacardx.framework.util");
         javaCardRegistry.put(AID.fromString("A00000006202080101"), "javacardx.framework.util.intx");
         javaCardRegistry.put(AID.fromString("A000000062020802"), "javacardx.framework.math");
@@ -78,19 +76,16 @@ public final class WellKnownAID {
         // Other well-known AID-s
         wellKnownRegistry.put(AID.fromString("A00000015100"), "org.globalplatform");
         wellKnownRegistry.put(AID.fromString("A00000015102"), "org.globalplatform.contactless");
-
         wellKnownRegistry.put(AID.fromString("A0000000030000"), "visa.openplatform");
+        // Global Platform SSD
+        wellKnownRegistry.put(AID.fromString("A0000001515350"), "SSD creation package");
+        wellKnownRegistry.put(AID.fromString("A000000151535041"), "SSD creation applet");
 
         wellKnownRegistry.put(AID.fromString("A0000000090003FFFFFFFF8910710001"), "sim.access");
         wellKnownRegistry.put(AID.fromString("A0000000090003FFFFFFFF8910710002"), "sim.toolkit");
         wellKnownRegistry.put(AID.fromString("A0000000090005FFFFFFFF8916010000"), "uicc.hci.framework");
         wellKnownRegistry.put(AID.fromString("A0000000090005FFFFFFFF8916020100"), "uicc.hci.services.cardemulation");
         wellKnownRegistry.put(AID.fromString("A0000000090005FFFFFFFF8916020200"), "uicc.hci.services.connectivity");
-
-
-        // Global Platform SSD
-        wellKnownRegistry.put(AID.fromString("A0000001515350"), "SSD creation package");
-        wellKnownRegistry.put(AID.fromString("A000000151535041"), "SSD creation applet");
 
         // Load internal
         try (InputStream in = WellKnownAID.class.getResourceAsStream("aid_list.properties")) {
