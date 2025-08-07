@@ -607,7 +607,7 @@ public class JCCap extends Task {
         j.createArg().setLine(package_name + " " + Misc.hexAID(package_aid) + " " + package_version);
 
         // report the command
-        log("command: " + j.getCommandLine(), Project.MSG_VERBOSE);
+        log("command: " + j.getCommandLine(), Project.MSG_DEBUG);
 
         // execute the converter
         j.execute();
