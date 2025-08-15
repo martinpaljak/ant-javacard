@@ -23,7 +23,7 @@ jobs:
     name: Java ${{ matrix.java }}
     steps:
       - name: Checkout with submodules
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
         with:
           submodules: true
           fetch-depth: 0 # To make git describe give the intended output
