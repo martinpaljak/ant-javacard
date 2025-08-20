@@ -154,7 +154,7 @@ public final class JavaCardSDK {
 
     // This is for build and verification tools
     public JavaCardSDK target(SDKVersion targetVersion) {
-        if ((version == SDKVersion.V310 || version.isV32()) && targetVersion.isOneOf(SDKVersion.V304, SDKVersion.V305, SDKVersion.V310, SDKVersion.V320)) {
+        if (SDKCompatibilityTable.canTarget(version, targetVersion)) {
             List<Path> apiJars = new ArrayList<>();
             apiJars.add(Paths.get("lib", "api_classic-" + targetVersion.v + ".jar"));
             apiJars.add(Paths.get("lib", "api_classic_annotations-" + targetVersion.v + ".jar"));
@@ -167,24 +167,7 @@ public final class JavaCardSDK {
 
     // This indicates the highest class file version edible by SDK-s converter
     public static String getJavaVersion(SDKVersion version) {
-        switch (version) {
-            case V320_25_0:
-                return "1.8";
-            case V320_24_1:
-            case V320:
-            case V310:
-                return "1.7";
-            case V301:
-            case V304:
-            case V305:
-                return "1.6";
-            case V222:
-                return "1.5";
-            case V221:
-                return "1.2";
-            default:
-                return "1.1";
-        }
+        return SDKCompatibilityTable.getJavaClassFileVersion(version);
     }
 
     // Returns the classloader of verifier

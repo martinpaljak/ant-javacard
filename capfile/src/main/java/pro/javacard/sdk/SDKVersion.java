@@ -57,7 +57,7 @@ public enum SDKVersion {
     }
 
     public boolean isMultitarget() {
-        return this.equals(V310) || isV32();
+        return SDKCompatibilityTable.isMultitarget(this);
     }
 
     public boolean isOneOf(SDKVersion... versions) {
