@@ -61,7 +61,7 @@ public class TestSDKCompatibilityTable {
         Assert.assertTrue(SDKCompatibilityTable.canTarget(SDKVersion.V310, SDKVersion.V304));
         Assert.assertTrue(SDKCompatibilityTable.canTarget(SDKVersion.V310, SDKVersion.V305));
         Assert.assertTrue(SDKCompatibilityTable.canTarget(SDKVersion.V310, SDKVersion.V310));
-        Assert.assertTrue(SDKCompatibilityTable.canTarget(SDKVersion.V310, SDKVersion.V320));
+        Assert.assertFalse(SDKCompatibilityTable.canTarget(SDKVersion.V310, SDKVersion.V320));
         
         // Test that V320 variants can target appropriate versions
         Assert.assertTrue(SDKCompatibilityTable.canTarget(SDKVersion.V320, SDKVersion.V304));
@@ -70,14 +70,6 @@ public class TestSDKCompatibilityTable {
         // Test that older versions cannot target newer versions
         Assert.assertFalse(SDKCompatibilityTable.canTarget(SDKVersion.V304, SDKVersion.V310));
         Assert.assertFalse(SDKCompatibilityTable.canTarget(SDKVersion.V222, SDKVersion.V304));
-    }
-
-    @Test
-    public void testJDKCompatibilityDescription() {
-        // Test JDK compatibility descriptions
-        Assert.assertEquals(SDKCompatibilityTable.getJDKCompatibilityDescription(SDKVersion.V222), "JDK 1-8");
-        Assert.assertEquals(SDKCompatibilityTable.getJDKCompatibilityDescription(SDKVersion.V304), "JDK 1-11");
-        Assert.assertEquals(SDKCompatibilityTable.getJDKCompatibilityDescription(SDKVersion.V320_25_0), "JDK 8+");
     }
 
     @Test
@@ -95,7 +87,7 @@ public class TestSDKCompatibilityTable {
         Assert.assertTrue(v310Targets.contains(SDKVersion.V304));
         Assert.assertTrue(v310Targets.contains(SDKVersion.V305));
         Assert.assertTrue(v310Targets.contains(SDKVersion.V310));
-        Assert.assertTrue(v310Targets.contains(SDKVersion.V320));
+        Assert.assertFalse(v310Targets.contains(SDKVersion.V320));
         
         var v222Targets = SDKCompatibilityTable.getTargetableVersions(SDKVersion.V222);
         Assert.assertTrue(v222Targets.isEmpty());

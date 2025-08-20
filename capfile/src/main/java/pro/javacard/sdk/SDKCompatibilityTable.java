@@ -38,7 +38,7 @@ import java.util.*;
  * | 3.0.1       | 1.6          | 1-11      | No          | -          |
  * | 3.0.4       | 1.6          | 1-11      | No          | -          |
  * | 3.0.5       | 1.6          | 1-11      | No          | -          |
- * | 3.1.0       | 1.7          | 1-17      | Yes         | 3.0.4, 3.0.5, 3.1.0, 3.2.0 |
+ * | 3.1.0       | 1.7          | 1-17      | Yes         | 3.0.4, 3.0.5, 3.1.0 |
  * | 3.2.0       | 1.7          | 8-17      | Yes         | 3.0.4, 3.0.5, 3.1.0, 3.2.0 |
  * | 3.2.0_24.1  | 1.7          | 11-17     | Yes         | 3.0.4, 3.0.5, 3.1.0, 3.2.0 |
  * | 3.2.0_25.0  | 1.8          | 8+        | Yes         | 3.0.4, 3.0.5, 3.1.0, 3.2.0 |
@@ -53,9 +53,6 @@ public final class SDKCompatibilityTable {
         throw new UnsupportedOperationException("Utility class");
     }
 
-    /**
-     * Entry describing compatibility for a specific SDK version
-     */
     public static class CompatibilityEntry {
         private final SDKVersion sdkVersion;
         private final String javaClassFileVersion;
@@ -74,11 +71,11 @@ public final class SDKCompatibilityTable {
             this.canTarget = canTarget.length > 0 ? EnumSet.of(canTarget[0], canTarget) : EnumSet.noneOf(SDKVersion.class);
         }
 
-        public SDKVersion getSDKVersion() { return sdkVersion; }
-        public String getJavaClassFileVersion() { return javaClassFileVersion; }
-        public int getMinJDK() { return minJDK; }
-        public int getMaxJDK() { return maxJDK; }
-        public Set<SDKVersion> getCanTarget() { return Collections.unmodifiableSet(canTarget); }
+        public SDKVersion sdk() { return sdkVersion; }
+        public String javaVersion() { return javaClassFileVersion; }
+        public int minJDK() { return minJDK; }
+        public int maxJDK() { return maxJDK; }
+        public Set<SDKVersion> targets() { return Collections.unmodifiableSet(canTarget); }
         public boolean isMultitarget() { return isMultitarget; }
 
         public boolean isJDKCompatible(int jdkVersion) {
@@ -120,7 +117,7 @@ public final class SDKCompatibilityTable {
         // JavaCard 3.1.0 SDK version - supports targeting older versions
         COMPATIBILITY_TABLE.put(SDKVersion.V310, new CompatibilityEntry(
             SDKVersion.V310, "1.7", 1, 17, true, 
-            SDKVersion.V304, SDKVersion.V305, SDKVersion.V310, SDKVersion.V320));
+            SDKVersion.V304, SDKVersion.V305, SDKVersion.V310));
 
         // JavaCard 3.2.0 SDK versions - supports targeting older versions
         COMPATIBILITY_TABLE.put(SDKVersion.V320, new CompatibilityEntry(
@@ -136,9 +133,6 @@ public final class SDKCompatibilityTable {
             SDKVersion.V304, SDKVersion.V305, SDKVersion.V310, SDKVersion.V320));
     }
 
-    /**
-     * Get compatibility information for an SDK version
-     */
     public static CompatibilityEntry getCompatibility(SDKVersion version) {
         CompatibilityEntry entry = COMPATIBILITY_TABLE.get(version);
         if (entry == null) {
@@ -147,64 +141,40 @@ public final class SDKCompatibilityTable {
         return entry;
     }
 
-    /**
-     * Get the Java class file version supported by an SDK
-     */
     public static String getJavaClassFileVersion(SDKVersion version) {
-        return getCompatibility(version).getJavaClassFileVersion();
+        return getCompatibility(version).javaVersion();
     }
 
-    /**
-     * Check if a JDK version is compatible with an SDK version
-     */
     public static boolean isJDKCompatible(SDKVersion sdkVersion, int jdkVersion) {
         return getCompatibility(sdkVersion).isJDKCompatible(jdkVersion);
     }
 
-    /**
-     * Check if an SDK version can target another SDK version for backwards compatibility
-     */
     public static boolean canTarget(SDKVersion sourceSDK, SDKVersion targetSDK) {
         return getCompatibility(sourceSDK).canTargetVersion(targetSDK);
     }
 
-    /**
-     * Check if an SDK version supports multi-targeting
-     */
     public static boolean isMultitarget(SDKVersion version) {
         return getCompatibility(version).isMultitarget();
     }
 
-    /**
-     * Get the minimum JDK version required for an SDK
-     */
     public static int getMinJDKVersion(SDKVersion version) {
-        return getCompatibility(version).getMinJDK();
+        return getCompatibility(version).minJDK();
     }
 
-    /**
-     * Get the maximum JDK version supported by an SDK
-     */
     public static int getMaxJDKVersion(SDKVersion version) {
-        return getCompatibility(version).getMaxJDK();
+        return getCompatibility(version).maxJDK();
     }
 
-    /**
-     * Get all SDK versions that can be targeted by a given SDK version
-     */
     public static Set<SDKVersion> getTargetableVersions(SDKVersion version) {
-        return getCompatibility(version).getCanTarget();
+        return getCompatibility(version).targets();
     }
 
-    /**
-     * Get a formatted string describing JDK compatibility for an SDK version
-     */
     public static String getJDKCompatibilityDescription(SDKVersion version) {
         CompatibilityEntry entry = getCompatibility(version);
-        if (entry.getMaxJDK() == Integer.MAX_VALUE) {
-            return String.format("JDK %d+", entry.getMinJDK());
+        if (entry.maxJDK() == Integer.MAX_VALUE) {
+            return String.format("JDK %d+", entry.minJDK());
         } else {
-            return String.format("JDK %d-%d", entry.getMinJDK(), entry.getMaxJDK());
+            return String.format("JDK %d-%d", entry.minJDK(), entry.maxJDK());
         }
     }
 }
