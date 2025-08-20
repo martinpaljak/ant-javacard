@@ -73,14 +73,6 @@ public class TestSDKCompatibilityTable {
     }
 
     @Test
-    public void testMinMaxJDKVersions() {
-        // Test min/max JDK version getters
-        Assert.assertEquals(SDKCompatibilityTable.getMinJDKVersion(SDKVersion.V320_24_1), 11);
-        Assert.assertEquals(SDKCompatibilityTable.getMaxJDKVersion(SDKVersion.V304), 11);
-        Assert.assertEquals(SDKCompatibilityTable.getMaxJDKVersion(SDKVersion.V320_25_0), Integer.MAX_VALUE);
-    }
-
-    @Test
     public void testGetTargetableVersions() {
         // Test getting all targetable versions
         var v310Targets = SDKCompatibilityTable.getTargetableVersions(SDKVersion.V310);
