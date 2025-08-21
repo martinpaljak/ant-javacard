@@ -64,7 +64,7 @@ public enum SDKVersion {
     }
 
     public Set<SDKVersion> targets() {
-        return this.targets;
+        return Collections.unmodifiableSet(this.targets);
     }
 
     public boolean isOneOf(SDKVersion... versions) {
@@ -79,7 +79,7 @@ public enum SDKVersion {
     }
 
     public Set<Integer> jdkVersions() {
-        return jdks;
+        return Collections.unmodifiableSet(jdks);
     }
 
     public static Optional<SDKVersion> fromVersion(String versionString) {
