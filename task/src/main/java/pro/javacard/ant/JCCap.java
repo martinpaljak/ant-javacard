@@ -374,10 +374,7 @@ public class JCCap extends Task {
         }
         if (output_exp != null) {
             // Last component of the package
-            String ln = package_name;
-            if (ln.lastIndexOf(".") != -1) {
-                ln = ln.substring(ln.lastIndexOf(".") + 1);
-            }
+            String ln = Misc.lastName(package_name);
             output_jar = new File(output_exp, ln + ".jar").toString();
         }
         // Default output name
