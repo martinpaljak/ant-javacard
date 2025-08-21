@@ -235,7 +235,7 @@ public class JCCap extends Task {
             if (targetVersion.isPresent() && !jckit.getVersion().targets().isEmpty()) {
                 SDKVersion target = targetVersion.get();
                 if (jckit.getVersion().equals(target)) {
-                    log("WARN: \"targetsdk\" ignored as it matches JavaCard kit version", Project.MSG_WARN);
+                    log("WARN: \"targetsdk\" ignored as it matches \"jckit\" version", Project.MSG_WARN);
                 } else {
                     if (jckit.getVersion().targets().contains(target)) {
                         targetsdk = jckit.target(target);
@@ -250,7 +250,7 @@ public class JCCap extends Task {
                 // will require version 2.3 export files (only available as part of newer SDK-s).
                 // Verification is default, so fail early.
                 // This also means that using an older SDK as path reference will actually use export files from current multi-target SDK
-                if (!jckit.getVersion().targets().isEmpty() && (!targetsdk.getVersion().isV3() || targetsdk.getVersion() == V301)) {
+                if (!jckit.getVersion().targets().isEmpty() && !targetsdk.getVersion().equalOrNewer(V304)) {
                     throw new HelpingBuildException("targetsdk " + targetsdk.getVersion() + " is not compatible with jckit " + jckit.getVersion());
                 }
             }
@@ -535,7 +535,7 @@ public class JCCap extends Task {
         addKitClasses(j);
 
         // set class depending on SDK
-        if (jckit.getVersion().isV3()) {
+        if (jckit.getVersion().equalOrNewer(V301)) {
             j.setClassname("com.sun.javacard.converter.Main");
 
             // Don't create java0.log.0 files in home folder
@@ -592,7 +592,7 @@ public class JCCap extends Task {
         if (!verify && !jckit.getVersion().isOneOf(V211, V212)) {
             j.createArg().setLine("-noverify");
         }
-        if (jckit.getVersion().isV3()) {
+        if (jckit.getVersion().equalOrNewer(V301)) {
             j.createArg().setLine("-useproxyclass");
         }
         if (ints) {

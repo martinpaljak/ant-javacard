@@ -171,7 +171,7 @@ public final class JavaCardSDK {
         return java.security.AccessController.doPrivileged(new PrivilegedAction<URLClassLoader>() {
             public URLClassLoader run() {
                 try {
-                    if (version.isV3()) {
+                    if (version.equalOrNewer(SDKVersion.V301)) {
                         return new URLClassLoader(new URL[]{path.resolve("lib").resolve("tools.jar").toUri().toURL()}, this.getClass().getClassLoader());
                     } else {
                         return new URLClassLoader(new URL[]{path.resolve("lib").resolve("offcardverifier.jar").toUri().toURL()}, this.getClass().getClassLoader());
@@ -269,7 +269,7 @@ public final class JavaCardSDK {
         if (version.isOneOf(SDKVersion.V211)) {
             // We don't support verification with 2.1.X, so only converter
             jars.add(Paths.get("bin", "converter.jar"));
-        } else if (version.isV3()) {
+        } else if (version.equalOrNewer(SDKVersion.V301)) {
             jars.add(Paths.get("lib", "tools.jar"));
         } else {
             jars.add(Paths.get("lib", "converter.jar"));
@@ -283,7 +283,7 @@ public final class JavaCardSDK {
         if (version.isOneOf(SDKVersion.V304, SDKVersion.V305)) {
             jars.add(Paths.get("lib", "tools.jar"));
             jars.add(Paths.get("lib", "api_classic_annotations.jar"));
-        } else if (version == SDKVersion.V310 || version.isV32()) {
+        } else if (version.equalOrNewer(SDKVersion.V310)) {
             jars.add(Paths.get("lib", "tools.jar"));
             jars.add(Paths.get("lib", String.format("api_classic_annotations-%s.jar", version.v)));
         }

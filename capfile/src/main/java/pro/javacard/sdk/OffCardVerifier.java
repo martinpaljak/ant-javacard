@@ -99,7 +99,7 @@ public final class OffCardVerifier {
 
             try (FileInputStream input = new FileInputStream(f.toFile())) {
                 // 3.0.5u1 still uses old signature
-                if (sdk.getRelease().equals("3.0.5u3") || sdk.getRelease().equals("3.0.5u2") || sdk.getVersion().isOneOf(V310) || sdk.getVersion().isV32()) {
+                if (sdk.getRelease().equals("3.0.5u3") || sdk.getRelease().equals("3.0.5u2") || sdk.getVersion().equalOrNewer(V310)) {
                     Method m = verifier.getMethod("verifyCap", File.class, String.class, Vector.class);
                     m.invoke(null, f.toFile(), packagename, expfiles);
                 } else {

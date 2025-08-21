@@ -55,14 +55,6 @@ public enum SDKVersion {
         return this.v;
     }
 
-    public boolean isV3() {
-        return this.name().startsWith("V3");
-    }
-
-    public boolean isV32() {
-        return this.name().startsWith("V32");
-    }
-
     public Set<SDKVersion> targets() {
         return Collections.unmodifiableSet(this.targets);
     }
@@ -84,5 +76,9 @@ public enum SDKVersion {
 
     public static Optional<SDKVersion> fromVersion(String versionString) {
         return Arrays.stream(values()).filter(ver -> ver.v.equals(versionString)).findFirst();
+    }
+
+    public boolean equalOrNewer(SDKVersion other) {
+        return this.ordinal() >= other.ordinal();
     }
 }
