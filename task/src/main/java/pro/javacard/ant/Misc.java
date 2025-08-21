@@ -27,6 +27,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 final class Misc {
 
@@ -63,7 +64,6 @@ final class Misc {
         return out;
     }
 
-
     // Dirty way to get major version of JDK: 8, 11, 17 etc
     static int getCurrentJDKVersion() {
         String v = System.getProperty("java.version", "0.0.0");
@@ -75,14 +75,11 @@ final class Misc {
     }
 
     static String hexAID(byte[] aid) {
-        StringBuffer hexaid = new StringBuffer();
+        StringJoiner hexaid = new StringJoiner(":");
         for (byte b : aid) {
-            hexaid.append(String.format("0x%02X", b));
-            hexaid.append(":");
+            hexaid.add(String.format("0x%02X", b));
         }
-        String hex = hexaid.toString();
-        // Cut off the final colon
-        return hex.substring(0, hex.length() - 1);
+        return hexaid.toString();
     }
 
     // For cleaning up temporary files
@@ -123,7 +120,7 @@ final class Misc {
     }
 
     // foo.bar.Baz -> Baz; Foo -> Foo
-    static String className(String fqdn) {
+    static String lastName(String fqdn) {
         String ln = fqdn;
         if (ln.lastIndexOf(".") != -1) {
             ln = ln.substring(ln.lastIndexOf(".") + 1);

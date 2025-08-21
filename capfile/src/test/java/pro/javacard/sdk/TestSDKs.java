@@ -20,7 +20,7 @@ public class TestSDKs {
             throw new SkipException("Not interactive");
         Stream<Path> dirs = Files.list(Paths.get("/Users/martin/Documents/GitHub/oracle_javacard_sdks"));
         dirs.forEach(dir -> {
-            System.out.println("Folder: " + dir + ": " + JavaCardSDK.detectSDK(dir).map(sdk -> sdk.getRelease()).orElse("not SDK"));
+            System.out.println("Folder: " + dir + ": " + JavaCardSDK.detectSDK(dir).map(JavaCardSDK::getRelease).orElse("not SDK"));
         });
     }
 }

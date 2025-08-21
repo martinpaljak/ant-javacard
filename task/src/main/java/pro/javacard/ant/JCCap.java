@@ -29,7 +29,6 @@ import org.apache.tools.ant.taskdefs.Java;
 import org.apache.tools.ant.taskdefs.Javac;
 import org.apache.tools.ant.types.Environment;
 import org.apache.tools.ant.types.FileSet;
-import org.apache.tools.ant.types.LogLevel;
 import pro.javacard.capfile.CAPFile;
 import pro.javacard.sdk.JavaCardSDK;
 import pro.javacard.sdk.OffCardVerifier;
@@ -233,18 +232,25 @@ public class JCCap extends Task {
 
         if (raw_targetsdk != null) {
             Optional<SDKVersion> targetVersion = SDKVersion.fromVersion(raw_targetsdk);
-            if (jckit != null && jckit.getVersion().isMultitarget() && targetVersion.isPresent()) {
+            if (targetVersion.isPresent() && !jckit.getVersion().targets().isEmpty()) {
                 SDKVersion target = targetVersion.get();
-                // FIXME: can't target 3.2.0 with 3.1.0
-                // FIXME: really need a table structure, this is getting out of hand.
-                if (target.isOneOf(V304, V305, V310, V320)) {
-                    targetsdk = jckit.target(target);
+                if (jckit.getVersion().equals(target)) {
+                    log("WARN: \"targetsdk\" ignored as it matches JavaCard kit version", Project.MSG_WARN);
                 } else {
-                    throw new HelpingBuildException("Can not target JavaCard " + target + " with JavaCard kit " + jckit.getVersion());
+                    if (jckit.getVersion().targets().contains(target)) {
+                        targetsdk = jckit.target(target);
+                    } else {
+                        throw new HelpingBuildException("Can not target JavaCard " + target + " with JavaCard kit " + jckit.getVersion());
+                    }
                 }
             } else {
-                targetsdk = JavaCardSDK.detectSDK(getProject().resolveFile(raw_targetsdk).toPath()).orElseThrow(() -> new HelpingBuildException("Invalid targetsdk: " + raw_targetsdk));
-                if (jckit.getVersion() == V310 && !targetsdk.getVersion().isOneOf(V304, V305, V310)) {
+                // Resolve target
+                targetsdk = JavaCardSDK.detectSDK(getProject().resolveFile(raw_targetsdk).toPath()).orElseThrow(() -> new HelpingBuildException("Invalid \"targetsdk\": " + raw_targetsdk));
+                // NOTE: verification will fail, as 3.1.0 (applies to all "modern multi-target" SDK-s)
+                // will require version 2.3 export files (only available as part of newer SDK-s).
+                // Verification is default, so fail early.
+                // This also means that using an older SDK as path reference will actually use export files from current multi-target SDK
+                if (!jckit.getVersion().targets().isEmpty() && (!targetsdk.getVersion().isV3() || targetsdk.getVersion() == V301)) {
                     throw new HelpingBuildException("targetsdk " + targetsdk.getVersion() + " is not compatible with jckit " + jckit.getVersion());
                 }
             }
@@ -253,7 +259,11 @@ public class JCCap extends Task {
         if (targetsdk == null) {
             targetsdk = jckit;
         } else {
-            log("INFO: targeting JavaCard " + targetsdk.getVersion() + " SDK in " + targetsdk.getRoot(), Project.MSG_INFO);
+            if (jckit.getRoot() != targetsdk.getRoot()) {
+                log("INFO: targeting JavaCard " + targetsdk.getVersion() + " SDK in " + targetsdk.getRoot(), Project.MSG_INFO);
+            } else {
+                log("INFO: targeting JavaCard " + targetsdk.getVersion(), Project.MSG_INFO);
+            }
         }
 
         // Warn about deprecation in future
@@ -271,7 +281,7 @@ public class JCCap extends Task {
 
         // sources or classes must be set
         if (sources_path == null && classes_path == null) {
-            throw new HelpingBuildException("Must specify sources or classes");
+            throw new HelpingBuildException("Must specify \"sources\" or \"classes\"");
         }
 
         // Check package version
@@ -282,10 +292,9 @@ public class JCCap extends Task {
             if (!package_version.matches("^[0-9]{1,3}\\.[0-9]{1,3}$")) {
                 throw new HelpingBuildException("Invalid package version: " + package_version);
             }
-            Arrays.asList(package_version.split("\\.")).stream().map(e -> Integer.parseInt(e, 10)).forEach(e -> {
-                if (e < 0 || e > 127)
-                    throw new HelpingBuildException("Illegal package version value: " + package_version);
-            });
+            if (Arrays.stream(package_version.split("\\.")).map(e -> Integer.parseInt(e, 10)).anyMatch(e -> (e < 0 || e > 127))) {
+                throw new HelpingBuildException("Illegal package version value: " + package_version);
+            }
         }
 
         // Check imports
@@ -295,6 +304,7 @@ public class JCCap extends Task {
             if (a.exps != null && !getProject().resolveFile(a.exps).isDirectory())
                 throw new BuildException("Import EXP files folder does not exist: " + a.exps);
         }
+
         // Construct applets and fill in missing bits from package info, if necessary
         int applet_counter = 0;
         for (JCApplet a : raw_applets) {
@@ -314,7 +324,7 @@ public class JCCap extends Task {
             } else {
                 if (a.klass.contains(".")) {
                     String pkgname = a.klass.substring(0, a.klass.lastIndexOf("."));
-                    log("INFO: Setting package name to " + pkgname, Project.MSG_INFO);
+                    log("INFO: setting package name to " + pkgname, Project.MSG_INFO);
                     package_name = pkgname;
                 } else {
                     throw new HelpingBuildException("Applet must be in a package!");
@@ -351,9 +361,10 @@ public class JCCap extends Task {
         }
 
         // Package name must be present if no applets
-        if (raw_applets.size() == 0) {
-            if (package_name == null)
+        if (raw_applets.isEmpty()) {
+            if (package_name == null) {
                 throw new HelpingBuildException("Must specify package name if no applets");
+            }
             log("Building library from package " + package_name + " (AID: " + Misc.encodeHexString(package_aid) + ")", Project.MSG_INFO);
         } else {
             log("Building CAP with " + applet_counter + " applet" + (applet_counter > 1 ? "s" : "") + " from package " + package_name + " (AID: " + Misc.encodeHexString(package_aid) + ")", Project.MSG_INFO);
@@ -398,12 +409,14 @@ public class JCCap extends Task {
         // New style - multiple folders
         String pattern = Pattern.quote(File.pathSeparator);
         String[] sources_paths = sources_path.split(pattern);
-        for (String path : sources_paths)
+        for (String path : sources_paths) {
             sources.append(mkPath(path));
+        }
 
         // Old style - second folder
-        if (sources2_path != null)
+        if (sources2_path != null) {
             sources.append(mkPath(sources2_path));
+        }
         j.setSrcdir(sources);
 
         if (includes != null) {
@@ -443,24 +456,26 @@ public class JCCap extends Task {
         j.setDebugLevel("lines,vars,source");
 
         // set the best option supported by jckit
-        String javaVersion = JavaCardSDK.getJavaVersion(jckit.getVersion());
-        // Warn in human readable way if Java not compatible with JC Kit
+        String javaVersion = jckit.getVersion().javaVersion();
+        // Warn in human-readable way if Java not compatible with JC Kit
         // See https://github.com/martinpaljak/ant-javacard/issues/79
         int jdkver = Misc.getCurrentJDKVersion();
-        if (jdkver > 17 && !jckit.getVersion().isOneOf(V320_25_0)) {
-            // JDK 21 can't create 1.7 class files, last version supported by JC kit 3.2
-            throw new HelpingBuildException("JDK 17 is the latest supported JDK.");
-        } else if (jckit.getVersion().isOneOf(V211, V212, V221, V222) && jdkver > 8) {
-            // JDK 8 is the last version capable of creating 1.2 class files, latest version supported by all 2.x JC kits
-            throw new HelpingBuildException("Use JDK 8 with JavaCard kit v2.x");
-        } else if (jdkver > 11 && !jckit.getVersion().isOneOf(V310, V320, V320_24_1, V320_25_0)) {
-            // JDK 17+ minimal class file target is 1.7, but need 1.6
-            throw new HelpingBuildException(String.format("Can't use JDK %d with JavaCard kit %s (use JDK 11)", jdkver, jckit.getVersion()));
-        } else if (jdkver == 8 && jckit.getVersion().isOneOf(V320)) {
-            // 24.1 requires JDK-11 to run (while 24.0 and 25.1 can work with JDK-8, encourage updating)
-            throw new HelpingBuildException(String.format("Should not use JDK %d with JavaCard kit %s (use JDK 11 or 17)", jdkver, jckit.getVersion()));
-        }
 
+        if (!jckit.getVersion().jdkVersions().contains(jdkver)) {
+            if (jdkver > 17 && !jckit.getVersion().isOneOf(V320_25_0)) {
+                // JDK 21 can't create 1.7 class files, last version supported by JC kit 3.2
+                throw new HelpingBuildException("JDK 17 is the latest supported JDK.");
+            } else if (jckit.getVersion().isOneOf(V211, V212, V221, V222) && jdkver > 8) {
+                // JDK 8 is the last version capable of creating 1.2 class files, latest version supported by all 2.x JC kits
+                throw new HelpingBuildException("Use JDK 8 with JavaCard kit v2.x");
+            } else if (jdkver > 11 && !jckit.getVersion().isOneOf(V310, V320, V320_24_1, V320_25_0)) {
+                // JDK 17+ minimal class file target is 1.7, but need 1.6
+                throw new HelpingBuildException(String.format("Can't use JDK %d with JavaCard kit %s (use JDK 11)", jdkver, jckit.getVersion()));
+            } else if (jdkver == 8 && jckit.getVersion().isOneOf(V320)) {
+                // 24.1 requires JDK-11 to run (while 24.0 and 25.1 can work with JDK-8, encourage updating)
+                throw new HelpingBuildException(String.format("Should not use JDK %d with JavaCard kit %s (use JDK 11 or 17)", jdkver, jckit.getVersion()));
+            }
+        }
         j.setTarget(javaVersion);
         j.setSource(javaVersion);
 
@@ -523,7 +538,6 @@ public class JCCap extends Task {
         if (jckit.getVersion().isV3()) {
             j.setClassname("com.sun.javacard.converter.Main");
 
-
             // Don't create java0.log.0 files in home folder
             // As a Java process is executed, we need to store it in a config file
             if (loghack) {
@@ -552,8 +566,8 @@ public class JCCap extends Task {
         // construct export path
         StringJoiner expstringbuilder = new StringJoiner(File.pathSeparator);
 
-        // Add targetSDK export files
-        if (jckit.getVersion().isMultitarget() && targetsdk.getVersion().isOneOf(V304, V305, V310)) {
+        // Add targetSDK export files or the -target option
+        if (jckit.getVersion().targets().contains(targetsdk.getVersion())) {
             j.createArg().setLine("-target " + targetsdk.getVersion().toString());
         } else {
             expstringbuilder.add(targetsdk.getExportDir().toString());
@@ -663,10 +677,7 @@ public class JCCap extends Task {
 
             // Copy results
             // Last component of the package
-            String ln = package_name;
-            if (ln.lastIndexOf(".") != -1) {
-                ln = ln.substring(ln.lastIndexOf(".") + 1);
-            }
+            String ln = Misc.lastName(package_name);
             // directory of package
             String pkgPath = package_name.replace(".", File.separator);
             Path pkgDir = applet_folder.resolve(pkgPath);
@@ -792,7 +803,7 @@ public class JCCap extends Task {
         final String n;
         // Fallback if %n is requested with no applets
         if (cap.getAppletAIDs().size() == 1 && !cap.getFlags().contains("exports")) {
-            n = Misc.className(raw_applets.get(0).klass); // XXX: this is because in 2.x or severely stripped .cap file applet name is not present.
+            n = Misc.lastName(raw_applets.get(0).klass); // XXX: this is because in 2.x or severely stripped .cap file applet name is not present.
         } else {
             n = cap.getPackageName();
         }

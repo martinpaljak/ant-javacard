@@ -131,7 +131,7 @@
             <cap targetsdk="3.0.4" sources="src/testapplets/empty" verify="true">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <!-- Compilation with 3.1.0 is not supported for 3.0.1 and downwards-->
+            <!-- Verification with 3.1.0 is not supported for 3.0.1 and downwards, even if conversion can work -->
         </javacard>
     </target>
 </project>
