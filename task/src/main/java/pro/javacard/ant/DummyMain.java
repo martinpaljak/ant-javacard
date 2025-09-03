@@ -32,6 +32,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.Vector;
 import java.util.stream.Collectors;
@@ -42,8 +44,21 @@ public final class DummyMain {
         Vector<String> args = new Vector<>(Arrays.asList(argv));
 
         if (args.isEmpty()) {
+            ProtectionDomain pd = DummyMain.class.getProtectionDomain();
             System.out.println("This is an ANT task (ant-javacard " + DummyMain.class.getPackage().getImplementationVersion() + ")");
             System.out.println("Read usage instructions from https://github.com/martinpaljak/ant-javacard#syntax");
+
+            if (pd != null && pd.getCodeSource() != null && pd.getCodeSource().getLocation() != null) {
+                try {
+                    System.out.println();
+                    String f = pd.getCodeSource().getLocation().getPath();
+                    Path p = Paths.get(f);
+                    byte[] sha256 = MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(p));
+                    System.out.println("SHA256 (" + p.getFileName().toString() + ") = " + bin2hex(sha256));
+                } catch (Exception e) {
+                    System.out.println("Could not verify integrity: " + e.getMessage());
+                }
+            }
             System.out.println();
             System.out.println("But you can use it to dump/verify CAP files, like this:");
             System.out.println("$ java -jar ant-javacard.jar <capfile>");
@@ -122,4 +137,18 @@ public final class DummyMain {
             System.exit(1);
         }
     }
+
+    private static final char[] HEX = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
+    static String bin2hex(final byte[] data) {
+
+        final int l = data.length;
+        final char[] out = new char[l << 1];
+        for (int i = 0, j = 0; i < l; i++) {
+            out[j++] = HEX[(0xF0 & data[i]) >>> 4];
+            out[j++] = HEX[0x0F & data[i]];
+        }
+        return new String(out);
+    }
+
 }
