@@ -628,7 +628,7 @@ public class JCCap extends Task {
     // Return an identifier that uniquely identifies "this run", so that temporary
     // subfolder in $ANT_JAVACARD_TMP would be sufficiently scoped to a <cap/>
     private int runIdentifier() {
-        return Objects.hash(output_cap) + Objects.hash(package_name);
+        return Objects.hashCode(this);
     }
 
     @Override
