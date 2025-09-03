@@ -54,7 +54,7 @@ public final class DummyMain {
                     String f = pd.getCodeSource().getLocation().getPath();
                     Path p = Paths.get(f);
                     byte[] sha256 = MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(p));
-                    System.out.println("SHA256 (" + p.getFileName().toString() + ") = " + bin2hex(sha256));
+                    System.out.println("SHA256 (" + f + ") = " + bin2hex(sha256));
                 } catch (Exception e) {
                     System.out.println("Could not verify integrity: " + e.getMessage());
                 }
