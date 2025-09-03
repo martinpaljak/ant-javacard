@@ -41,6 +41,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static pro.javacard.sdk.SDKVersion.*;
 
@@ -62,6 +64,7 @@ public class JCCap extends Task {
     private String package_version = null;
     private List<JCApplet> raw_applets = new ArrayList<>();
     private List<JCImport> raw_imports = new ArrayList<>();
+    private List<BuildProp> raw_buildprops = new ArrayList<>();
     private String output_cap = null;
     private String output_exp = null;
     private String output_jar = null;
@@ -69,6 +72,7 @@ public class JCCap extends Task {
     private String jckit_path = null;
     private JavaCardSDK targetsdk = null;
     private String raw_targetsdk = null;
+    private String manifoldpath = null;
 
     private boolean verify = true;
     private boolean debug = false;
@@ -171,6 +175,10 @@ public class JCCap extends Task {
         raw_targetsdk = arg;
     }
 
+    public void setManifoldpath(String arg) {
+        this.manifoldpath = arg;
+    }
+
     public void setAID(String msg) {
         try {
             package_aid = Misc.stringToBin(msg);
@@ -199,6 +207,12 @@ public class JCCap extends Task {
     // To support usage from Gradle, where import is a reserved name
     public JCImport createJimport() {
         return this.createImport();
+    }
+
+    public BuildProp createBuildprop() {
+        BuildProp prop = new BuildProp();
+        raw_buildprops.add(prop);
+        return prop;
     }
 
     private Optional<JavaCardSDK> findSDK() {
@@ -480,16 +494,45 @@ public class JCCap extends Task {
         j.createCompilerArg().setValue("-Xlint");
         j.createCompilerArg().setValue("-Xlint:-options");
         j.createCompilerArg().setValue("-Xlint:-serial");
+
+        boolean usePCP = false;
+        org.apache.tools.ant.types.Path pcp = new Javac().createClasspath();
+
         if (jckit.getVersion().isOneOf(V304, V305, V310)) {
             //-processor com.oracle.javacard.stringproc.StringConstantsProcessor \
             //                -processorpath "JCDK_HOME/lib/tools.jar;JCDK_HOME/lib/api_classic_annotations.jar" \
             j.createCompilerArg().setLine("-processor com.oracle.javacard.stringproc.StringConstantsProcessor");
-            org.apache.tools.ant.types.Path pcp = new Javac().createClasspath();
             for (Path jar : jckit.getCompilerJars()) {
                 pcp.append(mkPath(jar.toString()));
             }
+            usePCP = true;
+        }
+
+        if (manifoldpath != null && !manifoldpath.isEmpty()) {
+            try {
+                try (Stream<Path> stream = Files.list(Paths.get(manifoldpath))) {
+                    for (String x : stream
+                            .filter(file -> !Files.isDirectory(file))
+                            .map(Path::toAbsolutePath)
+                            .map(Path::toString)
+                            .collect(Collectors.toSet())) {
+                        pcp.append(mkPath(x));
+                    }
+                }
+            } catch (IOException e) {
+                throw new BuildException("Failed to list files in manifoldpath: " + e.getMessage());
+            }
+
+            j.createCompilerArg().setValue("-Xplugin:Manifold");
+            usePCP = true;
+
+            for (BuildProp bp : raw_buildprops) {
+                j.createCompilerArg().setValue("-A" + bp.key + "=" + bp.value);
+            }
+        }
+
+        if (usePCP) {
             j.createCompilerArg().setLine("-processorpath \"" + pcp.toString() + "\"");
-            j.createCompilerArg().setValue("-Xlint:all,-processing");
         }
 
         j.setFailonerror(true);
