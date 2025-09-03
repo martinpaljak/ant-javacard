@@ -22,6 +22,7 @@
 package pro.javacard.ant;
 
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.taskdefs.Jar;
@@ -41,8 +42,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static pro.javacard.sdk.SDKVersion.*;
 
@@ -509,18 +508,13 @@ public class JCCap extends Task {
         }
 
         if (manifoldpath != null && !manifoldpath.isEmpty()) {
-            try {
-                try (Stream<Path> stream = Files.list(Paths.get(manifoldpath))) {
-                    for (String x : stream
-                            .filter(file -> !Files.isDirectory(file))
-                            .map(Path::toAbsolutePath)
-                            .map(Path::toString)
-                            .collect(Collectors.toSet())) {
-                        pcp.append(mkPath(x));
-                    }
-                }
-            } catch (IOException e) {
-                throw new BuildException("Failed to list files in manifoldpath: " + e.getMessage());
+            DirectoryScanner ds = new DirectoryScanner();
+            ds.setBasedir(project.getBaseDir());
+            ds.setIncludes(new String[] {manifoldpath});
+            ds.scan();
+
+            for (String fn : ds.getIncludedFiles()) {
+                pcp.append(mkPath(fn));
             }
 
             j.createCompilerArg().setValue("-Xplugin:Manifold");
