@@ -54,14 +54,14 @@ jobs:
         run: ./mvnw -B --no-transfer-progress -U deploy
       - name: Upload
         if: github.event_name != 'pull_request' && matrix.java == '11'
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v5.0.0
         with:
           name: ant-javacard.jar
           path: ant-javacard.jar
       - name: Release
         if: startsWith(github.ref, 'refs/tags/v') && matrix.java == '11'
         id: create_release
-        uses: softprops/action-gh-release@v2.3.3
+        uses: softprops/action-gh-release@v2.4.2
         with:
           files: |
             ant-javacard.jar

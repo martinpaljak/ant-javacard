@@ -55,7 +55,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.6.1</version>
+                <version>3.6.2</version>
                 <executions>
                     <execution>
                         <id>enforce-maven-version</id>
@@ -97,7 +97,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.0</version>
+                <version>3.14.1</version>
                 <executions>
                     <execution>
                         <id>default-compile</id>
@@ -141,7 +141,7 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>4.9.6.0</version>
+                <version>4.9.8.1</version>
                 <configuration>
                     <excludeFilterFile>spotbugs.xml</excludeFilterFile>
                 </configuration>
