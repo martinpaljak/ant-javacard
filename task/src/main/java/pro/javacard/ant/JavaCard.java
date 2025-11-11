@@ -26,9 +26,6 @@ import org.apache.tools.ant.Task;
 
 import java.util.Arrays;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 // <javacard jckit="${env.JCKIT}">...</javacard>
@@ -51,11 +48,6 @@ public final class JavaCard extends Task {
 
     @Override
     public void execute() {
-        // Workaround for a mysterious but super annoying issue of root logging level turned to ALL
-        // by maven-antrun-plugin. So store the root logging level and restore it afterwards.
-        Logger rootLogger = LogManager.getLogManager().getLogger("");
-        Level beforeLevel = rootLogger.getLevel();
-
         Thread cleanup = new Thread(() -> {
             log("Ctrl-C, cleaning up", Project.MSG_INFO);
             Misc.cleanTemp();
@@ -72,7 +64,6 @@ public final class JavaCard extends Task {
             }
         } finally {
             Runtime.getRuntime().removeShutdownHook(cleanup);
-            rootLogger.setLevel(beforeLevel);
         }
     }
 

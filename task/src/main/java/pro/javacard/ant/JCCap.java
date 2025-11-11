@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import static pro.javacard.sdk.SDKVersion.*;
@@ -77,7 +78,8 @@ public class JCCap extends Task {
     private boolean exportmap = false;
     final static String _logconf;
 
-    static final boolean loghack = Boolean.parseBoolean(System.getenv().getOrDefault("_ANT_JAVACARD_LOGHACK", "true"));
+    static final String LOGHACK = "_ANT_JAVACARD_LOGHACK";
+    static final boolean loghack = Boolean.parseBoolean(System.getenv().getOrDefault(LOGHACK, "true"));
 
     static {
         if (loghack) {
@@ -92,6 +94,9 @@ public class JCCap extends Task {
         } else {
             _logconf = null;
             System.err.println("Loghack disabled");
+        }
+        if (System.getenv().containsKey(LOGHACK)) {
+            System.err.println("log level at start: " + Logger.getLogger("").getLevel());
         }
     }
 
@@ -525,6 +530,7 @@ public class JCCap extends Task {
         // construct java task
         Java j = new Java(this);
         j.setTaskName("convert");
+        // XXX: JC 25.0 does not exit with error on conversion issues.
         j.setFailonerror(true);
         j.setFork(true);
 
@@ -683,6 +689,11 @@ public class JCCap extends Task {
             Path cap = jcsrc.resolve(ln + ".cap");
             Path exp = jcsrc.resolve(ln + ".exp");
             Path jca = jcsrc.resolve(ln + ".jca");
+
+            // XXX: JC 25.0 does not exit with error on conversion issues, so manually check
+            if (!Files.exists(cap)) {
+                throw new BuildException("CAP file not generated, check conversion for errors!");
+            }
 
             // Verify
             if (verify) {

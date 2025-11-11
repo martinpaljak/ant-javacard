@@ -64,6 +64,7 @@
     </target>
     <!-- Build smoke test applets -->
     <import file="tests-${ant.java.version}.xml"/>
+    <import file="tests-fail.xml"/>
     <!-- Cleanup! -->
     <target name="clean">
         <delete dir="build"/>

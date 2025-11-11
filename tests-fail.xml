@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="test" name="ant-javacard tests">
+    <import file="kits.xml"/>
+
+    <!-- Build test applets -->
+    <target name="fail" depends="jcpro,fail-sdks"/>
+
+    <!-- Different SDK-s-->
+    <target name="fail-sdks">
+        <javacard>
+            <!-- JC 3.2.0 -->
+            <cap jckit="${JC320_2}" sources="src/testapplets/fail" ints="false">
+                <applet class="testapplets.fail.Fail" aid="0102030405060708"/>
+            </cap>
+        </javacard>
+    </target>
+</project>

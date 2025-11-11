@@ -32,6 +32,8 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static pro.javacard.sdk.SDKVersion.*;
@@ -96,7 +98,8 @@ public final class OffCardVerifier {
             }
 
             String packagename = cap.getPackageName();
-
+            // XXX: calling this on SDK 25.0 would set the level from INFO to ALL, so manually revert it in finally
+            Level logger_before = Logger.getLogger("").getLevel();
             try (FileInputStream input = new FileInputStream(f.toFile())) {
                 // 3.0.5u1 still uses old signature
                 if (sdk.getRelease().equals("3.0.5u3") || sdk.getRelease().equals("3.0.5u2") || sdk.getVersion().equalOrNewer(V310)) {
@@ -110,6 +113,12 @@ public final class OffCardVerifier {
                 throw new VerifierError(e.getTargetException().getMessage(), e.getTargetException());
             } catch (Exception e) {
                 throw new VerifierError("Verification failed: " + e.getMessage(), e);
+            } finally {
+                Level logger_now = Logger.getLogger("").getLevel();
+                if (!logger_before.equals(logger_now)) {
+                    System.err.println("Resetting root logger from " + logger_now + " back to " + logger_before);
+                    Logger.getLogger("").setLevel(logger_before);
+                }
             }
         } catch (ReflectiveOperationException | IOException e) {
             throw new RuntimeException("Could not run verifier: " + e.getMessage(), e);

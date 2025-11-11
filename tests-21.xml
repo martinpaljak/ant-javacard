@@ -9,8 +9,8 @@
     <target name="test-sdks">
         <javacard>
             <!-- JC 3.2.0 -->
-            <cap jckit="${JC320_2}" sources="src/testapplets/integer" ints="true">
-                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+            <cap jckit="${JC320_2}" sources="src/testapplets/empty" ints="true">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
             <cap jckit="${JC320_2}" targetsdk="3.0.4" sources="src/testapplets/integer" ints="true">
                 <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
