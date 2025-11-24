@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.github.martinpaljak</groupId>
         <artifactId>ant-javacard-package</artifactId>
-        <version>25.11.12-SNAPSHOT</version>
+        <version>25.11.24</version>
     </parent>
     <artifactId>ant-javacard</artifactId>
     <description>Easy to use Ant task for building JavaCard applets</description>
