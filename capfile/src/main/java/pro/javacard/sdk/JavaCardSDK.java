@@ -82,6 +82,8 @@ public final class JavaCardSDK {
                             return SDKVersion.V320_24_1;
                         case "25.0":
                             return SDKVersion.V320_25_0;
+                        case "25.1":
+                            return SDKVersion.V320_25_1;
                         default:
                             throw new IllegalStateException("Unknown SDK release: " + ver);
                     }
@@ -223,6 +225,7 @@ public final class JavaCardSDK {
             case V320:
             case V320_24_1:
             case V320_25_0:
+            case V320_25_1:
                 return Paths.get("api_export_files_" + version.v);
             default:
                 return Paths.get("api_export_files");
@@ -251,6 +254,7 @@ public final class JavaCardSDK {
             case V320:
             case V320_24_1:
             case V320_25_0:
+            case V320_25_1:
                 jars.add(Paths.get("lib", String.format("api_classic-%s.jar", version.v)));
                 jars.add(Paths.get("lib", String.format("api_classic_annotations-%s.jar", version.v)));
                 break;

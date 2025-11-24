@@ -35,7 +35,9 @@ public enum SDKVersion {
     V310("3.1.0", "1.7", Arrays.asList(V304, V305), Arrays.asList(8, 11, 17)),
     V320("3.2.0", "1.7", Arrays.asList(V304, V305, V310), Arrays.asList(8, 11, 17)),
     V320_24_1("3.2.0", "1.7", Arrays.asList(V304, V305, V310, V320), Arrays.asList(11, 17)),
-    V320_25_0("3.2.0", "1.8", Arrays.asList(V304, V305, V310, V320), Arrays.asList(8, 11, 17, 21));
+    V320_25_0("3.2.0", "1.8", Arrays.asList(V304, V305, V310, V320), Arrays.asList(8, 11, 17, 21)),
+    V320_25_1("3.2.0", "1.8", Arrays.asList(V304, V305, V310, V320), Arrays.asList(8, 11, 17, 21));
+
 
 
     final String v;

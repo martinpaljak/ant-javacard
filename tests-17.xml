@@ -25,13 +25,13 @@
             <cap jckit="${JC320}" sources="src/testapplets/integer" ints="true">
                 <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC320}" targetsdk="3.0.4" sources="src/testapplets/integer" ints="true">
+            <cap jckit="${JC320_3}" targetsdk="3.0.4" sources="src/testapplets/integer" ints="true">
                 <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC320}" targetsdk="3.0.5" sources="src/testapplets/integer" ints="true">
+            <cap jckit="${JC320_2}" targetsdk="3.0.5" sources="src/testapplets/integer" ints="true">
                 <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC320}" targetsdk="3.1.0" sources="src/testapplets/integer" ints="true">
+            <cap jckit="${JC320_1}" targetsdk="3.1.0" sources="src/testapplets/integer" ints="true">
                 <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
             </cap>
         </javacard>
