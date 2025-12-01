@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." default="test" name="ant-javacard tests">
+<project basedir="." default="fail" name="ant-javacard failing tests">
     <import file="kits.xml"/>
 
     <!-- Build test applets -->

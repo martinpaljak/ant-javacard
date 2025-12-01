@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="dist" name="ant-javacard build">
     <!-- Build and load the JavaCard task -->
-    <target name="jcpro">
+    <!-- shenanigans to get the Ant classpath from maven-antrun-plugin, but also work with plain ant -->
+    <target name="ant-cp" unless="maven.plugin.classpath">
+        <path id="ant.compile.classpath"/>
+    </target>
+    <target name="maven-cp" if="maven.plugin.classpath" depends="ant-cp">
+        <path id="ant.compile.classpath" path="${maven.plugin.classpath}"/>
+    </target>
+    <target name="jcpro" depends="maven-cp">
         <mkdir dir="build"/>
         <javac debug="true" destdir="build" includeantruntime="true" target="8" source="8">
             <src path="capfile/src/main/java"/>
             <src path="task/src/main/java"/>
+            <classpath>
+                <path refid="ant.compile.classpath"/>
+            </classpath>
             <compilerarg value="-Xlint:-options"/>
             <compilerarg value="-Xlint:all"/>
             <exclude name="**/module-info.java"/>
