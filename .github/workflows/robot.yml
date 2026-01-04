@@ -34,14 +34,6 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: temurin
           cache: maven
-      - name: Set SSH key
-        if: github.event_name != 'pull_request'
-        uses: webfactory/ssh-agent@v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
-      - name: Add host key
-        if: github.event_name != 'pull_request'
-        run: ssh-keyscan mvn.javacard.pro >> ~/.ssh/known_hosts
       - name: Run Maven for capfile
         if: matrix.java != 8
         run: ./mvnw -B --no-transfer-progress -T1C -U verify
@@ -51,7 +43,11 @@ jobs:
         run: echo "JARSUM=$(shasum -a 256 --tag ant-javacard.jar)" >> "$GITHUB_ENV"
       - name: Deploy package or snapshot
         if: github.event_name != 'pull_request' && matrix.java == '11'
-        run: ./mvnw -B --no-transfer-progress -U deploy
+        uses: martinpaljak/maven-ssh-deploy@v1
+        with:
+          key: ${{ secrets.SSH_KEY }}
+          user: mvn@mvn.javacard.pro
+          host_fp: SHA256:2wykddxDwF8jXGvVvKX9ayLYF4cbKFahQgEKe5Cn26Y
       - name: Upload
         if: github.event_name != 'pull_request' && matrix.java == '11'
         uses: actions/upload-artifact@v5.0.0
@@ -61,7 +57,7 @@ jobs:
       - name: Release
         if: startsWith(github.ref, 'refs/tags/v') && matrix.java == '11'
         id: create_release
-        uses: softprops/action-gh-release@v2.4.2
+        uses: softprops/action-gh-release@v2.5.0
         with:
           files: |
             ant-javacard.jar
