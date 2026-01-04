@@ -47,7 +47,7 @@ jobs:
         with:
           key: ${{ secrets.SSH_KEY }}
           user: mvn@mvn.javacard.pro
-          host_fp: SHA256:2wykddxDwF8jXGvVvKX9ayLYF4cbKFahQgEKe5Cn26Y
+          host_fp: SHA256:auiF3nHWvDmvq2stDl+QEECCqMcDp+FY1/bDRnvxpRw
       - name: Upload
         if: github.event_name != 'pull_request' && matrix.java == '11'
         uses: actions/upload-artifact@v5.0.0
