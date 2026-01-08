@@ -97,8 +97,8 @@ Details:
    * `version` attribute - version of the package. Optional - defaults to 0.0 if left unspecified.
    * `aid` attribute - AID (hex) of the package. Recommended - or set to the 5 first bytes of the applet AID if left unspecified.
    * `output` attribute - path where to save the generated CAP file. Optional, see below for variables.
-   * `export` attribtue - path (folder) where to place the JAR and generated EXP file. Optional.
-   * `exportmap` attribtue - if set to true, use pre-defined export file. Optional.
+   * `export` attribute - path (folder) where to place the JAR and generated EXP file. Optional.
+   * `exportmap` attribute - if set to true, use pre-defined export file. Optional.
    * `jar` attribute - path where to save the generated archive JAR file. Optional.
    * `jca` attribute - path where to save the generated JavaCard Assembly (JCA) file. Optional.
    * `verify` attribute - if set to false, disables verification of the resulting CAP file with offcardeverifier. Optional.
@@ -170,7 +170,7 @@ A random list of users, with a public link:
   * [LedgerWalletApplet](https://github.com/LedgerHQ/ledger-javacard) by [@LedgerHQ](https://github.com/LedgerHQ)
   * [KeePassNFC](https://github.com/nfd/smartcard_crypto_applet) by [@nfd](https://github.com/nfd)
   * [PivApplet](https://github.com/arekinath/PivApplet) (PIV) by [@arekinath](https://github.com/arekinath)
-  * [OpenFIP201](https://github.com/makinako/OpenFIPS201) (PIV) by [@makinako](https://github.com/makinako)
+  * [OpenFIPS201](https://github.com/makinako/OpenFIPS201) (PIV) by [@makinako](https://github.com/makinako)
   * [Cryptonit](https://github.com/mbrossard/cryptonit-applet) (PIV) by [@mbrossard](https://github.com/mbrossard)
   * [HTOP NDEF](https://github.com/petrs/hotp_via_ndef) by [@petrs](https://github.com/petrs)
   * [Yubikey OTP](https://github.com/arekinath/YkOtpApplet) by [@arekinath](https://github.com/arekinath)
