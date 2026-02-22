@@ -63,6 +63,7 @@ public class JCCap extends Task {
     private String package_version = null;
     private List<JCApplet> raw_applets = new ArrayList<>();
     private List<JCImport> raw_imports = new ArrayList<>();
+    private List<JCSources> raw_sources = new ArrayList<>();
     private String output_cap = null;
     private String output_exp = null;
     private String output_jar = null;
@@ -206,6 +207,13 @@ public class JCCap extends Task {
         return this.createImport();
     }
 
+    // Nested <sources path="" includes="" excludes=""/> elements
+    public JCSources createSources() {
+        JCSources src = new JCSources();
+        raw_sources.add(src);
+        return src;
+    }
+
     private Optional<JavaCardSDK> findSDK() {
         // try local configuration first
         if (jckit_path != null) {
@@ -276,8 +284,13 @@ public class JCCap extends Task {
             log("WARN: sources2 is deprecated in favor of multiple paths in sources", Project.MSG_WARN);
         }
 
+        // Nested <sources> and flat sources/sources2 attributes are mutually exclusive
+        if (!raw_sources.isEmpty() && (sources_path != null || sources2_path != null)) {
+            throw new HelpingBuildException("Can not use both nested <sources> elements and sources/sources2 attributes");
+        }
+
         // Shorthand for simple small projects - use Maven conventions
-        if (sources_path == null && classes_path == null) {
+        if (sources_path == null && classes_path == null && raw_sources.isEmpty()) {
             if (getProject().resolveFile("src/main/javacard").isDirectory())
                 sources_path = "src/main/javacard";
             else if (getProject().resolveFile("src/main/java").isDirectory())
@@ -285,7 +298,7 @@ public class JCCap extends Task {
         }
 
         // sources or classes must be set
-        if (sources_path == null && classes_path == null) {
+        if (sources_path == null && classes_path == null && raw_sources.isEmpty()) {
             throw new HelpingBuildException("Must specify \"sources\" or \"classes\"");
         }
 
@@ -308,6 +321,14 @@ public class JCCap extends Task {
                 throw new BuildException("Import JAR does not exist: " + a.jar);
             if (a.exps != null && !getProject().resolveFile(a.exps).isDirectory())
                 throw new BuildException("Import EXP files folder does not exist: " + a.exps);
+        }
+
+        // Check nested sources
+        for (JCSources s : raw_sources) {
+            if (s.path == null)
+                throw new BuildException("Nested <sources> element must have a \"path\" attribute");
+            if (!getProject().resolveFile(s.path).isDirectory())
+                throw new BuildException("Sources path does not exist: " + s.path);
         }
 
         // Construct applets and fill in missing bits from package info, if necessary
@@ -408,26 +429,55 @@ public class JCCap extends Task {
 
         org.apache.tools.ant.types.Path sources = mkPath(null);
 
-        // New style - multiple folders
-        String pattern = Pattern.quote(File.pathSeparator);
-        String[] sources_paths = sources_path.split(pattern);
-        for (String path : sources_paths) {
-            sources.append(mkPath(path));
-        }
+        if (!raw_sources.isEmpty()) {
+            // Per-path includes/excludes via nested <sources> elements
+            Path mergedDir = Misc.makeTemp("sources-" + runIdentifier());
+            for (JCSources src : raw_sources) {
+                File srcDir = project.resolveFile(src.path);
+                FileSet fs = new FileSet();
+                fs.setDir(srcDir);
+                fs.setProject(project);
+                if (src.includes != null) {
+                    fs.setIncludes(src.includes);
+                }
+                if (src.excludes != null) {
+                    fs.setExcludes(src.excludes);
+                }
+                String[] matched = fs.getDirectoryScanner(project).getIncludedFiles();
+                for (String rel : matched) {
+                    Path from = srcDir.toPath().resolve(rel);
+                    Path to = mergedDir.resolve(rel);
+                    try {
+                        Files.createDirectories(to.getParent());
+                        Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
+                    } catch (IOException e) {
+                        throw new BuildException("Failed to copy source file: " + from, e);
+                    }
+                }
+            }
+            sources.append(mkPath(mergedDir.toAbsolutePath().toString()));
+        } else {
+            // Legacy: flat sources/sources2/includes/excludes attributes
+            String pattern = Pattern.quote(File.pathSeparator);
+            String[] sources_paths = sources_path.split(pattern);
+            for (String path : sources_paths) {
+                sources.append(mkPath(path));
+            }
 
-        // Old style - second folder
-        if (sources2_path != null) {
-            sources.append(mkPath(sources2_path));
+            // Old style - second folder
+            if (sources2_path != null) {
+                sources.append(mkPath(sources2_path));
+            }
+
+            if (includes != null) {
+                j.setIncludes(includes);
+            }
+
+            if (excludes != null) {
+                j.setExcludes(excludes);
+            }
         }
         j.setSrcdir(sources);
-
-        if (includes != null) {
-            j.setIncludes(includes);
-        }
-
-        if (excludes != null) {
-            j.setExcludes(excludes);
-        }
 
         // We resolve files to compile based on the sources/includes/excludes parameters, so don't set sourcepath
         j.setSourcepath(new org.apache.tools.ant.types.Path(project, null));
@@ -647,7 +697,7 @@ public class JCCap extends Task {
 
         try {
             // Compile first if necessary
-            if (sources_path != null) {
+            if (sources_path != null || !raw_sources.isEmpty()) {
                 compile();
             }
 

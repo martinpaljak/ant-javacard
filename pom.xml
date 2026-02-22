@@ -5,7 +5,7 @@
     <packaging>pom</packaging>
     <groupId>com.github.martinpaljak</groupId>
     <artifactId>ant-javacard-package</artifactId>
-    <version>26.01.04-SNAPSHOT</version>
+    <version>26.02.22-SNAPSHOT</version>
     <description>Easy to use Ant task for building JavaCard applets</description>
     <name>ant-javacard package</name>
     <url>https://github.com/martinpaljak/ant-javacard</url>
@@ -14,7 +14,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- GH Actions fails sometimes on first try -->
         <maven.wagon.http.retryHandler.count>2</maven.wagon.http.retryHandler.count>
-        <project.build.outputTimestamp>2026-01-04T12:14:13Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2026-02-22T21:04:07Z</project.build.outputTimestamp>
     </properties>
     <repositories>
         <repository>
@@ -154,7 +154,6 @@
                             <target>
                                 <!-- Pass the plugin classpath to antrun, which is normally not there -->
                                 <property name="maven.plugin.classpath" refid="maven.plugin.classpath"/>
-                                <echo message="Classpath: ${maven.plugin.classpath}"/>
                                 <ant antfile="build.xml" target="dist" inheritAll="true"/>
                             </target>
                         </configuration>
