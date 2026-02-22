@@ -448,7 +448,10 @@ public class JCCap extends Task {
                     Path from = srcDir.toPath().resolve(rel);
                     Path to = mergedDir.resolve(rel);
                     try {
-                        Files.createDirectories(to.getParent());
+                        Path parent = to.getParent();
+                        if (parent != null) {
+                            Files.createDirectories(parent);
+                        }
                         Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
                     } catch (IOException e) {
                         throw new BuildException("Failed to copy source file: " + from, e);
