@@ -431,6 +431,7 @@ public class JCCap extends Task {
 
         if (!raw_sources.isEmpty()) {
             // Per-path includes/excludes via nested <sources> elements
+            setTaskName("sources");
             Path mergedDir = Misc.makeTemp("sources-" + runIdentifier());
             for (JCSources src : raw_sources) {
                 File srcDir = project.resolveFile(src.path);
@@ -447,6 +448,7 @@ public class JCCap extends Task {
                 for (String rel : matched) {
                     Path from = srcDir.toPath().resolve(rel);
                     Path to = mergedDir.resolve(rel);
+                    log(from + " -> " + to, Project.MSG_INFO);
                     try {
                         Path parent = to.getParent();
                         if (parent != null) {
@@ -458,6 +460,7 @@ public class JCCap extends Task {
                     }
                 }
             }
+            setTaskName("compile");
             sources.append(mkPath(mergedDir.toAbsolutePath().toString()));
         } else {
             // Legacy: flat sources/sources2/includes/excludes attributes

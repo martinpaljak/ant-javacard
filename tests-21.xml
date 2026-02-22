@@ -3,7 +3,7 @@
     <import file="kits.xml"/>
 
     <!-- Build test applets -->
-    <target name="test" depends="jcpro,test-sdks"/>
+    <target name="test" depends="jcpro,test-sdks,test-nested-sources"/>
 
     <!-- Different SDK-s-->
     <target name="test-sdks">
@@ -20,6 +20,15 @@
             </cap>
             <cap jckit="${JC320_2}" targetsdk="3.1.0" sources="src/testapplets/integer" ints="true">
                 <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+            </cap>
+        </javacard>
+    </target>
+    <!-- Nested sources with per-path includes/excludes -->
+    <target name="test-nested-sources" depends="jcpro">
+        <javacard>
+            <cap jckit="${JC320_2}" aid="010203040506">
+                <applet class="testapplets.empty.Empty"/>
+                <sources path="src/testapplets/empty"/>
             </cap>
         </javacard>
     </target>
