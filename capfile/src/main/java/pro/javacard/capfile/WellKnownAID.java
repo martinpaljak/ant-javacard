@@ -80,6 +80,9 @@ public final class WellKnownAID {
         // Global Platform SSD
         wellKnownRegistry.put(AID.fromString("A0000001515350"), "SSD creation package");
         wellKnownRegistry.put(AID.fromString("A000000151535041"), "SSD creation applet");
+        // Global Platform CRS (Contactless Registry Service) - Amendment C
+        wellKnownRegistry.put(AID.fromString("A000000151435253"), "CRS package");
+        wellKnownRegistry.put(AID.fromString("A00000015143525300"), "CRS application");
 
         wellKnownRegistry.put(AID.fromString("A0000000090003FFFFFFFF8910710001"), "sim.access");
         wellKnownRegistry.put(AID.fromString("A0000000090003FFFFFFFF8910710002"), "sim.toolkit");
