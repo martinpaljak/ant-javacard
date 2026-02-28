@@ -448,7 +448,7 @@ public class JCCap extends Task {
                 for (String rel : matched) {
                     Path from = srcDir.toPath().resolve(rel);
                     Path to = mergedDir.resolve(rel);
-                    log(from + " -> " + to, Project.MSG_INFO);
+                    log("using " + from, Project.MSG_INFO);
                     try {
                         Path parent = to.getParent();
                         if (parent != null) {
