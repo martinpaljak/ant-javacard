@@ -53,7 +53,7 @@
                 <length string="${git.timestamp}" trim="yes" length="0" when="greater"/>
             </and>
         </condition>
-        <echo>${repository.version} @ ${repository.timestamp}</echo>
+        <echo level="info">${repository.version} @ ${repository.timestamp}</echo>
     </target>
     <!-- Package it into a reproducible JAR -->
     <target name="dist" depends="jcpro,git">
