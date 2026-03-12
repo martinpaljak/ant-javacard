@@ -43,8 +43,9 @@ public final class OffCardVerifier {
 
     public static OffCardVerifier withSDK(JavaCardSDK sdk) {
         // Only main method in 2.1 SDK
-        if (sdk.getVersion().isOneOf(V211, V212))
+        if (sdk.getVersion().isOneOf(V211, V212)) {
             throw new RuntimeException("Verification is supported with JavaCard SDK 2.2.1 or later");
+        }
         return new OffCardVerifier(sdk);
     }
 
@@ -116,7 +117,7 @@ public final class OffCardVerifier {
             } finally {
                 Level logger_now = Logger.getLogger("").getLevel();
                 if (!logger_before.equals(logger_now)) {
-                    System.err.println("Resetting root logger from " + logger_now + " back to " + logger_before);
+                    System.err.println(String.format("Resetting root logger from %s back to %s", logger_now, logger_before));
                     Logger.getLogger("").setLevel(logger_before);
                 }
             }
@@ -140,8 +141,9 @@ public final class OffCardVerifier {
 
     private static Path under(Path out, String name) {
         Path p = out.resolve(name).normalize().toAbsolutePath();
-        if (!p.startsWith(out))
-            throw new IllegalArgumentException("Invalid path in JAR: " + p + " vs " + out);
+        if (!p.startsWith(out)) {
+            throw new IllegalArgumentException(String.format("Invalid path in JAR: %s vs %s", p, out));
+        }
         return p;
     }
 
@@ -155,8 +157,9 @@ public final class OffCardVerifier {
                 if (entry.getName().toLowerCase().endsWith(".exp")) {
                     Path f = under(out, entry.getName());
                     Path dir = f.getParent();
-                    if (dir == null)
+                    if (dir == null) {
                         throw new IOException("Null parent"); // spotbugs
+                    }
                     if (!Files.isDirectory(dir)) {
                         Files.createDirectories(dir);
                         //      throw new IOException("Failed to create folder: " + f.getParentFile());

@@ -22,7 +22,7 @@
 package pro.javacard.sdk;
 
 public class VerifierError extends Exception {
-    private final static long serialVersionUID = 9099882918121440945L;
+    private static final long serialVersionUID = 9099882918121440945L;
 
     public VerifierError(String message, Throwable cause) {
         super(message, cause);

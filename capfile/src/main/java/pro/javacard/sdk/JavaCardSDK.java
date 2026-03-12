@@ -38,14 +38,16 @@ import java.util.zip.ZipFile;
 public final class JavaCardSDK {
 
     public static Optional<JavaCardSDK> detectSDK(Path path) {
-        if (path == null)
+        if (path == null) {
             throw new NullPointerException("path is null");
+        }
 
         // Detect
         SDKVersion version = detectSDKVersion(path);
 
-        if (version == null)
+        if (version == null) {
             return Optional.empty();
+        }
 
         Path exportDir = getExportDir(version);
         List<Path> apiJars = getApiJars(version);
@@ -158,12 +160,12 @@ public final class JavaCardSDK {
     public JavaCardSDK target(SDKVersion targetVersion) {
         if (version.targets.contains(targetVersion)) {
             List<Path> apiJars = new ArrayList<>();
-            apiJars.add(Paths.get("lib", "api_classic-" + targetVersion.v + ".jar"));
-            apiJars.add(Paths.get("lib", "api_classic_annotations-" + targetVersion.v + ".jar"));
-            Path exportPath = Paths.get("api_export_files_" + targetVersion.v);
+            apiJars.add(Paths.get("lib", String.format("api_classic-%s.jar", targetVersion.v)));
+            apiJars.add(Paths.get("lib", String.format("api_classic_annotations-%s.jar", targetVersion.v)));
+            Path exportPath = Paths.get(String.format("api_export_files_%s", targetVersion.v));
             return new JavaCardSDK(path, targetVersion, exportPath, apiJars, toolJars, compilerJars);
         } else {
-            throw new IllegalStateException("Can not target " + targetVersion + " with " + version);
+            throw new IllegalStateException(String.format("Can not target %s with %s", targetVersion, version));
         }
     }
 
@@ -215,6 +217,16 @@ public final class JavaCardSDK {
             // No updates with older SDK-s
             return version.toString();
         }
+    }
+
+    // All export dir paths an SDK provides: its own + one per target version
+    public static List<Path> getAllExportDirs(SDKVersion version) {
+        ArrayList<Path> dirs = new ArrayList<Path>();
+        dirs.add(getExportDir(version));
+        for (SDKVersion target : version.targets) {
+            dirs.add(Paths.get("api_export_files_" + target.v));
+        }
+        return dirs;
     }
 
     public static Path getExportDir(SDKVersion version) {

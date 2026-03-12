@@ -30,6 +30,7 @@ import org.apache.tools.ant.taskdefs.Javac;
 import org.apache.tools.ant.types.Environment;
 import org.apache.tools.ant.types.FileSet;
 import pro.javacard.capfile.CAPFile;
+import pro.javacard.capfile.HexUtils;
 import pro.javacard.sdk.JavaCardSDK;
 import pro.javacard.sdk.OffCardVerifier;
 import pro.javacard.sdk.SDKVersion;
@@ -48,8 +49,8 @@ import static pro.javacard.sdk.SDKVersion.*;
 // <cap ...>...</cap> and actual execution of core task.
 public class JCCap extends Task {
 
-    static final String DEFAULT_CAP_NAME_TEMPLATE = "%n_%a_%h_%j_%J.cap"; // SomeApplet_010203040506_9a037e30_2.2.2_jdk11.cap
-    static final String DEFAULT_CAP_NAME_TEMPLATE_LIB = "%n_%a_%v_%h.cap"; // some.library_010203040506_v1.2_9a037e30.cap
+    static final String DEFAULT_CAP_NAME_TEMPLATE = "%n_%a_%h_%j_%J.cap";
+    static final String DEFAULT_CAP_NAME_TEMPLATE_LIB = "%n_%a_%v_%h_%J.cap";
 
     private final String master_jckit_path;
     private JavaCardSDK jckit = null;
@@ -61,9 +62,9 @@ public class JCCap extends Task {
     private String package_name = null;
     private byte[] package_aid = null;
     private String package_version = null;
-    private List<JCApplet> raw_applets = new ArrayList<>();
-    private List<JCImport> raw_imports = new ArrayList<>();
-    private List<JCSources> raw_sources = new ArrayList<>();
+    private final List<JCApplet> raw_applets = new ArrayList<>();
+    private final List<JCImport> raw_imports = new ArrayList<>();
+    private final List<JCSources> raw_sources = new ArrayList<>();
     private String output_cap = null;
     private String output_exp = null;
     private String output_jar = null;
@@ -77,7 +78,7 @@ public class JCCap extends Task {
     private boolean strip = false;
     private boolean ints = false;
     private boolean exportmap = false;
-    final static String _logconf;
+    static final String _logconf;
 
     static final String LOGHACK = "_ANT_JAVACARD_LOGHACK";
     static final boolean loghack = Boolean.parseBoolean(System.getenv().getOrDefault(LOGHACK, "true"));
@@ -180,8 +181,9 @@ public class JCCap extends Task {
     public void setAID(String msg) {
         try {
             package_aid = Misc.stringToBin(msg);
-            if (package_aid.length < 5 || package_aid.length > 16)
-                throw new BuildException("Package AID must be between 5 and 16 bytes: " + Misc.encodeHexString(package_aid) + " (" + package_aid.length + ")");
+            if (package_aid.length < 5 || package_aid.length > 16) {
+                throw new BuildException(String.format("Package AID must be between 5 and 16 bytes: %s (%d)", HexUtils.bin2hex(package_aid), package_aid.length));
+            }
 
         } catch (IllegalArgumentException e) {
             throw new BuildException("Not a correct package AID: " + e.getMessage());
@@ -253,7 +255,7 @@ public class JCCap extends Task {
                     if (jckit.getVersion().targets().contains(target)) {
                         targetsdk = jckit.target(target);
                     } else {
-                        throw new HelpingBuildException("Can not target JavaCard " + target + " with JavaCard kit " + jckit.getVersion());
+                        throw new HelpingBuildException(String.format("Can not target JavaCard %s with JavaCard kit %s", target, jckit.getVersion()));
                     }
                 }
             } else {
@@ -264,7 +266,7 @@ public class JCCap extends Task {
                 // Verification is default, so fail early.
                 // This also means that using an older SDK as path reference will actually use export files from current multi-target SDK
                 if (!jckit.getVersion().targets().isEmpty() && !targetsdk.getVersion().equalOrNewer(V304)) {
-                    throw new HelpingBuildException("targetsdk " + targetsdk.getVersion() + " is not compatible with jckit " + jckit.getVersion());
+                    throw new HelpingBuildException(String.format("targetsdk %s is not compatible with jckit %s", targetsdk.getVersion(), jckit.getVersion()));
                 }
             }
         }
@@ -273,7 +275,7 @@ public class JCCap extends Task {
             targetsdk = jckit;
         } else {
             if (jckit.getRoot() != targetsdk.getRoot()) {
-                log("INFO: targeting JavaCard " + targetsdk.getVersion() + " SDK in " + targetsdk.getRoot(), Project.MSG_INFO);
+                log(String.format("INFO: targeting JavaCard %s SDK in %s", targetsdk.getVersion(), targetsdk.getRoot()), Project.MSG_INFO);
             } else {
                 log("INFO: targeting JavaCard " + targetsdk.getVersion(), Project.MSG_INFO);
             }
@@ -291,10 +293,11 @@ public class JCCap extends Task {
 
         // Shorthand for simple small projects - use Maven conventions
         if (sources_path == null && classes_path == null && raw_sources.isEmpty()) {
-            if (getProject().resolveFile("src/main/javacard").isDirectory())
+            if (getProject().resolveFile("src/main/javacard").isDirectory()) {
                 sources_path = "src/main/javacard";
-            else if (getProject().resolveFile("src/main/java").isDirectory())
+            } else if (getProject().resolveFile("src/main/java").isDirectory()) {
                 sources_path = "src/main/java";
+            }
         }
 
         // sources or classes must be set
@@ -317,18 +320,22 @@ public class JCCap extends Task {
 
         // Check imports
         for (JCImport a : raw_imports) {
-            if (a.jar != null && !getProject().resolveFile(a.jar).isFile())
+            if (a.jar != null && !getProject().resolveFile(a.jar).isFile()) {
                 throw new BuildException("Import JAR does not exist: " + a.jar);
-            if (a.exps != null && !getProject().resolveFile(a.exps).isDirectory())
+            }
+            if (a.exps != null && !getProject().resolveFile(a.exps).isDirectory()) {
                 throw new BuildException("Import EXP files folder does not exist: " + a.exps);
+            }
         }
 
         // Check nested sources
         for (JCSources s : raw_sources) {
-            if (s.path == null)
+            if (s.path == null) {
                 throw new BuildException("Nested <sources> element must have a \"path\" attribute");
-            if (!getProject().resolveFile(s.path).isDirectory())
+            }
+            if (!getProject().resolveFile(s.path).isDirectory()) {
                 throw new BuildException("Sources path does not exist: " + s.path);
+            }
         }
 
         // Construct applets and fill in missing bits from package info, if necessary
@@ -343,9 +350,9 @@ public class JCCap extends Task {
             // If package name is present, must match the applet
             if (package_name != null) {
                 if (!a.klass.contains(".")) {
-                    a.klass = package_name + "." + a.klass;
+                    a.klass = String.format("%s.%s", package_name, a.klass);
                 } else if (!a.klass.startsWith(package_name)) {
-                    throw new HelpingBuildException("Applet class " + a.klass + " is not in package " + package_name);
+                    throw new HelpingBuildException(String.format("Applet class %s is not in package %s", a.klass, package_name));
                 }
             } else {
                 if (a.klass.contains(".")) {
@@ -368,7 +375,7 @@ public class JCCap extends Task {
                     // make "magic" applet AID from package_aid + counter
                     a.aid = Arrays.copyOf(package_aid, package_aid.length + 1);
                     a.aid[package_aid.length] = (byte) applet_counter;
-                    log("INFO: generated applet AID: " + Misc.encodeHexString(a.aid) + " for " + a.klass, Project.MSG_INFO);
+                    log("INFO: generated applet AID: " + HexUtils.bin2hex(a.aid) + " for " + a.klass, Project.MSG_INFO);
                 }
             } else {
                 // if package AID is empty, just set it to the minimal from
@@ -391,11 +398,11 @@ public class JCCap extends Task {
             if (package_name == null) {
                 throw new HelpingBuildException("Must specify package name if no applets");
             }
-            log("Building library from package " + package_name + " (AID: " + Misc.encodeHexString(package_aid) + ")", Project.MSG_INFO);
+            log(String.format("Building library from package %s (AID: %s)", package_name, HexUtils.bin2hex(package_aid)), Project.MSG_INFO);
         } else {
-            log("Building CAP with " + applet_counter + " applet" + (applet_counter > 1 ? "s" : "") + " from package " + package_name + " (AID: " + Misc.encodeHexString(package_aid) + ")", Project.MSG_INFO);
+            log(String.format("Building CAP with %d applet%s from package %s (AID: %s)", applet_counter, applet_counter > 1 ? "s" : "", package_name, HexUtils.bin2hex(package_aid)), Project.MSG_INFO);
             for (JCApplet app : raw_applets) {
-                log(app.klass + " " + Misc.encodeHexString(app.aid), Project.MSG_INFO);
+                log(String.format("%s %s", app.klass, HexUtils.bin2hex(app.aid)), Project.MSG_INFO);
             }
         }
         if (output_exp != null) {
@@ -411,8 +418,9 @@ public class JCCap extends Task {
 
     // To lessen the java.nio and apache.ant namespace clash...
     private org.apache.tools.ant.types.Path mkPath(String name) {
-        if (name == null)
+        if (name == null) {
             return new org.apache.tools.ant.types.Path(getProject());
+        }
         return new org.apache.tools.ant.types.Path(getProject(), name);
     }
 
@@ -677,7 +685,7 @@ public class JCCap extends Task {
         }
 
         // package properties
-        j.createArg().setLine(package_name + " " + Misc.hexAID(package_aid) + " " + package_version);
+        j.createArg().setLine(String.format("%s %s %s", package_name, Misc.hexAID(package_aid), package_version));
 
         // report the command
         log("command: " + j.getCommandLine(), Project.MSG_DEBUG);
@@ -760,9 +768,9 @@ public class JCCap extends Task {
                 exps.add(targetsdk.getExportDir());
                 try {
                     verifier.verify(cap, new ArrayList<>(exps));
-                    log("Verification of " + cap + " passed", Project.MSG_INFO);
+                    log(String.format("Verification of %s passed", cap), Project.MSG_INFO);
                 } catch (VerifierError | IOException e) {
-                    throw new BuildException("Verification of " + cap + " failed: " + e.getMessage());
+                    throw new BuildException(String.format("Verification of %s failed: %s", cap, e.getMessage()));
                 }
             }
 
@@ -863,25 +871,11 @@ public class JCCap extends Task {
     }
 
     private String capFileName(CAPFile cap, String template) {
-        String name = template;
-        final String n;
-        // Fallback if %n is requested with no applets
+        // Override %n with build-context class name (more reliable than CAP metadata for 2.x)
+        String commonNameOverride = null;
         if (cap.getAppletAIDs().size() == 1 && !cap.getFlags().contains("exports")) {
-            n = Misc.lastName(raw_applets.get(0).klass); // XXX: this is because in 2.x or severely stripped .cap file applet name is not present.
-        } else {
-            n = cap.getPackageName();
+            commonNameOverride = raw_applets.get(0).klass;
         }
-
-        // LFDBH-s
-        name = name.replace("%H", Misc.encodeHexString(cap.getLoadFileDataHash("SHA-256")).toLowerCase());
-        name = name.replace("%h", Misc.encodeHexString(cap.getLoadFileDataHash("SHA-256")).toLowerCase().substring(0, 8));
-        name = name.replace("%n", n); // "common name", applet or package
-        name = name.replace("%p", cap.getPackageName()); // package name
-        name = name.replace("%a", cap.getPackageAID().toString()); // package AID
-        name = name.replace("%v", "v" + cap.getPackageVersion()); // package version
-        name = name.replace("%j", cap.guessJavaCardVersion().orElse("unknown")); // JavaCard version
-        name = name.replace("%g", cap.guessGlobalPlatformVersion().orElse("unknown")); // GlobalPlatform version
-        name = name.replace("%J", String.format("jdk%d", Misc.getCurrentJDKVersion())); // JDK version
-        return name;
+        return Misc.capFileName(cap, template, commonNameOverride);
     }
 }

@@ -34,7 +34,7 @@ public final class JavaCard extends Task {
 
     private final int[] lts = new int[]{8, 11, 17, 21};
     private String master_jckit_path = null;
-    private Vector<JCCap> packages = new Vector<>();
+    private final Vector<JCCap> packages = new Vector<>();
 
     public void setJCKit(String msg) {
         master_jckit_path = msg;

@@ -22,6 +22,7 @@
 package pro.javacard.ant;
 
 import pro.javacard.capfile.CAPFile;
+import pro.javacard.capfile.HexUtils;
 import pro.javacard.sdk.ExportFileHelper;
 import pro.javacard.sdk.JavaCardSDK;
 import pro.javacard.sdk.OffCardVerifier;
@@ -32,6 +33,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+
 import java.security.MessageDigest;
 import java.security.ProtectionDomain;
 import java.util.Arrays;
@@ -40,12 +43,52 @@ import java.util.stream.Collectors;
 
 public final class DummyMain {
 
+    static Path rename(Path path, String template) throws IOException {
+        CAPFile cap = CAPFile.fromFile(path);
+        boolean isLibrary = cap.getAppletAIDs().isEmpty();
+        String effectiveTemplate = template != null ? template
+                : isLibrary ? "%n_%a_%v_%h.cap" : "%n_%a_%h_%j.cap";
+        Path output = Paths.get(Misc.capFileName(cap, effectiveTemplate));
+        if (!path.toAbsolutePath().normalize().equals(output.toAbsolutePath().normalize())) {
+            Files.copy(path, output, StandardCopyOption.REPLACE_EXISTING);
+        }
+        return output;
+    }
+
     static int runcycle(String[] argv) throws IOException {
         Vector<String> args = new Vector<>(Arrays.asList(argv));
 
-        if (args.isEmpty()) {
+        if (args.size() >= 1 && args.get(0).equals("-r")) {
+            args.remove(0);
+            if (args.isEmpty()) {
+                System.err.println("Usage: java -jar ant-javacard.jar -r <capfile>");
+                return 1;
+            }
+            final String capfile = args.remove(0);
+            Path path = Paths.get(capfile);
+            if (!Files.isRegularFile(path) || !capfile.endsWith(".cap")) {
+                System.err.println("Not a valid CAP file: " + capfile);
+                return 1;
+            }
+            try {
+                String template = System.getenv("CAP_NAME_TEMPLATE");
+                if (template != null && template.contains("%J")) {
+                    System.err.println("CAP_NAME_TEMPLATE must not contain %J (JDK version is unknown for rename)");
+                    return 1;
+                }
+                Path output = rename(path, template);
+                System.out.println(output);
+                if (path.toAbsolutePath().normalize().equals(output.toAbsolutePath().normalize())) {
+                    System.out.println("Already has standard name");
+                }
+                return 0;
+            } catch (Exception e) {
+                System.err.println(String.format("Failed to process CAP file: %s: %s", e.getClass().getSimpleName(), e.getMessage()));
+                return 1;
+            }
+        } else if (args.isEmpty()) {
             ProtectionDomain pd = DummyMain.class.getProtectionDomain();
-            System.out.println("This is an ANT task (ant-javacard " + DummyMain.class.getPackage().getImplementationVersion() + ")");
+            System.out.println(String.format("This is an ANT task (ant-javacard %s)", DummyMain.class.getPackage().getImplementationVersion()));
             System.out.println("Read usage instructions from https://github.com/martinpaljak/ant-javacard#syntax");
 
             if (pd != null && pd.getCodeSource() != null && pd.getCodeSource().getLocation() != null) {
@@ -54,7 +97,7 @@ public final class DummyMain {
                     String f = pd.getCodeSource().getLocation().getPath();
                     Path p = Paths.get(f);
                     byte[] sha256 = MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(p));
-                    System.out.println("SHA256 (" + f + ") = " + bin2hex(sha256));
+                    System.out.println(String.format("SHA256 (%s) = %s", f, HexUtils.bin2hex(sha256).toLowerCase()));
                 } catch (Exception e) {
                     System.out.println("Could not verify integrity: " + e.getMessage());
                 }
@@ -62,6 +105,9 @@ public final class DummyMain {
             System.out.println();
             System.out.println("But you can use it to dump/verify CAP files, like this:");
             System.out.println("$ java -jar ant-javacard.jar <capfile>");
+            System.out.println();
+            System.out.println("Or copy a CAP file with a standard name into current directory:");
+            System.out.println("$ java -jar ant-javacard.jar -r <capfile>");
             return 1;
         } else if (args.size() == 1) {
             // Simple dumping of capfile
@@ -74,15 +120,15 @@ public final class DummyMain {
                     cap.dump(System.out);
                     return 0;
                 } catch (Exception e) {
-                    System.err.printf("Failed to read/parse CAP file: %s: %s%n", e.getClass().getSimpleName(), e.getMessage());
+                    System.err.println(String.format("Failed to read/parse CAP file: %s: %s", e.getClass().getSimpleName(), e.getMessage()));
                     return 1;
                 }
             } else if (Files.isRegularFile(path) && capfile.endsWith(".exp")) {
                 try {
-                    System.out.printf("%s: %s%n", path, ExportFileHelper.getVersion(path).get());
+                    System.out.println(String.format("%s: %s", path, ExportFileHelper.parsePackage(path)));
                     return 0;
                 } catch (Exception e) {
-                    System.err.printf("Failed to read/parse EXP file: %s: %s%n", e.getClass().getSimpleName(), e.getMessage());
+                    System.err.println(String.format("Failed to read/parse EXP file: %s: %s", e.getClass().getSimpleName(), e.getMessage()));
                     return 1;
                 }
             } else {
@@ -116,7 +162,7 @@ public final class DummyMain {
                 cap.dump(System.out);
 
                 verifier.verifyAgainst(new File(capfile), target, exps);
-                System.out.printf("Verified %s with SDK v%s against SDK v%s%n", capfile, sdk.getVersion(), target.getVersion());
+                System.out.println(String.format("Verified %s with SDK v%s against SDK v%s", capfile, sdk.getVersion(), target.getVersion()));
                 return 0;
             } catch (VerifierError e) {
                 System.err.println("Verification failed: " + e.getMessage());
@@ -130,25 +176,12 @@ public final class DummyMain {
             runcycle(argv);
         } catch (Throwable e) {
             Misc.cleanTemp();
-            System.err.printf("Error: %s: %s%n", e.getClass().getSimpleName(), e.getMessage());
+            System.err.println(String.format("Error: %s: %s", e.getClass().getSimpleName(), e.getMessage()));
             if (System.getenv("ANT_JAVACARD_DEBUG") != null) {
                 e.printStackTrace();
             }
             System.exit(1);
         }
-    }
-
-    private static final char[] HEX = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-
-    static String bin2hex(final byte[] data) {
-
-        final int l = data.length;
-        final char[] out = new char[l << 1];
-        for (int i = 0, j = 0; i < l; i++) {
-            out[j++] = HEX[(0xF0 & data[i]) >>> 4];
-            out[j++] = HEX[0x0F & data[i]];
-        }
-        return new String(out);
     }
 
 }

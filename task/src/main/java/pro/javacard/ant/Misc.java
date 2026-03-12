@@ -21,6 +21,9 @@
  */
 package pro.javacard.ant;
 
+import pro.javacard.capfile.CAPFile;
+import pro.javacard.capfile.HexUtils;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.*;
@@ -31,47 +34,15 @@ import java.util.StringJoiner;
 
 final class Misc {
 
-    // This code has been taken from Apache commons-codec 1.7 (License: Apache 2.0)
-    private static final char[] LOWER_HEX = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
     static List<Path> temporary = new ArrayList<>();
 
-    static String encodeHexString(final byte[] data) {
-        final int l = data.length;
-        final char[] out = new char[l << 1];
-        // two characters form the hex value.
-        for (int i = 0, j = 0; i < l; i++) {
-            out[j++] = LOWER_HEX[(0xF0 & data[i]) >>> 4];
-            out[j++] = LOWER_HEX[0x0F & data[i]];
-        }
-        return new String(out);
-    }
-
-    static byte[] decodeHexString(String str) {
-        char data[] = str.toCharArray();
-        final int len = data.length;
-        if ((len & 0x01) != 0) {
-            throw new IllegalArgumentException("Odd number of characters: " + str);
-        }
-        final byte[] out = new byte[len >> 1];
-        // two characters form the hex value.
-        for (int i = 0, j = 0; j < len; i++) {
-            int f = Character.digit(data[j], 16) << 4;
-            j++;
-            f = f | Character.digit(data[j], 16);
-            j++;
-            out[i] = (byte) (f & 0xFF);
-        }
-        return out;
-    }
-
-    // Dirty way to get major version of JDK: 8, 11, 17 etc
     static int getCurrentJDKVersion() {
         String v = System.getProperty("java.version", "0.0.0");
-        if (v.startsWith("1.8."))
+        if (v.startsWith("1.8.")) {
             v = "8." + v.substring(4);
+        }
         int dot = v.indexOf(".");
-        int m = Integer.parseInt(v.substring(0, dot == -1 ? v.length() : dot));
-        return m;
+        return Integer.parseInt(v.substring(0, dot == -1 ? v.length() : dot));
     }
 
     static String hexAID(byte[] aid) {
@@ -116,7 +87,7 @@ final class Misc {
         s = s.toLowerCase().replaceAll(" ", "").replaceAll(":", "");
         s = s.replaceAll("0x", "").replaceAll("\n", "").replaceAll("\t", "");
         s = s.replaceAll(";", "");
-        return decodeHexString(s);
+        return HexUtils.hex2bin(s);
     }
 
     // foo.bar.Baz -> Baz; Foo -> Foo
@@ -144,6 +115,37 @@ final class Misc {
         } catch (IOException e) {
             throw new RuntimeException("Can not make temporary folder", e);
         }
+    }
+
+    static String commonName(CAPFile cap) {
+        if (cap.getAppletAIDs().size() == 1 && !cap.getFlags().contains("exports")) {
+            String className = cap.getApplets().values().iterator().next();
+            if (className != null) {
+                return lastName(className);
+            }
+        }
+        return cap.getPackageName();
+    }
+
+    static String capFileName(CAPFile cap, String template) {
+        return capFileName(cap, template, null);
+    }
+
+    static String capFileName(CAPFile cap, String template, String commonNameOverride) {
+        String commonName = commonNameOverride == null ? commonName(cap) : lastName(commonNameOverride);
+        String hash = HexUtils.bin2hex(cap.getLoadFileDataHash("SHA-256")).toLowerCase();
+
+        String name = template;
+        name = name.replace("%H", hash);
+        name = name.replace("%h", hash.substring(0, 8));
+        name = name.replace("%n", commonName);
+        name = name.replace("%p", cap.getPackageName());
+        name = name.replace("%a", cap.getPackageAID().toString());
+        name = name.replace("%v", "v" + cap.getPackageVersion());
+        name = name.replace("%j", cap.guessJavaCardVersion().orElse("unknown"));
+        name = name.replace("%g", cap.guessGlobalPlatformVersion().orElse("unknown"));
+        name = name.replace("%J", String.format("jdk%d", getCurrentJDKVersion()));
+        return name;
     }
 
     static void cleanTemp() {

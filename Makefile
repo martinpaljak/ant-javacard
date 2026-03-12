@@ -25,6 +25,9 @@ cap:
 	# run maven with JDK21
 	JAVA_HOME=$(JAVA21) ./mvnw package
 
+full:
+	./mvnw package -Pfixup,check
+
 8:
 	JAVA_HOME=$(JAVA8) ant test
 

@@ -62,9 +62,11 @@ public enum SDKVersion {
     }
 
     public boolean isOneOf(SDKVersion... versions) {
-        for (SDKVersion v : versions)
-            if (this.equals(v))
+        for (SDKVersion v : versions) {
+            if (this.equals(v)) {
                 return true;
+            }
+        }
         return false;
     }
 

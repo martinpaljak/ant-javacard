@@ -93,8 +93,9 @@ public final class WellKnownAID {
         // Load internal
         try (InputStream in = WellKnownAID.class.getResourceAsStream("aid_list.properties")) {
             // If run differently, might not have the list
-            if (in != null)
+            if (in != null) {
                 load(in);
+            }
         } catch (IOException e) {
             throw new RuntimeException("Can not load builtin list of AID-s: " + e.getMessage(), e);
         }
@@ -120,8 +121,9 @@ public final class WellKnownAID {
     }
 
     public static void load(Path p) {
-        if (!Files.exists(p))
+        if (!Files.exists(p)) {
             return;
+        }
         try (InputStream in = Files.newInputStream(p)) {
             load(in);
         } catch (IOException e) {
