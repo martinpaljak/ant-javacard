@@ -36,7 +36,7 @@ jobs:
           cache: maven
       - name: Run Maven for capfile
         if: matrix.java != 8
-        run: ./mvnw -B --no-transfer-progress -T1C -U verify
+        run: ./mvnw -B --no-transfer-progress -T1C -U -Pcheck verify
       - name: Run ANT tests
         run: ant test dist
       - name: Get SHA-256 of ant-javacard.jar
