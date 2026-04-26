@@ -23,13 +23,13 @@ jobs:
     name: Java ${{ matrix.java }}
     steps:
       - name: Checkout with submodules
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.2
         with:
           submodules: true
           fetch-depth: 0 # To make git describe give the intended output
           fetch-tags: true
       - name: Setup java
-        uses: actions/setup-java@v5.0.0
+        uses: actions/setup-java@v5.2.0
         with:
           java-version: ${{ matrix.java }}
           distribution: temurin
@@ -50,14 +50,14 @@ jobs:
           host_fp: SHA256:auiF3nHWvDmvq2stDl+QEECCqMcDp+FY1/bDRnvxpRw
       - name: Upload
         if: github.event_name != 'pull_request' && matrix.java == '11'
-        uses: actions/upload-artifact@v5.0.0
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ant-javacard.jar
           path: ant-javacard.jar
       - name: Release
         if: startsWith(github.ref, 'refs/tags/v') && matrix.java == '11'
         id: create_release
-        uses: softprops/action-gh-release@v2.5.0
+        uses: softprops/action-gh-release@v3.0.0
         with:
           files: |
             ant-javacard.jar
