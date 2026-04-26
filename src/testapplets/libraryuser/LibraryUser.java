@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2024 Martin Paljak <martin@martinpaljak.net>
+// SPDX-License-Identifier: MIT
+
 package testapplets.libraryuser;
 
 import javacard.framework.APDU;

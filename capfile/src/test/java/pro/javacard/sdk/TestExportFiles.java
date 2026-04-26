@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2024 Martin Paljak <martin@martinpaljak.net>
+// SPDX-License-Identifier: MIT
+
 package pro.javacard.sdk;
 
 import org.testng.Assert;

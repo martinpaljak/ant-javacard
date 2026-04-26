@@ -1,0 +1,41 @@
+version = 1
+
+# Project-owned configuration, build, and documentation files.
+# These are not Java source and do not carry per-file SPDX comments;
+# bulk-declared here per REUSE.software v3.3.
+[[annotations]]
+path = [
+    "LICENSE",
+    "Makefile",
+    "README.md",
+    ".gitignore",
+    ".gitmodules",
+    ".github/**",
+    "pom.xml",
+    "**/pom.xml",
+    "build.xml",
+    "**/spotbugs.xml",
+    "tests.xml",
+    "tests-fail.xml",
+    "tests-1.8.xml",
+    "tests-11.xml",
+    "tests-17.xml",
+    "tests-21.xml",
+    "kits.xml",
+    "fails.xml",
+    "capfile/src/main/resources/**",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2015 Martin Paljak <martin@martinpaljak.net>"
+SPDX-License-Identifier = "MIT"
+
+# Maven Wrapper - vendored from the Apache Maven project (Apache-2.0).
+[[annotations]]
+path = [
+    "mvnw",
+    "mvnw.cmd",
+    ".mvn/wrapper/**",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "The Apache Software Foundation"
+SPDX-License-Identifier = "Apache-2.0"
