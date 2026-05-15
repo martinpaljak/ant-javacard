@@ -60,13 +60,16 @@ target:
 ```
 ## Recommended setup
 Based on the [JavaCard SDK and JDK version compatibility matrix](https://github.com/martinpaljak/ant-javacard/wiki/JavaCard-SDK-and-JDK-version-compatibility).
-- Targeting JC 3.0.4 or later (modern JavaCard-s)
+- Modern work (targeting JC 3.0.4 or later)
+  - Use JDK 25 (don't forget to set `$JAVA_HOME`)
+  - Use the latest JavaCard SDK (`jckit="sdks/jc320v26.0_kit"`) with right target (`targetsdk="3.x.y"`)
+- Older things (targeting JC 2.2.x or 3.0.1)
   - Use JDK 17 (don't forget to set `$JAVA_HOME`)
-  - Use JavaCard SDK 3.2.0 (`jckit="sdks/jc320v24.0_kit"`) with right target (`targetsdk="3.x.y"`)
-  - NOTE: depending on your external components, absence of v2.3 export files will force you to stick with JavaCard SDK 3.1
-- Targeting JC 2.2.x or 3.0.1 (older JavaCard-s)
-  - Use JDK 11 (don't forget to set `$JAVA_HOME`)
   - Use JavaCard SDK 3.0.5u4 (`jckit="sdks/jc305u4_kit"`) with right target (`targetsdk="sdks/jc222_kit"`)
+- Java 8 for archeology (legacy JC 2.1.x SDKs)
+  - Use JDK 8 (don't forget to set `$JAVA_HOME`)
+  - Use the matching legacy SDK (`jckit="sdks/jc212_kit"`)
+  - Off-card verification is not supported and will be auto-disabled
 
 > [!NOTE]
 > ant-javacard will continue to support using legacy JavaCard 2.X SDK-s (and thus JDK-8) for as long as this is achievable with sane effort

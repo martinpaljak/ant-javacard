@@ -263,6 +263,19 @@ public class JCCap extends Task {
             }
         }
 
+        // Nudge towards the latest SDK in the appropriate family
+        SDKVersion recommended = targetsdk.getVersion().equalOrNewer(V304) ? V320_26_0 : V305;
+        if (jckit.getVersion() != recommended) {
+            String recommendedRelease = recommended == V320_26_0 ? "26.0" : "3.0.5";
+            String kitHint = recommended == V320_26_0 ? "jc320v26.0_kit" : "jc305u4_kit";
+            log(String.format("WARN: using JavaCard v%s SDK; latest recommended is v%s (%s)", jckit.getRelease(), recommendedRelease, kitHint), Project.MSG_WARN);
+        }
+
+        if (verify && targetsdk.getVersion().isOneOf(V211, V212)) {
+            log("WARN: verification disabled - not supported when targeting JavaCard v" + targetsdk.getVersion(), Project.MSG_WARN);
+            verify = false;
+        }
+
         // Warn about deprecation in future
         if (sources_path != null && sources2_path != null) {
             log("WARN: sources2 is deprecated in favor of multiple paths in sources", Project.MSG_WARN);
@@ -510,18 +523,18 @@ public class JCCap extends Task {
         int jdkver = Misc.getCurrentJDKVersion();
 
         if (!jckit.getVersion().jdkVersions().contains(jdkver)) {
-            if (jdkver > 17 && !jckit.getVersion().isOneOf(V320_25_0)) {
-                // JDK 21 can't create 1.7 class files, last version supported by JC kit 3.2
-                throw new HelpingBuildException("JDK 17 is the latest supported JDK.");
+            if (jdkver > 17 && !jckit.getVersion().isOneOf(V320_25_0, V320_25_1, V320_26_0)) {
+                // JDK 21+ can only target 1.8 or higher; only kit v25.0+ converters accept that.
+                throw new HelpingBuildException(String.format("JavaCard kit v25.0+ required for JDK %d. Use JDK 17 or upgrade to v26.0.", jdkver));
             } else if (jckit.getVersion().isOneOf(V211, V212, V221, V222) && jdkver > 8) {
-                // JDK 8 is the last version capable of creating 1.2 class files, latest version supported by all 2.x JC kits
-                throw new HelpingBuildException("Use JDK 8 with JavaCard kit v2.x");
-            } else if (jdkver > 11 && !jckit.getVersion().isOneOf(V310, V320, V320_24_1, V320_25_0)) {
-                // JDK 17+ minimal class file target is 1.7, but need 1.6
-                throw new HelpingBuildException(String.format("Can't use JDK %d with JavaCard kit %s (use JDK 11)", jdkver, jckit.getVersion()));
-            } else if (jdkver == 8 && jckit.getVersion().isOneOf(V320)) {
-                // 24.1 requires JDK-11 to run (while 24.0 and 25.1 can work with JDK-8, encourage updating)
-                throw new HelpingBuildException(String.format("Should not use JDK %d with JavaCard kit %s (use JDK 11 or 17)", jdkver, jckit.getVersion()));
+                // 2.x converters max out at class 49 or lower; JDK 9+ minimum target is 1.6.
+                throw new HelpingBuildException(String.format("JavaCard kit v%s requires JDK 8 (legacy 2.x). Upgrade to v26.0 for modern JDKs.", jckit.getRelease()));
+            } else if (jdkver > 11 && !jckit.getVersion().isOneOf(V305, V310, V320, V320_24_1, V320_25_0, V320_25_1, V320_26_0)) {
+                // JDK 17+ minimum target is 1.7; only kits whose converter accepts class 51 or above work.
+                throw new HelpingBuildException(String.format("JDK %d incompatible with JavaCard kit v%s (converter caps at 1.6). Use JDK 11 or upgrade to v26.0.", jdkver, jckit.getRelease()));
+            } else if (jdkver == 8 && jckit.getVersion().isOneOf(V320_24_1)) {
+                // 24.1's tools.jar is class 55; JDK 8 JVM can't load it.
+                throw new HelpingBuildException("JavaCard kit v24.1 requires JDK 11+ (tools.jar class 55). Use JDK 11/17 or upgrade to v26.0.");
             }
         }
         j.setTarget(javaVersion);

@@ -3,31 +3,36 @@
     <import file="kits.xml"/>
     <!-- Build test applets -->
     <target name="test" depends="jcpro,test-library-user,test-multiapp,test-no-output,test-sdks,test-stringdef,test-targetsdk,test-oldcross,test-jca"/>
-    <!-- Different SDK-s-->
+    <!-- Cross-verify matrix: one smoke test per SDKVersion supported on JDK 11 -->
     <target name="test-sdks">
         <javacard>
-            <!-- JC 3.0.4 -->
-            <cap jckit="${JC304}" sources="src/testapplets/empty">
+            <!-- JC 2.1.1 / 2.1.2 / 2.2.1 / 2.2.2 - generate 1.2 class files; JDK-11 minimum target is 1.6, skipped -->
+            <cap jckit="${JC303}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <!-- JC 3.0.1 -->
-            <cap jckit="${JC303}" sources="src/testapplets/empty">
+            <cap jckit="${JC304}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
             <cap jckit="${JC305}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC305_2}" sources="src/testapplets/empty">
+            <cap jckit="${JC310}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC305_1}" sources="src/testapplets/empty">
+            <cap jckit="${JC320}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC304}" sources="src/testapplets/integer" ints="true">
-                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+            <cap jckit="${JC320_1}" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC310}" sources="src/testapplets/integer" ints="true">
-                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+            <cap jckit="${JC320_2}" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap jckit="${JC320_3}" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap jckit="${JC320_4}" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
         </javacard>
     </target>

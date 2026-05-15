@@ -5,34 +5,31 @@
     <!-- Build test applets -->
     <target name="test" depends="jcpro,test-sdks"/>
 
-    <!-- Different SDK-s-->
+    <!-- Cross-verify matrix: one smoke test per SDKVersion supported on JDK 17 -->
     <target name="test-sdks">
         <javacard>
-            <!-- JC 3.1.0 -->
-            <cap jckit="${JC310}" sources="src/testapplets/integer" ints="true">
-                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+            <!-- JC 2.1.1 / 2.1.2 / 2.2.1 / 2.2.2 - JDK-17 minimum target is 1.7; 2.x converters reject anything above 1.5 -->
+            <!-- JC 3.0.1 / 3.0.4 - converters accept up to class 50 (1.6); JDK-17 minimum is 1.7, skipped -->
+            <cap jckit="${JC305}" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC310}" targetsdk="3.0.4" sources="src/testapplets/integer" ints="true">
-                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+            <cap jckit="${JC310}" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC310}" targetsdk="3.0.5" sources="src/testapplets/integer" ints="true">
-                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+            <cap jckit="${JC320}" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC310}" targetsdk="3.1.0" sources="src/testapplets/integer" ints="true">
-                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+            <cap jckit="${JC320_1}" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <!-- JC 3.2.0 -->
-            <cap jckit="${JC320}" sources="src/testapplets/integer" ints="true">
-                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+            <cap jckit="${JC320_2}" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC320_3}" targetsdk="3.0.4" sources="src/testapplets/integer" ints="true">
-                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+            <cap jckit="${JC320_3}" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC320_2}" targetsdk="3.0.5" sources="src/testapplets/integer" ints="true">
-                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
-            </cap>
-            <cap jckit="${JC320_1}" targetsdk="3.1.0" sources="src/testapplets/integer" ints="true">
-                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+            <cap jckit="${JC320_4}" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
         </javacard>
     </target>

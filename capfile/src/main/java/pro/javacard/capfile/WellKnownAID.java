@@ -40,6 +40,7 @@ public final class WellKnownAID {
         javaCardRegistry.put(AID.fromString("A000000062020501"), "javacardx.security.cert");
         javaCardRegistry.put(AID.fromString("A000000062020502"), "javacardx.security.derivation");
         javaCardRegistry.put(AID.fromString("A000000062020503"), "javacardx.security.util");
+        javaCardRegistry.put(AID.fromString("A000000062020504"), "javacardx.security.bdh");
 
         javaCardRegistry.put(AID.fromString("A000000062020801"), "javacardx.framework.util");
         javaCardRegistry.put(AID.fromString("A00000006202080101"), "javacardx.framework.util.intx");

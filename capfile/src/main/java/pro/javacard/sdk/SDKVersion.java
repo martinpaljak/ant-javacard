@@ -12,13 +12,18 @@ public enum SDKVersion {
     V222("2.2.2", "1.5", null, null),
     V301("3.0.1", "1.6", null, Arrays.asList(8, 11)),
     V304("3.0.4", "1.6", null, Arrays.asList(8, 11)),
-    V305("3.0.5", "1.6", null, Arrays.asList(8, 11)),
+    V305("3.0.5", "1.7", null, Arrays.asList(8, 11, 17)),
     // NOTE: can't use EnumSet "recursively", thus turn the List into normal HashSet in constructor
     V310("3.1.0", "1.7", Arrays.asList(V304, V305), Arrays.asList(8, 11, 17)),
     V320("3.2.0", "1.7", Arrays.asList(V304, V305, V310), Arrays.asList(8, 11, 17)),
     V320_24_1("3.2.0", "1.7", Arrays.asList(V304, V305, V310, V320), Arrays.asList(11, 17)),
-    V320_25_0("3.2.0", "1.8", Arrays.asList(V304, V305, V310, V320), Arrays.asList(8, 11, 17, 21)),
-    V320_25_1("3.2.0", "1.8", Arrays.asList(V304, V305, V310, V320), Arrays.asList(8, 11, 17, 21));
+    V320_25_0("3.2.0", "1.8", Arrays.asList(V304, V305, V310, V320), Arrays.asList(8, 11, 17, 21, 25)),
+    V320_25_1("3.2.0", "1.8", Arrays.asList(V304, V305, V310, V320), Arrays.asList(8, 11, 17, 21, 25)),
+    // Preview targets shipped alongside 3.2.0 (spec: "Java Card API 3.2 with Preview Features", aka 3.2.0+preview).
+    // -final is the subset of preview features marked "Final" (frozen); reached via target() from v26.0 only.
+    V320_PREVIEW("preview", "1.8", null, Arrays.asList(8, 11, 17, 21, 25)),
+    V320_PREVIEW_FINAL("preview-final", "1.8", null, Arrays.asList(8, 11, 17, 21, 25)),
+    V320_26_0("3.2.0", "1.8", Arrays.asList(V304, V305, V310, V320, V320_PREVIEW, V320_PREVIEW_FINAL), Arrays.asList(8, 11, 17, 21, 25));
 
 
 

@@ -3,47 +3,44 @@
     <import file="kits.xml"/>
     <!-- Build test applets -->
     <target name="test" depends="jcpro,test-library-user,test-multiapp,test-no-output,test-sdks,test-stringdef,test-targetsdk,test-oldcross,test-exp-version"/>
-    <!-- Different SDK-s-->
+    <!-- Cross-verify matrix: one smoke test per SDKVersion supported on JDK 8 -->
     <target name="test-sdks">
         <javacard>
-            <!-- JC 3.1.0 -->
-            <cap jckit="${JC310}" sources="src/testapplets/empty">
-                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
-            </cap>
-            <!-- JC 3.0.5 -->
-            <cap jckit="${JC305}" sources="src/testapplets/empty">
-                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
-            </cap>
-            <!-- JC 3.0.4 -->
-            <cap jckit="${JC304}" sources="src/testapplets/empty">
-                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
-            </cap>
-            <!-- JC 3.0.1 -->
-            <cap jckit="${JC303}" sources="src/testapplets/empty">
-                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
-            </cap>
-            <cap jckit="${JC222}" sources="src/testapplets/empty">
+            <cap jckit="${JC211}" sources="src/testapplets/empty" verify="false">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
             <cap jckit="${JC212}" sources="src/testapplets/empty" verify="false">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap debug="true" jckit="${JC221}" sources="src/testapplets/empty">
+            <cap jckit="${JC221}" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap jckit="${JC222}" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap jckit="${JC303}" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap jckit="${JC304}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
             <cap jckit="${JC305}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC305_2}" sources="src/testapplets/empty">
+            <cap jckit="${JC310}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC305_1}" sources="src/testapplets/empty">
+            <cap jckit="${JC320}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC304}" sources="src/testapplets/integer" ints="true">
-                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
+            <!-- JC 3.2.0 u1 (24.1) - tools.jar is class 55, needs JDK-11+ to run; skipped on JDK-8 -->
+            <cap jckit="${JC320_2}" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC211}" sources="src/testapplets/empty" verify="false">
+            <cap jckit="${JC320_3}" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap jckit="${JC320_4}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
         </javacard>

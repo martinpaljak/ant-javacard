@@ -68,6 +68,8 @@ public final class JavaCardSDK {
                             return SDKVersion.V320_25_0;
                         case "25.1":
                             return SDKVersion.V320_25_1;
+                        case "26.0":
+                            return SDKVersion.V320_26_0;
                         default:
                             throw new IllegalStateException("Unknown SDK release: " + ver);
                     }
@@ -170,34 +172,38 @@ public final class JavaCardSDK {
     }
 
     public String getRelease() {
-        if (version == SDKVersion.V305) {
-            try {
-                // Get verifier class
-                Class<?> verifier = Class.forName("com.sun.javacard.offcardverifier.Verifier", false, getClassLoader());
-
-                // Check if 3.0.5u3 (or, hopefully, later)
+        switch (version) {
+            case V305:
                 try {
-                    verifier.getDeclaredMethod("verifyTargetPlatform", String.class);
-                    return "3.0.5u3";
-                } catch (NoSuchMethodException e) {
-                    // Do nothing
+                    Class<?> verifier = Class.forName("com.sun.javacard.offcardverifier.Verifier", false, getClassLoader());
+                    try {
+                        verifier.getDeclaredMethod("verifyTargetPlatform", String.class);
+                        return "3.0.5u3";
+                    } catch (NoSuchMethodException e) {
+                        // fall through
+                    }
+                    try {
+                        verifier.getDeclaredMethod("verifyCap", FileInputStream.class, String.class, Vector.class);
+                        return "3.0.5u1";
+                    } catch (NoSuchMethodException e) {
+                        // fall through
+                    }
+                    return "3.0.5u2";
+                } catch (ReflectiveOperationException e) {
+                    throw new RuntimeException("Could not figure out SDK release: " + e.getMessage());
                 }
-
-                // Check if 3.0.5u1
-                try {
-                    verifier.getDeclaredMethod("verifyCap", FileInputStream.class, String.class, Vector.class);
-                    return "3.0.5u1";
-                } catch (NoSuchMethodException e) {
-                    // Do nothing
-                }
-                // Assume 3.0.5u2 otherwise
-                return "3.0.5u2";
-            } catch (ReflectiveOperationException e) {
-                throw new RuntimeException("Could not figure out SDK release: " + e.getMessage());
-            }
-        } else {
-            // No updates with older SDK-s
-            return version.toString();
+            case V320:
+                return "24.0";
+            case V320_24_1:
+                return "24.1";
+            case V320_25_0:
+                return "25.0";
+            case V320_25_1:
+                return "25.1";
+            case V320_26_0:
+                return "26.0";
+            default:
+                return version.toString();
         }
     }
 
@@ -220,6 +226,7 @@ public final class JavaCardSDK {
             case V320_24_1:
             case V320_25_0:
             case V320_25_1:
+            case V320_26_0:
                 return Paths.get("api_export_files_" + version.v);
             default:
                 return Paths.get("api_export_files");
@@ -249,6 +256,7 @@ public final class JavaCardSDK {
             case V320_24_1:
             case V320_25_0:
             case V320_25_1:
+            case V320_26_0:
                 jars.add(Paths.get("lib", String.format("api_classic-%s.jar", version.v)));
                 jars.add(Paths.get("lib", String.format("api_classic_annotations-%s.jar", version.v)));
                 break;

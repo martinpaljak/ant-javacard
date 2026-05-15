@@ -6,6 +6,7 @@ JAVA8 := /Library/Java/JavaVirtualMachines/$(JDK)-8.jdk/Contents/Home
 JAVA11 := /Library/Java/JavaVirtualMachines/$(JDK)-11.jdk/Contents/Home
 JAVA17 := /Library/Java/JavaVirtualMachines/$(JDK)-17.jdk/Contents/Home
 JAVA21 := /Library/Java/JavaVirtualMachines/$(JDK)-21.jdk/Contents/Home
+JAVA25 := /Library/Java/JavaVirtualMachines/$(JDK)-25.jdk/Contents/Home
 
 default: today reportjava
 	./mvnw package
@@ -40,7 +41,10 @@ full:
 21:
 	JAVA_HOME=$(JAVA21) ant test
 
-all: cap 8 11 17 21
+25:
+	JAVA_HOME=$(JAVA25) ant test
+
+all: cap 8 11 17 21 25
 
 clean:
 	rm -f *~ *.cap

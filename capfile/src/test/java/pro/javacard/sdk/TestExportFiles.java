@@ -148,6 +148,30 @@ public class TestExportFiles {
         Assert.assertEquals(nonLib.getName(), "com.sun.javacard.installer");
         Assert.assertEquals(nonLib.getAid(), HexUtils.hex2bin("A000000062030108"));
         Assert.assertFalse(nonLib.isLibrary());
+
+        // v26.0 "preview" target: api_export_files_preview/ inside tools.jar
+        Path tools26 = sdksRoot().resolve("jc320v26.0_kit/lib/tools.jar");
+        try (ZipFile zf = new ZipFile(tools26.toFile())) {
+            // javacard.security bumped 1.8 (3.2.0) -> 1.9 (preview)
+            ExportFileHelper.PackageInfo sec = ExportFileHelper.parsePackage(
+                    zf.getInputStream(zf.getEntry("api_export_files_preview/javacard/security/javacard/security.exp")));
+            Assert.assertEquals(sec.getVersion(), ExportFileHelper.ExportFileVersion.V23);
+            Assert.assertEquals(sec.getName(), "javacard.security");
+            Assert.assertEquals(sec.getAid(), HexUtils.hex2bin("A0000000620102"));
+            Assert.assertEquals(sec.getPackageVersion(), "1.9");
+
+            // New preview-only package javacardx.security.bdh
+            ExportFileHelper.PackageInfo bdh = ExportFileHelper.parsePackage(
+                    zf.getInputStream(zf.getEntry("api_export_files_preview/javacardx/security/bdh/javacard/bdh.exp")));
+            Assert.assertEquals(bdh.getName(), "javacardx.security.bdh");
+            Assert.assertEquals(bdh.getAid(), HexUtils.hex2bin("A000000062020504"));
+            Assert.assertEquals(bdh.getPackageVersion(), "1.0");
+
+            // preview-final mirrors preview in this kit
+            ExportFileHelper.PackageInfo secFinal = ExportFileHelper.parsePackage(
+                    zf.getInputStream(zf.getEntry("api_export_files_preview-final/javacard/security/javacard/security.exp")));
+            Assert.assertEquals(secFinal.getPackageVersion(), "1.9");
+        }
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)

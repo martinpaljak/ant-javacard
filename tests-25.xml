@@ -5,11 +5,11 @@
     <!-- Build test applets -->
     <target name="test" depends="jcpro,test-sdks,test-nested-sources"/>
 
-    <!-- Cross-verify matrix: one smoke test per SDKVersion supported on JDK 21 -->
+    <!-- Cross-verify matrix: one smoke test per SDKVersion supported on JDK 25 -->
     <target name="test-sdks">
         <javacard>
-            <!-- JC 2.x and 3.0.x - JDK-21 minimum target is 1.8; their converters cap at 1.5/1.6, skipped -->
-            <!-- JC 3.1.0 / 3.2.0 (24.0) / 3.2.0 u1 (24.1) - converters accept up to class 51 (1.7); JDK-21 minimum is 1.8, skipped -->
+            <!-- JC 2.x and 3.0.x - JDK-25 minimum target is 1.8; their converters cap at 1.5/1.6, skipped -->
+            <!-- JC 3.1.0 / 3.2.0 (24.0) / 3.2.0 u1 (24.1) - converters accept up to class 51 (1.7); JDK-25 minimum is 1.8, skipped -->
             <cap jckit="${JC320_2}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
