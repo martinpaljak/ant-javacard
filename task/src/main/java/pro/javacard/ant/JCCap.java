@@ -403,11 +403,13 @@ public class JCCap extends Task {
         if (output_exp != null) {
             // Last component of the package
             String ln = Misc.lastName(package_name);
-            output_jar = new File(output_exp, ln + ".jar").toString();
+            output_jar = Paths.get(output_exp, ln + ".jar").toString();
         }
-        // Default output name
+        // Default output name; or a default-named CAP into a given directory
         if (output_cap == null) {
-            output_cap = raw_applets.size() == 0 ? DEFAULT_CAP_NAME_TEMPLATE_LIB : DEFAULT_CAP_NAME_TEMPLATE;
+            output_cap = defaultCapTemplate();
+        } else if (getProject().resolveFile(output_cap).isDirectory()) {
+            output_cap = Paths.get(output_cap, defaultCapTemplate()).toString();
         }
     }
 
@@ -863,6 +865,10 @@ public class JCCap extends Task {
         } finally {
             Misc.cleanTemp();
         }
+    }
+
+    private String defaultCapTemplate() {
+        return raw_applets.isEmpty() ? DEFAULT_CAP_NAME_TEMPLATE_LIB : DEFAULT_CAP_NAME_TEMPLATE;
     }
 
     private String capFileName(CAPFile cap, String template) {

@@ -99,7 +99,7 @@ Details:
    * `package` attribute - name of the package of the CAP file. Optional for applets - set to the parent package of the applet class if left unspecified, required for libraries
    * `version` attribute - version of the package. Optional - defaults to 0.0 if left unspecified.
    * `aid` attribute - AID (hex) of the package. Recommended - or set to the 5 first bytes of the applet AID if left unspecified.
-   * `output` attribute - path where to save the generated CAP file. Optional, see below for variables.
+   * `output` attribute - path where to save the generated CAP file; if a folder, the CAP is written into it. Optional, see below for variables.
    * `export` attribute - path (folder) where to place the JAR and generated EXP file. Optional.
    * `exportmap` attribute - if set to true, use pre-defined export file. Optional.
    * `jar` attribute - path where to save the generated archive JAR file. Optional.
