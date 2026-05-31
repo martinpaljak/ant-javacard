@@ -21,6 +21,7 @@ path = [
     "tests-11.xml",
     "tests-17.xml",
     "tests-21.xml",
+    "tests-25.xml",
     "kits.xml",
     "fails.xml",
     "capfile/src/main/resources/**",
