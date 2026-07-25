@@ -14,3 +14,8 @@
 /wiki
 hs_err_pid*
 pom.xml.versionsBackup
+
+# Eclipse/jdtls
+.project
+.classpath
+.settings/
