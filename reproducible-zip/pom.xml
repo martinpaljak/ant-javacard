@@ -7,27 +7,12 @@
         <artifactId>ant-javacard-package</artifactId>
         <version>26.08.28-SNAPSHOT</version>
     </parent>
-    <artifactId>capfile</artifactId>
-    <name>JavaCard SDK and CAP file library</name>
+    <artifactId>reproducible-zip</artifactId>
+    <name>Reproducible ZIP writer</name>
     <dependencies>
-        <dependency>
-            <groupId>pro.javacard</groupId>
-            <artifactId>reproducible-zip</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

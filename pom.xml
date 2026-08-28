@@ -3,9 +3,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
-    <groupId>com.github.martinpaljak</groupId>
+    <groupId>pro.javacard</groupId>
     <artifactId>ant-javacard-package</artifactId>
-    <version>26.05.16-SNAPSHOT</version>
+    <version>26.08.28-SNAPSHOT</version>
     <description>Easy to use Ant task for building JavaCard applets</description>
     <name>ant-javacard package</name>
     <url>https://github.com/martinpaljak/ant-javacard</url>
@@ -14,37 +14,115 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- GH Actions fails sometimes on first try -->
         <maven.wagon.http.retryHandler.count>2</maven.wagon.http.retryHandler.count>
-        <project.build.outputTimestamp>2026-05-15T11:55:32Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2026-08-28T12:59:36Z</project.build.outputTimestamp>
     </properties>
     <repositories>
         <repository>
             <id>javacard-pro</id>
             <name>javacard.pro</name>
-            <url>https://mvn.javacard.pro/maven/</url>
+            <url>https://mvn.javacard.pro/public/</url>
         </repository>
         <repository>
             <id>javacard-pro-snapshots</id>
-            <url>https://mvn.javacard.pro/maven/SNAPSHOTS/</url>
+            <url>https://mvn.javacard.pro/public-snapshots/</url>
         </repository>
     </repositories>
+    <!-- TODO: remove once m2ssh is released -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>javacard-pro-snapshots</id>
+            <url>https://mvn.javacard.pro/public-snapshots/</url>
+        </pluginRepository>
+    </pluginRepositories>
     <!-- Default is publishing to private Maven repo on javacard.pro -->
     <distributionManagement>
         <repository>
-            <id>javacard</id>
-            <url>scpexe://mvn@mvn.javacard.pro/home/mvn/maven/</url>
+            <id>javacard-pro</id>
+            <url>m2ssh://mvn@mvn.javacard.pro</url>
         </repository>
-        <snapshotRepository>
-            <id>javacard</id>
-            <url>scpexe://mvn@mvn.javacard.pro/home/mvn/maven/SNAPSHOTS</url>
-        </snapshotRepository>
     </distributionManagement>
     <modules>
+        <module>reproducible-zip</module>
         <module>capfile</module>
         <module>task</module>
     </modules>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.ant</groupId>
+                <artifactId>ant</artifactId>
+                <version>1.10.17</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>7.12.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>2.0.18</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>2.0.18</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>3.6.3</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.15.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>3.2.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>3.5.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.5.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.5.6</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.5.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>3.1.4</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>3.1.4</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.22.0</version>
+                </plugin>
                 <plugin>
                     <groupId>org.openrewrite.maven</groupId>
                     <artifactId>rewrite-maven-plugin</artifactId>
@@ -85,9 +163,10 @@
         </pluginManagement>
         <extensions>
             <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ssh-external</artifactId>
-                <version>3.5.3</version>
+                <groupId>pro.javacard.maven</groupId>
+                <artifactId>m2ssh</artifactId>
+                <!-- TODO: move to released once available -->
+                <version>26.08.28-SNAPSHOT</version>
             </extension>
         </extensions>
         <plugins>
@@ -95,7 +174,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.6.3</version>
                 <executions>
                     <execution>
                         <id>enforce-maven-version</id>
@@ -121,13 +199,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.15.0</version>
                 <executions>
                     <execution>
                         <id>default-compile</id>
                         <configuration>
-                            <!-- compile everything to ensure module-info contains right entries -->
-                            <release>11</release>
+                            <!-- the jar has to load on 1.8; module-info.java needs 9+ and is compiled separately -->
+                            <release>8</release>
+                            <excludes>
+                                <exclude>module-info.java</exclude>
+                            </excludes>
                             <compilerArgs combine.children="append">
                                 <arg>-Werror</arg>
                                 <arg>-Xlint:all</arg>
@@ -144,20 +224,16 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>base-compile</id>
+                        <id>module-compile</id>
                         <goals>
                             <goal>compile</goal>
                         </goals>
-                        <!-- recompile everything for 1.8 except the module-info.java -->
+                        <!-- checked against the classes default-compile just wrote, so the entries are right -->
                         <configuration>
-                            <source>8</source>
-                            <target>8</target>
-                            <excludes>
-                                <exclude>module-info.java</exclude>
-                            </excludes>
-                            <compilerArgs combine.children="append">
-                                <arg>-Xlint:-options</arg>
-                            </compilerArgs>
+                            <release>11</release>
+                            <includes>
+                                <include>module-info.java</include>
+                            </includes>
                         </configuration>
                     </execution>
                 </executions>
@@ -165,7 +241,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.2.0</version>
                 <inherited>false</inherited>
                 <executions>
                     <execution>
@@ -182,43 +257,20 @@
                             </target>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>ant-test</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <property name="maven.plugin.classpath" refid="maven.plugin.classpath"/>
+                                <ant antfile="build.xml" target="test" inheritAll="true"/>
+                            </target>
+                        </configuration>
+                    </execution>
                 </executions>
-            </plugin>
-            <!-- Version fixes -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>3.5.0</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <version>3.1.4</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>3.1.4</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>3.22.0</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.6</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.5.0</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.5.0</version>
             </plugin>
         </plugins>
     </build>

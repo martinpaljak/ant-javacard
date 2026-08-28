@@ -5,15 +5,15 @@
 Have a consistent and concise build declaration for JavaCard applets, no matter which JavaCard SDK version you use or target.
 
 [![Latest release](https://img.shields.io/github/release/martinpaljak/ant-javacard.svg)](https://github.com/martinpaljak/ant-javacard/releases/latest)
-&nbsp;[![Latest version](https://img.shields.io/maven-metadata/v?label=latest&metadataUrl=https%3A%2F%2Fmvn.javacard.pro%2Fmaven%2FSNAPSHOTS%2Fcom%2Fgithub%2Fmartinpaljak%2Fant-javacard%2Fmaven-metadata.xml)](https://gist.github.com/martinpaljak/c77d11d671260e24eef6c39123345cae)
+&nbsp;[![Latest version](https://img.shields.io/maven-metadata/v?label=mvn.javacard.pro&metadataUrl=https%3A%2F%2Fmvn.javacard.pro%2Fpublic%2Fpro%2Fjavacard%2Fant-javacard%2Fmaven-metadata.xml)](https://mvn.javacard.pro/)
 &nbsp;[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/martinpaljak/ant-javacard/blob/master/LICENSE)
 &nbsp;[![Build status](https://github.com/martinpaljak/ant-javacard/actions/workflows/robot.yml/badge.svg?branch=master)](https://github.com/martinpaljak/ant-javacard/actions)
 &nbsp;[![Made in Estonia](https://img.shields.io/badge/Made_in-Estonia-0072CE)](https://estonia.ee)
 
 ## Features
  * **[Do What I Mean](http://en.wikipedia.org/wiki/DWIM)**. You will [love it](#happy-users)!
- * **No dependencies**, no extra or unrelated downloads. Just **a ~50KB reproducible jar file**.
- * Supports **all available JavaCard SDK versions**: 2.1.2, 2.2.1, 2.2.2, 3.0.3, 3.0.4, 3.0.5, 3.1.0 and 3.2.0
+ * **No dependencies**, no extra or unrelated downloads. Just **a ~85KB reproducible jar file**.
+ * Supports **all available JavaCard SDK versions**: 2.1.1, 2.1.2, 2.2.1, 2.2.2, 3.0.1 (the `jc303_kit` folder), 3.0.4, 3.0.5, 3.1.0 and 3.2.0
    * Get one from [oracle.com](https://www.oracle.com/java/technologies/javacard-sdk-downloads.html) or use the [handy Github repository](https://github.com/martinpaljak/oracle_javacard_sdks)
  * **Works on all platforms** with LTS Java 1.8+: Windows, OSX, Linux.
    * **[Usable SDK-s depend on JDK version](https://github.com/martinpaljak/ant-javacard/wiki/JavaCard-SDK-and-JDK-version-compatibility)**
@@ -90,7 +90,7 @@ Details:
    * `jckit` attribute - path to the JavaCard SDK that is used if individual `cap` does not specify one. Optional if `cap` defines one, required otherwise.
  * `cap` tag - construct a CAP file
    * `jckit` attribute - path to the JavaCard SDK to be used. Optional if `javacard` defines one, required otherwise.
-   * `targetsdk` attribute - path to the target JavaCard SDK (or `"3.0.X"` target version when using JavaCard SDK v3.1), to be used for this CAP. Optional, value of `jckit` used by default. Allows to use a more recent converter to target older JavaCard platforms.
+   * `targetsdk` attribute - path to the target JavaCard SDK, or a target version supported by the kit when using JavaCard SDK v3.1 or v3.2 (`"3.0.4"`, `"3.0.5"`, `"3.1.0"`, and `"preview"` or `"preview-final"` with kit v26.0), to be used for this CAP. Optional, value of `jckit` used by default. Allows to use a more recent converter to target older JavaCard platforms.
    * `sources` attribute - path(s) to Java source code, to be compiled against the JavaCard SDK. Either `sources` or `classes` is required, unless `src/main/javacard` or `src/main/java` exists.
    * `sources2` attribute - additional sources to build per-platform applets. Optional, deprecated (use multiple paths for `sources`)
    * `classes` attribute - path to pre-compiled class files to be assembled into a CAP file. If both `classes` and `sources` are specified, compiled class files will be put to `classes` folder, which is created if missing.
@@ -129,7 +129,7 @@ Following substitutions are available:
  * `%n` - _common name_ of the entity, either applet class (if only one applet) or package name
  * `%p` - package name
  * `%a` - package AID (hex)
- * `%j` - targeted JavaCard version (ex: 3.0.5)
+ * `%j` - JavaCard version the CAP appears to need, read from its imports and not from the kit that built it (ex: 3.0.5)
  * `%J` - used JDK version (ex: jdk11)
  * `%v` - applet package version (same as `version` attribute for `cap`, ex: v1.0)
 
@@ -146,15 +146,16 @@ Following substitutions are available:
 - `JC_HOME` - path to the JavaCard SDK to be used if not specified in the build file.
 - `ANT_JAVACARD_TMP` - path to the temporary folder to be used for building CAP files. This is not cleaned after use.
 - `ANT_JAVACARD_DEBUG` - if set, shows debug output.
+- [`SOURCE_DATE_EPOCH`](https://reproducible-builds.org/specs/source-date-epoch/) - seconds since the Unix epoch, used instead of the current time in the CAP. Use with `TZ=UTC`.
 
 ## Maven dependency
-Releases are published to [`https://mvn.javacard.pro/maven/`](https://mvn.javacard.pro/maven/). To use it, add this to your `pom.xml`:
+Releases are published to [`https://mvn.javacard.pro/public/`](https://mvn.javacard.pro/public/). To use it, add this to your `pom.xml`:
 
 ```xml
 <repositories>
     <repository>
         <id>javacard-pro</id>
-        <url>https://mvn.javacard.pro/maven/</url>
+        <url>https://mvn.javacard.pro/public/</url>
     </repository>
 </repositories>
 ```

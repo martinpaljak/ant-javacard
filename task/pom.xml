@@ -4,9 +4,9 @@
     <modelVersion>4.0.0</modelVersion>
     <!-- Not using metacard, as this is meant to be compilable with Java 1.8 as well -->
     <parent>
-        <groupId>com.github.martinpaljak</groupId>
+        <groupId>pro.javacard</groupId>
         <artifactId>ant-javacard-package</artifactId>
-        <version>26.05.16-SNAPSHOT</version>
+        <version>26.08.28-SNAPSHOT</version>
     </parent>
     <artifactId>ant-javacard</artifactId>
     <description>Easy to use Ant task for building JavaCard applets</description>
@@ -15,12 +15,11 @@
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
-            <version>1.10.17</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.github.martinpaljak</groupId>
+            <groupId>pro.javacard</groupId>
             <artifactId>capfile</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
@@ -28,18 +27,49 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>7.12.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>2.0.18</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
         <plugins>
+            <!-- Convert the test applets with the task just compiled, so the metadata
+                 tests read real converter output instead of checked-in binaries.
+                 jc320v26.0 is the one kit every JDK from 8 to 25 can drive, see
+                 tests-*.xml. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>test-caps</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.build.directory}/caps"/>
+                                <taskdef name="javacard" classname="pro.javacard.ant.JavaCard" classpathref="maven.test.classpath"/>
+                                <javacard jckit="${basedir}/../sdks/jc320v26.0_kit">
+                                    <cap sources="${basedir}/../src/testapplets/empty" aid="010203040506" version="1.0"
+                                         output="${project.build.directory}/caps/applet.cap">
+                                        <applet class="testapplets.empty.Empty" aid="01020304050601"/>
+                                    </cap>
+                                    <!-- A library CAP verifies only against its own export file. -->
+                                    <cap sources="${basedir}/../src/testapplets/library" package="testapplets.library"
+                                         aid="010203040507" version="0.1" export="${project.build.directory}/exp"
+                                         output="${project.build.directory}/caps/library.cap"/>
+                                </javacard>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
