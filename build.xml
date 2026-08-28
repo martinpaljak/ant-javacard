@@ -11,6 +11,7 @@
     <target name="jcpro" depends="maven-cp">
         <mkdir dir="build"/>
         <javac debug="true" destdir="build" includeantruntime="true" target="8" source="8">
+            <src path="reproducible-zip/src/main/java"/>
             <src path="capfile/src/main/java"/>
             <src path="task/src/main/java"/>
             <classpath>
