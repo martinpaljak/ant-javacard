@@ -13,7 +13,7 @@ Have a consistent and concise build declaration for JavaCard applets, no matter 
 ## Features
  * **[Do What I Mean](http://en.wikipedia.org/wiki/DWIM)**. You will [love it](#happy-users)!
  * **No dependencies**, no extra or unrelated downloads. Just **a ~85KB reproducible jar file**.
- * Supports **all available JavaCard SDK versions**: 2.1.1, 2.1.2, 2.2.1, 2.2.2, 3.0.1 (the `jc303_kit` folder), 3.0.4, 3.0.5, 3.1.0 and 3.2.0
+ * Supports **all available JavaCard SDK versions**: 2.1.1, 2.1.2, 2.2.1, 2.2.2, 3.0.3, 3.0.4, 3.0.5, 3.1.0 and 3.2.0
    * Get one from [oracle.com](https://www.oracle.com/java/technologies/javacard-sdk-downloads.html) or use the [handy Github repository](https://github.com/martinpaljak/oracle_javacard_sdks)
  * **Works on all platforms** with LTS Java 1.8+: Windows, OSX, Linux.
    * **[Usable SDK-s depend on JDK version](https://github.com/martinpaljak/ant-javacard/wiki/JavaCard-SDK-and-JDK-version-compatibility)**
@@ -60,16 +60,16 @@ target:
 ```
 ## Recommended setup
 Based on the [JavaCard SDK and JDK version compatibility matrix](https://github.com/martinpaljak/ant-javacard/wiki/JavaCard-SDK-and-JDK-version-compatibility).
-- Modern work (targeting JC 3.0.4 or later)
+- Targeting JC 3.0.4 or later (modern JavaCard-s)
   - Use JDK 25 (don't forget to set `$JAVA_HOME`)
   - Use the latest JavaCard SDK (`jckit="sdks/jc320v26.0_kit"`) with right target (`targetsdk="3.x.y"`)
-- Older things (targeting JC 2.2.x or 3.0.1)
+- Targeting JC 2.2.x or 3.0.1 (older JavaCard-s)
   - Use JDK 17 (don't forget to set `$JAVA_HOME`)
   - Use JavaCard SDK 3.0.5u4 (`jckit="sdks/jc305u4_kit"`) with right target (`targetsdk="sdks/jc222_kit"`)
-- Java 8 for archeology (legacy JC 2.1.x SDKs)
+- Targeting JC 2.1.x (archeology)
   - Use JDK 8 (don't forget to set `$JAVA_HOME`)
   - Use the matching legacy SDK (`jckit="sdks/jc212_kit"`)
-  - Off-card verification is not supported and will be auto-disabled
+  - No off-card verification, it gets disabled automatically
 
 > [!NOTE]
 > ant-javacard will continue to support using legacy JavaCard 2.X SDK-s (and thus JDK-8) for as long as this is achievable with sane effort
@@ -90,7 +90,7 @@ Details:
    * `jckit` attribute - path to the JavaCard SDK that is used if individual `cap` does not specify one. Optional if `cap` defines one, required otherwise.
  * `cap` tag - construct a CAP file
    * `jckit` attribute - path to the JavaCard SDK to be used. Optional if `javacard` defines one, required otherwise.
-   * `targetsdk` attribute - path to the target JavaCard SDK, or a target version supported by the kit when using JavaCard SDK v3.1 or v3.2 (`"3.0.4"`, `"3.0.5"`, `"3.1.0"`, and `"preview"` or `"preview-final"` with kit v26.0), to be used for this CAP. Optional, value of `jckit` used by default. Allows to use a more recent converter to target older JavaCard platforms.
+   * `targetsdk` attribute - path to the target JavaCard SDK for this CAP, or a version supported by the kit with SDK v3.1 and v3.2: `"3.0.4"`, `"3.0.5"`, `"3.1.0"`, plus `"preview"` and `"preview-final"` with kit v26.0. Optional, value of `jckit` used by default. Allows to use a more recent converter to target older JavaCard platforms.
    * `sources` attribute - path(s) to Java source code, to be compiled against the JavaCard SDK. Either `sources` or `classes` is required, unless `src/main/javacard` or `src/main/java` exists.
    * `sources2` attribute - additional sources to build per-platform applets. Optional, deprecated (use multiple paths for `sources`)
    * `classes` attribute - path to pre-compiled class files to be assembled into a CAP file. If both `classes` and `sources` are specified, compiled class files will be put to `classes` folder, which is created if missing.
@@ -99,7 +99,7 @@ Details:
    * `package` attribute - name of the package of the CAP file. Optional for applets - set to the parent package of the applet class if left unspecified, required for libraries
    * `version` attribute - version of the package. Optional - defaults to 0.0 if left unspecified.
    * `aid` attribute - AID (hex) of the package. Recommended - or set to the 5 first bytes of the applet AID if left unspecified.
-   * `output` attribute - path where to save the generated CAP file; if a folder, the CAP is written into it. Optional, see below for variables.
+   * `output` attribute - path where to save the generated CAP file, or a folder to save it into. Optional, see below for variables.
    * `export` attribute - path (folder) where to place the JAR and generated EXP file. Optional.
    * `exportmap` attribute - if set to true, use pre-defined export file. Optional.
    * `jar` attribute - path where to save the generated archive JAR file. Optional.
@@ -129,7 +129,7 @@ Following substitutions are available:
  * `%n` - _common name_ of the entity, either applet class (if only one applet) or package name
  * `%p` - package name
  * `%a` - package AID (hex)
- * `%j` - JavaCard version the CAP appears to need, read from its imports and not from the kit that built it (ex: 3.0.5)
+ * `%j` - JavaCard version required by the CAP imports (ex: 3.0.5)
  * `%J` - used JDK version (ex: jdk11)
  * `%v` - applet package version (same as `version` attribute for `cap`, ex: v1.0)
 
