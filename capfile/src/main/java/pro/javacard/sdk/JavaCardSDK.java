@@ -47,12 +47,14 @@ public final class JavaCardSDK {
     // Tool versions and copyright banner of a 3.x kit, empty for older kits
     private static Optional<Properties> toolsVersion(Path root) {
         Path tools = root.resolve("lib").resolve("tools.jar");
-        if (!Files.exists(tools))
+        if (!Files.exists(tools)) {
             return Optional.empty();
+        }
         try (ZipFile toolsZip = new ZipFile(tools.toFile())) {
             ZipEntry toolsver = toolsZip.getEntry("com/sun/javacard/toolsversion.properties");
-            if (toolsver == null)
+            if (toolsver == null) {
                 return Optional.empty();
+            }
             Properties verprop = new Properties();
             verprop.load(toolsZip.getInputStream(toolsver));
             return Optional.of(verprop);
