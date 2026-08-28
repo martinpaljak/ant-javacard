@@ -12,7 +12,6 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringJoiner;
 
 final class Misc {
 
@@ -25,14 +24,6 @@ final class Misc {
         }
         int dot = v.indexOf(".");
         return Integer.parseInt(v.substring(0, dot == -1 ? v.length() : dot));
-    }
-
-    static String hexAID(byte[] aid) {
-        StringJoiner hexaid = new StringJoiner(":");
-        for (byte b : aid) {
-            hexaid.add(String.format("0x%02X", b));
-        }
-        return hexaid.toString();
     }
 
     // For cleaning up temporary files
@@ -63,13 +54,6 @@ final class Misc {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    static byte[] stringToBin(String s) {
-        s = s.toLowerCase().replaceAll(" ", "").replaceAll(":", "");
-        s = s.replaceAll("0x", "").replaceAll("\n", "").replaceAll("\t", "");
-        s = s.replaceAll(";", "");
-        return HexUtils.hex2bin(s);
     }
 
     // foo.bar.Baz -> Baz; Foo -> Foo

@@ -11,6 +11,7 @@ import org.apache.tools.ant.taskdefs.Java;
 import org.apache.tools.ant.taskdefs.Javac;
 import org.apache.tools.ant.types.Environment;
 import org.apache.tools.ant.types.FileSet;
+import pro.javacard.capfile.AID;
 import pro.javacard.capfile.CAPFile;
 import pro.javacard.capfile.HexUtils;
 import pro.javacard.sdk.JavaCardSDK;
@@ -25,6 +26,7 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static pro.javacard.sdk.SDKVersion.*;
 
@@ -60,23 +62,23 @@ public class JCCap extends Task {
     private boolean strip = false;
     private boolean ints = false;
     private boolean exportmap = false;
-    static final String _logconf;
+    static String _logconf;
 
     static final String LOGHACK = "_ANT_JAVACARD_LOGHACK";
-    static final boolean loghack = Boolean.parseBoolean(System.getenv().getOrDefault(LOGHACK, "true"));
 
     static {
-        if (loghack) {
-            // Setting the java.util.logging configuration for convert task will prevent the creation of ~/java0.log.0 file
-            Path logconf = Misc.makeTemp("logging").resolve("logging.properties");
-            _logconf = logconf.toAbsolutePath().normalize().toString();
+        if (Boolean.parseBoolean(System.getenv().getOrDefault(LOGHACK, "true"))) {
+            // The kits ship a logging.properties in tools.jar installing a FileHandler to ~/java0.log.0
             try {
-                Files.write(logconf, String.format("handlers = java.util.logging.ConsoleHandler%n.level = WARNING").getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-            } catch (IOException e) {
+                Path logconf = Misc.makeTemp("logging").resolve("logging.properties");
+                String conf = "handlers = java.util.logging.ConsoleHandler\n"
+                        + "java.util.logging.SimpleFormatter.format=[ %4$s ] %5$s%6$s%n\n";
+                Files.write(logconf, conf.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+                _logconf = logconf.toAbsolutePath().normalize().toString();
+            } catch (IOException | RuntimeException e) {
                 System.err.println("Could not write temporary logging configuration: " + e.getMessage());
             }
         } else {
-            _logconf = null;
             System.err.println("Loghack disabled");
         }
         if (System.getenv().containsKey(LOGHACK)) {
@@ -162,7 +164,7 @@ public class JCCap extends Task {
 
     public void setAID(String msg) {
         try {
-            package_aid = Misc.stringToBin(msg);
+            package_aid = HexUtils.stringToBin(msg);
             if (package_aid.length < 5 || package_aid.length > 16) {
                 throw new BuildException(String.format("Package AID must be between 5 and 16 bytes: %s (%d)", HexUtils.bin2hex(package_aid), package_aid.length));
             }
@@ -198,6 +200,11 @@ public class JCCap extends Task {
         return src;
     }
 
+    // Renders a set into a message: JDK numbers in numeric order, SDK versions oldest first
+    private static <T extends Comparable<T>> String joinSorted(Collection<T> items) {
+        return items.stream().sorted().map(Object::toString).collect(Collectors.joining(", "));
+    }
+
     private Optional<JavaCardSDK> findSDK() {
         // try local configuration first
         if (jckit_path != null) {
@@ -231,14 +238,15 @@ public class JCCap extends Task {
             Optional<SDKVersion> targetVersion = SDKVersion.fromVersion(raw_targetsdk);
             if (targetVersion.isPresent() && !jckit.getVersion().targets().isEmpty()) {
                 SDKVersion target = targetVersion.get();
-                if (jckit.getVersion().equals(target)) {
-                    log("WARN: \"targetsdk\" ignored as it matches \"jckit\" version", Project.MSG_WARN);
-                } else {
-                    if (jckit.getVersion().targets().contains(target)) {
-                        targetsdk = jckit.target(target);
+                try {
+                    Optional<JavaCardSDK> targeted = jckit.targeting(target);
+                    if (targeted.isPresent()) {
+                        targetsdk = targeted.get();
                     } else {
-                        throw new HelpingBuildException(String.format("Can not target JavaCard %s with JavaCard kit %s", target, jckit.getVersion()));
+                        log(String.format("WARN: \"targetsdk\" %s ignored, JavaCard kit v%s already targets it", target, jckit.getRelease()), Project.MSG_WARN);
                     }
+                } catch (IllegalArgumentException e) {
+                    throw new HelpingBuildException(e.getMessage(), HelpingBuildException.COMPATIBILITY);
                 }
             } else {
                 // Resolve target
@@ -304,12 +312,12 @@ public class JCCap extends Task {
         if (package_version == null) {
             package_version = "0.0";
         } else {
-            // Allowed values are 0..127
+            // u1 in the CAP, but the converter writes them into the .jca as signed bytes
             if (!package_version.matches("^[0-9]{1,3}\\.[0-9]{1,3}$")) {
                 throw new HelpingBuildException("Invalid package version: " + package_version);
             }
             if (Arrays.stream(package_version.split("\\.")).map(e -> Integer.parseInt(e, 10)).anyMatch(e -> (e < 0 || e > 127))) {
-                throw new HelpingBuildException("Illegal package version value: " + package_version);
+                throw new HelpingBuildException("Illegal package version value (0..127): " + package_version);
             }
         }
 
@@ -425,6 +433,14 @@ public class JCCap extends Task {
         Project project = getProject();
         setTaskName("compile");
 
+        // Refuse before copying sources or making an output folder
+        // See https://github.com/martinpaljak/ant-javacard/issues/79
+        int jdkver = Misc.getCurrentJDKVersion();
+        if (!jckit.getVersion().jdkVersions().contains(jdkver)) {
+            throw new HelpingBuildException(String.format("JavaCard kit v%s (JavaCard %s) runs on JDK %s, not on JDK %d",
+                    jckit.getRelease(), jckit.getVersion(), joinSorted(jckit.getVersion().jdkVersions()), jdkver), HelpingBuildException.COMPATIBILITY);
+        }
+
         // construct javac task
         Javac j = new Javac();
         j.setProject(project);
@@ -520,25 +536,6 @@ public class JCCap extends Task {
 
         // set the best option supported by jckit
         String javaVersion = jckit.getVersion().javaVersion();
-        // Warn in human-readable way if Java not compatible with JC Kit
-        // See https://github.com/martinpaljak/ant-javacard/issues/79
-        int jdkver = Misc.getCurrentJDKVersion();
-
-        if (!jckit.getVersion().jdkVersions().contains(jdkver)) {
-            if (jdkver > 17 && !jckit.getVersion().isOneOf(V320_25_0, V320_25_1, V320_26_0)) {
-                // JDK 21+ can only target 1.8 or higher; only kit v25.0+ converters accept that.
-                throw new HelpingBuildException(String.format("JavaCard kit v25.0+ required for JDK %d. Use JDK 17 or upgrade to v26.0.", jdkver));
-            } else if (jckit.getVersion().isOneOf(V211, V212, V221, V222) && jdkver > 8) {
-                // 2.x converters max out at class 49 or lower; JDK 9+ minimum target is 1.6.
-                throw new HelpingBuildException(String.format("JavaCard kit v%s requires JDK 8 (legacy 2.x). Upgrade to v26.0 for modern JDKs.", jckit.getRelease()));
-            } else if (jdkver > 11 && !jckit.getVersion().isOneOf(V305, V310, V320, V320_24_1, V320_25_0, V320_25_1, V320_26_0)) {
-                // JDK 17+ minimum target is 1.7; only kits whose converter accepts class 51 or above work.
-                throw new HelpingBuildException(String.format("JDK %d incompatible with JavaCard kit v%s (converter caps at 1.6). Use JDK 11 or upgrade to v26.0.", jdkver, jckit.getRelease()));
-            } else if (jdkver == 8 && jckit.getVersion().isOneOf(V320_24_1)) {
-                // 24.1's tools.jar is class 55; JDK 8 JVM can't load it.
-                throw new HelpingBuildException("JavaCard kit v24.1 requires JDK 11+ (tools.jar class 55). Use JDK 11/17 or upgrade to v26.0.");
-            }
-        }
         j.setTarget(javaVersion);
         j.setSource(javaVersion);
 
@@ -601,10 +598,9 @@ public class JCCap extends Task {
         // set class depending on SDK
         if (jckit.getVersion().equalOrNewer(V301)) {
             j.setClassname("com.sun.javacard.converter.Main");
-
             // Don't create java0.log.0 files in home folder
-            // As a Java process is executed, we need to store it in a config file
-            if (loghack) {
+            // Only these kits name a FileHandler; v25.0 onwards name a console handler alone
+            if (_logconf != null && jckit.getVersion().isOneOf(V301, V304, V305, V310, V320, V320_24_1)) {
                 Environment.Variable jclog = new Environment.Variable();
                 jclog.setKey("java.util.logging.config.file");
                 jclog.setValue(_logconf);
@@ -678,11 +674,11 @@ public class JCCap extends Task {
 
         // define applets
         for (JCApplet app : raw_applets) {
-            j.createArg().setLine("-applet " + Misc.hexAID(app.aid) + " " + app.klass);
+            j.createArg().setLine("-applet " + new AID(app.aid).toColonHex() + " " + app.klass);
         }
 
         // package properties
-        j.createArg().setLine(String.format("%s %s %s", package_name, Misc.hexAID(package_aid), package_version));
+        j.createArg().setLine(String.format("%s %s %s", package_name, new AID(package_aid).toColonHex(), package_version));
 
         // report the command
         log("command: " + j.getCommandLine(), Project.MSG_DEBUG);
@@ -792,6 +788,14 @@ public class JCCap extends Task {
                 if (strip) {
                     CAPFile.strip(cap);
                 }
+
+                // The build knows every applet's class, which generating
+                // applet.xml requires.
+                Map<AID, String> appletClasses = new HashMap<>();
+                for (JCApplet app : raw_applets) {
+                    appletClasses.put(new AID(app.aid), app.klass);
+                }
+                CAPFile.amendMetadata(cap, appletClasses);
 
                 // perform the copy
                 Files.copy(cap, outCap, StandardCopyOption.REPLACE_EXISTING);
