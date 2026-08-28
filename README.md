@@ -5,10 +5,10 @@
 Have a consistent and concise build declaration for JavaCard applets, no matter which JavaCard SDK version you use or target.
 
 [![Latest release](https://img.shields.io/github/release/martinpaljak/ant-javacard.svg)](https://github.com/martinpaljak/ant-javacard/releases/latest)
-&nbsp;[![Latest version](https://img.shields.io/maven-metadata/v?label=mvn.javacard.pro&metadataUrl=https%3A%2F%2Fmvn.javacard.pro%2Fpublic%2Fpro%2Fjavacard%2Fant-javacard%2Fmaven-metadata.xml)](https://mvn.javacard.pro/)
+&nbsp;[![Maven version](https://img.shields.io/maven-metadata/v?label=mvn.javacard.pro&metadataUrl=https%3A%2F%2Fmvn.javacard.pro%2Fpublic-snapshots%2Fpro%2Fjavacard%2Fant-javacard%2Fmaven-metadata.xml)](https://mvn.javacard.pro/)
 &nbsp;[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/martinpaljak/ant-javacard/blob/master/LICENSE)
 &nbsp;[![Build status](https://github.com/martinpaljak/ant-javacard/actions/workflows/robot.yml/badge.svg?branch=master)](https://github.com/martinpaljak/ant-javacard/actions)
-&nbsp;[![Made in Estonia](https://img.shields.io/badge/Made_in-Estonia-0072CE)](https://estonia.ee)
+&nbsp;[![Made in Estonia](https://img.shields.io/badge/Made_in-Estonia-0072CE?style=flat&label=Made%20in&labelColor=black)](https://estonia.ee)
 
 ## Features
  * **[Do What I Mean](http://en.wikipedia.org/wiki/DWIM)**. You will [love it](#happy-users)!
