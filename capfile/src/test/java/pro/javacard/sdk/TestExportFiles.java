@@ -8,7 +8,6 @@ import org.testng.annotations.Test;
 import pro.javacard.capfile.HexUtils;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -141,6 +140,16 @@ public class TestExportFiles {
         Assert.assertEquals(v23sec.getAid(), HexUtils.hex2bin("A0000000620102"));
         Assert.assertEquals(v23sec.getMajor(), 1);
         Assert.assertEquals(v23sec.getMinor(), 7);
+
+        // Format 2.3 names the packages linked against, format 2.1 has no such table
+        Assert.assertEquals(v23fw.getImports().size(), 1);
+        Assert.assertEquals(v23fw.getImports().get(0).getName(), "java.lang");
+        Assert.assertEquals(v23fw.getImports().get(0).getPackageVersion(), "1.0");
+        Assert.assertEquals(v23sec.getImports().stream().map(ExportFileHelper.PackageInfo::getName).collect(Collectors.toList()),
+                java.util.Arrays.asList("java.lang", "javacard.framework"));
+        Assert.assertEquals(v23sec.getImports().get(1).getPackageVersion(), "1.8");
+        Assert.assertEquals(v23sec.getImports().get(1).getAid(), HexUtils.hex2bin("A0000000620101"));
+        Assert.assertTrue(v21.getImports().isEmpty());
 
         // Non-library package
         ExportFileHelper.PackageInfo nonLib = ExportFileHelper.parsePackage(

@@ -26,7 +26,6 @@ public enum SDKVersion {
     V320_26_0("3.2.0", "1.8", Arrays.asList(V304, V305, V310, V320, V320_PREVIEW, V320_PREVIEW_FINAL), Arrays.asList(8, 11, 17, 21, 25));
 
 
-
     final String v;
     final String class_file_target;  // This indicates the highest class file version edible by SDK-s converter
     final Set<Integer> jdks;

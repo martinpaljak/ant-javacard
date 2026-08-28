@@ -19,7 +19,8 @@ public final class WellKnownAID {
     private static final Map<AID, String> javaCardRegistry = new LinkedHashMap<>();
     private static final Map<AID, String> wellKnownRegistry = new LinkedHashMap<>();
 
-    private WellKnownAID() {}
+    private WellKnownAID() {
+    }
 
     static {
         // Copied from https://stackoverflow.com/questions/25031338/how-to-get-javacard-version-on-card/25063015#25063015
@@ -92,7 +93,7 @@ public final class WellKnownAID {
         try {
             Properties props = new Properties();
             props.load(in);
-            for (String k: props.stringPropertyNames()) {
+            for (String k : props.stringPropertyNames()) {
                 wellKnownRegistry.put(AID.fromString(k), props.getProperty(k));
             }
         } catch (ClassCastException e) {

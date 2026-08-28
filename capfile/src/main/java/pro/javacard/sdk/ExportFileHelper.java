@@ -10,8 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 // Export file format: JCVM Spec v3.2, Chapter 5 "The Export File Format"
 public final class ExportFileHelper {
@@ -38,15 +37,17 @@ public final class ExportFileHelper {
         private final int major;
         private final int minor;
         private final boolean library;
+        private final List<PackageInfo> imports;
 
         PackageInfo(ExportFileVersion version, String name, byte[] aid,
-                    int major, int minor, boolean library) {
+                    int major, int minor, boolean library, List<PackageInfo> imports) {
             this.version = version;
             this.name = name;
             this.aid = aid.clone();
             this.major = major;
             this.minor = minor;
             this.library = library;
+            this.imports = Collections.unmodifiableList(new ArrayList<PackageInfo>(imports));
         }
 
         public ExportFileVersion getVersion() {
@@ -77,6 +78,11 @@ public final class ExportFileHelper {
             return library;
         }
 
+        // Only export file format 2.3 names imported packages, empty for the earlier formats
+        public List<PackageInfo> getImports() {
+            return imports;
+        }
+
         @Override
         public String toString() {
             return String.format("%s %s%s v%s (%s)", name, HexUtils.bin2hex(aid), library ? " library" : "", getPackageVersion(), version);
@@ -102,8 +108,8 @@ public final class ExportFileHelper {
         }
 
         // JCVM 5.5: minor_version (u1), major_version (u1)
-        byte fileMinor = dis.readByte();
-        byte fileMajor = dis.readByte();
+        int fileMinor = dis.readUnsignedByte();
+        int fileMajor = dis.readUnsignedByte();
         if (fileMajor != 2) {
             throw new IllegalArgumentException("Invalid export file major version: " + fileMajor);
         }
@@ -162,28 +168,40 @@ public final class ExportFileHelper {
         // JCVM 5.5: this_package (u2) - index into constant pool identifying the exported package
         int thisPackage = dis.readUnsignedShort();
 
-        if (!pkgEntries.containsKey(thisPackage)) {
-            throw new IllegalArgumentException(String.format("this_package index %d does not point to a CONSTANT_Package", thisPackage));
+        // JCVM 5.5: referenced_package_count (u1) and referenced_packages[] (u2 each),
+        // both present since export file format 2.3
+        List<PackageInfo> imports = new ArrayList<PackageInfo>();
+        if (version == ExportFileVersion.V23) {
+            int referenced = dis.readUnsignedByte();
+            for (int i = 0; i < referenced; i++) {
+                imports.add(packageAt(dis.readUnsignedShort(), version, pool, pkgEntries, pkgAids, Collections.<PackageInfo>emptyList()));
+            }
         }
 
-        int[] pkg = pkgEntries.get(thisPackage);
-        int pkgFlags = pkg[0];
-        int pkgNameIndex = pkg[1];
-        int pkgMinor = pkg[2];
-        int pkgMajor = pkg[3];
-        byte[] pkgAid = pkgAids.get(thisPackage);
+        return packageAt(thisPackage, version, pool, pkgEntries, pkgAids, imports);
+    }
 
-        if (pkgNameIndex >= cpCount || !(pool[pkgNameIndex] instanceof String)) {
-            throw new IllegalArgumentException("Invalid package name index: " + pkgNameIndex);
+    // Reads the CONSTANT_Package at the given constant pool index
+    private static PackageInfo packageAt(int index, ExportFileVersion version, Object[] pool,
+                                         Map<Integer, int[]> pkgEntries, Map<Integer, byte[]> pkgAids,
+                                         List<PackageInfo> imports) {
+        int[] pkg = pkgEntries.get(index);
+        if (pkg == null) {
+            throw new IllegalArgumentException(String.format("Constant pool index %d does not point to a CONSTANT_Package", index));
+        }
+
+        int nameIndex = pkg[1];
+        if (nameIndex >= pool.length || !(pool[nameIndex] instanceof String)) {
+            throw new IllegalArgumentException("Invalid package name index: " + nameIndex);
         }
 
         // JCVM 5.6.1: name_index -> CONSTANT_Utf8 with fully qualified package name using '/'
-        String name = ((String) pool[pkgNameIndex]).replace('/', '.');
+        String name = ((String) pool[nameIndex]).replace('/', '.');
 
         // JCVM 5.6.1, Table 5-2: "If bit 0 of the flags item is set, this package is a library"
-        boolean library = (pkgFlags & 0x01) != 0;
+        boolean library = (pkg[0] & 0x01) != 0;
 
-        return new PackageInfo(version, name, pkgAid, pkgMajor, pkgMinor, library);
+        return new PackageInfo(version, name, pkgAids.get(index), pkg[3], pkg[2], library, imports);
     }
 
     // JCVM 5.5: "major version has the value 2", minor 1=v2.1, 2=v2.2, 3=v2.3

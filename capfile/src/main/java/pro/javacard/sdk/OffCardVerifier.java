@@ -84,11 +84,11 @@ public final class OffCardVerifier {
             // XXX: calling this on SDK 25.0 would set the level from INFO to ALL, so manually revert it in finally
             Level logger_before = Logger.getLogger("").getLevel();
             try (FileInputStream input = new FileInputStream(f.toFile())) {
-                // 3.0.5u1 still uses old signature
-                if (sdk.getRelease().equals("3.0.5u3") || sdk.getRelease().equals("3.0.5u2") || sdk.getVersion().equalOrNewer(V310)) {
+                // Kits up to 3.0.5u1 take the open stream, later ones take the file
+                try {
                     Method m = verifier.getMethod("verifyCap", File.class, String.class, Vector.class);
                     m.invoke(null, f.toFile(), packagename, expfiles);
-                } else {
+                } catch (NoSuchMethodException e) {
                     Method m = verifier.getMethod("verifyCap", FileInputStream.class, String.class, Vector.class);
                     m.invoke(null, input, packagename, expfiles);
                 }

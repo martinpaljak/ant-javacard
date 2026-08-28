@@ -4,7 +4,8 @@
 package pro.javacard.capfile;
 
 public class HexUtils {
-    private HexUtils() {}
+    private HexUtils() {
+    }
 
     // This code has been taken from Apache commons-codec 1.7 (License: Apache 2.0)
     private static final char[] UPPER_HEX = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
@@ -55,9 +56,9 @@ public class HexUtils {
     }
 
     public static byte[] stringToBin(String s) {
-        s = s.toUpperCase().replaceAll(" ", "").replaceAll(":", "");
-        s = s.replaceAll("0X", "").replaceAll("\n", "").replaceAll("\t", "");
-        s = s.replaceAll(";", "");
+        s = s.toUpperCase().replace(" ", "").replace(":", "");
+        s = s.replace("0X", "").replace("\n", "").replace("\t", "");
+        s = s.replace(";", "");
         return decodeHexString_imp(s);
     }
 }

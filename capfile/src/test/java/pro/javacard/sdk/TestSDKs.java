@@ -44,7 +44,7 @@ public class TestSDKs {
         Assert.assertEquals(sdk("jc305u1_kit").getRelease(), "3.0.5u1");
         Assert.assertEquals(sdk("jc305u2_kit").getRelease(), "3.0.5u2");
         Assert.assertEquals(sdk("jc305u3_kit").getRelease(), "3.0.5u3");
-        Assert.assertEquals(sdk("jc305u4_kit").getRelease(), "3.0.5u3"); // u4 indistinguishable from u3
+        Assert.assertEquals(sdk("jc305u4_kit").getRelease(), "3.0.5u4");
         Assert.assertEquals(sdk("jc310b43_kit").getVersion(), SDKVersion.V310);
         Assert.assertEquals(sdk("jc320v25.1_kit").getVersion(), SDKVersion.V320_25_1);
         Assert.assertEquals(sdk("jc320v26.0_kit").getVersion(), SDKVersion.V320_26_0);

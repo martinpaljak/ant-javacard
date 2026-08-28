@@ -4,6 +4,7 @@
 @SuppressWarnings({"requires-automatic"})
 module pro.javacard.capfile {
     requires java.xml;
+    requires pro.javacard.zip;
     requires java.logging;
 
     exports pro.javacard.capfile;

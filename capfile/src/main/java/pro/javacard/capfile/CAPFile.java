@@ -4,14 +4,8 @@
 // Loosely based on code from GlobalPlatformPro, originally from GPJ
 package pro.javacard.capfile;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+import pro.javacard.zip.ReproducibleZip;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.net.URI;
 import java.nio.file.FileSystem;
@@ -20,13 +14,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
 import java.util.*;
-import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
+import static pro.javacard.zip.ReproducibleZip.MANIFEST;
 
 /**
  * Parses a CAP file as specified in JavaCard 2.2 VM Specification, chapter 6.
@@ -34,6 +30,7 @@ import java.util.zip.ZipOutputStream;
  */
 public final class CAPFile {
 
+    static final String APPLET_XML = "APPLET-INF/applet.xml";
     private static final String[] componentNames = {"Header", "Directory", "Import", "Applet", "Class", "Method", "StaticField", "Export",
             "ConstantPool", "RefLocation", "Descriptor", "Debug"};
     protected final Map<String, byte[]> entries; // All raw ZIP entries
@@ -41,11 +38,10 @@ public final class CAPFile {
     private final Map<AID, String> applets = new LinkedHashMap<>();
     private final List<CAPPackage> imports = new ArrayList<>();
     private final CAPPackage pkg;
-    private final byte flags;
+    private final int flags;
     private final String cap_version;
     // Metadata
     private Manifest manifest = null; // From 2.2.2
-    private Document appletxml = null; // From 3.0.1
     private Path file;
 
 
@@ -83,13 +79,8 @@ public final class CAPFile {
     }
 
     public void store(OutputStream to) throws IOException {
-        try (ZipOutputStream out = new ZipOutputStream(to)) {
-            for (Map.Entry<String, byte[]> e : entries.entrySet()) {
-                out.putNextEntry(new ZipEntry(e.getKey()));
-                out.write(e.getValue());
-                out.closeEntry();
-            }
-        }
+        // Entries keep the order they were read in, except a manifest, which JarInputStream wants first
+        ReproducibleZip.write(to, ReproducibleZip.leading(entries, MANIFEST), ZipEntry.DEFLATED, buildTime());
     }
 
     // XXX: 21 rightfully complains about this without final (getComponent leaking this)
@@ -100,27 +91,11 @@ public final class CAPFile {
         }
 
         // Parse manifest
-        byte[] mf = entries.get("META-INF/MANIFEST.MF");
+        byte[] mf = entries.get(MANIFEST);
         if (mf != null) {
             ByteArrayInputStream mfi = new ByteArrayInputStream(mf);
             manifest = new Manifest(mfi);
         }
-
-        // Only if there are applets
-        byte[] ai = entries.get("APPLET-INF/applet.xml");
-        if (ai != null) {
-            try {
-                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-                // Not really a threat (intended for self-generated local files) but still nice to have
-                dbFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-                appletxml = dBuilder.parse(new ByteArrayInputStream(ai));
-                appletxml.getDocumentElement().normalize();
-            } catch (SAXException | ParserConfigurationException e) {
-                throw new IOException(e);
-            }
-        }
-
 
         // Figure out package name. Failsafe without metadata as well, for 2.1.X support.
         String pkgname = null;
@@ -138,10 +113,11 @@ public final class CAPFile {
         // Parse package.
         // See JCVM 2.2 spec section 6.3 for offsets.
         byte[] header = entries.get(pkg2jcdir(pkgname) + "Header.cap");
-        cap_version = String.format("%d.%d", header[8], header[7]);
-        flags = header[9];
+        // Counts, lengths, versions and flags are all u1 values, so mask off the sign.
+        cap_version = String.format("%d.%d", header[8] & 0xFF, header[7] & 0xFF);
+        flags = header[9] & 0xFF;
 
-        pkg = new CAPPackage(new AID(header, 13, header[12]), header[11], header[10], pkgname);
+        pkg = new CAPPackage(new AID(header, 13, header[12] & 0xFF), header[11] & 0xFF, header[10] & 0xFF, pkgname);
 
         // Parse applets
         // See JCVM 2.2 spec section 6.5 for offsets.
@@ -149,13 +125,9 @@ public final class CAPFile {
         if (applet != null) {
             int offset = 4;
             for (int j = 0; j < (applet[3] & 0xFF); j++) {
-                int len = applet[offset++];
+                int len = applet[offset++] & 0xFF;
                 AID appaid = new AID(applet, offset, len);
-                // We might already have it, with the name from metadata
-                // FIXME: use metadata only as additional source
-                if (!applets.containsKey(appaid)) {
-                    applets.put(appaid, null);
-                }
+                applets.put(appaid, null);
                 // Skip install_method_offset
                 offset += len + 2;
             }
@@ -165,25 +137,21 @@ public final class CAPFile {
         if (imps != null) {
             int offset = 4;
             for (int j = 0; j < (imps[3] & 0xFF); j++) {
-                AID aid = new AID(imps, offset + 3, imps[offset + 2]);
-                CAPPackage p = new CAPPackage(aid, imps[offset + 1], imps[offset]);
-                imports.add(p);
-                offset += imps[offset + 2] + 3;
+                int len = imps[offset + 2] & 0xFF;
+                AID aid = new AID(imps, offset + 3, len);
+                imports.add(new CAPPackage(aid, imps[offset + 1] & 0xFF, imps[offset] & 0xFF));
+                offset += len + 3;
             }
         }
 
-        // Parse metadata to get applet names. Somewhat redundant
-        if (appletxml != null) {
-            NodeList apps = appletxml.getElementsByTagName("applet");
-            for (int i = 0; i < apps.getLength(); i++) {
-                Element app = (Element) apps.item(i);
-                String name = app.getElementsByTagName("applet-class").item(0).getTextContent();
-                String aidstring = app.getElementsByTagName("applet-AID").item(0).getTextContent();
-                AID aid = AID.fromString(aidstring.replace("//aid/", "").replace("/", ""));
-                if (!applets.containsKey(aid)) {
-                    throw new IOException("applet.xml contains missing applet " + aid);
+        // Supplement applet class names from applet.xml; the binary Applet component is authoritative for the AID set.
+        byte[] appletXml = entries.get(APPLET_XML);
+        if (appletXml != null) {
+            for (Map.Entry<AID, String> declared : CAPMetadata.appletClasses(new ByteArrayInputStream(appletXml)).entrySet()) {
+                if (!applets.containsKey(declared.getKey())) {
+                    throw new IOException("applet.xml contains missing applet " + declared.getKey());
                 }
-                applets.put(aid, name);
+                applets.put(declared.getKey(), declared.getValue());
             }
         }
     }
@@ -273,35 +241,21 @@ public final class CAPFile {
         String gpversion = gpv.isPresent() ? "/GlobalPlatform " + gpv.get() : "";
 
         out.println(String.format("CAP file (v%s), contains: %s for JavaCard %s%s", cap_version, String.join(", ", getFlags()), jcv.orElse("2.1.1?"), gpversion));
-        out.printf("Package: %s %s v%s%n", pkg.getName().get(), pkg.getAid().toString(), pkg.getVersionString());
+        out.printf("Package: %s %s v%s%n", pkg.getName().get(), pkg.getAid(), pkg.getVersionString());
         for (Map.Entry<AID, String> applet : getApplets().entrySet()) {
             out.println("Applet:  " + (applet.getValue() == null ? "" : applet.getValue() + " ") + applet.getKey());
         }
         for (CAPPackage imp : getImports()) {
             out.println("Import:  " + imp);
         }
-        // Check manifest for metadata
-        if (manifest != null) {
-            Attributes mains = manifest.getMainAttributes();
-
-            // iterate all packages
-            Map<String, Attributes> ent = manifest.getEntries();
-            if (ent.keySet().size() > 1) {
-                throw new IllegalArgumentException("Too many elements in CAP manifest");
-            }
-            if (ent.keySet().size() == 1) {
-                Attributes caps = ent.get(ent.keySet().toArray()[0]);
-                // Generic
-                String jdk_name = mains.getValue("Created-By");
-                // JC specific
-                String cap_creation_time = caps.getValue("Java-Card-CAP-Creation-Time");
-                String converter_version = caps.getValue("Java-Card-Converter-Version");
-                String converter_provider = caps.getValue("Java-Card-Converter-Provider");
-
-                out.println(String.format("Generated by %s converter %s", converter_provider, converter_version));
-                out.println(String.format("On %s with JDK %s", cap_creation_time, jdk_name));
-            }
+        CAPMetadata metadata = getMetadata();
+        Optional<String> provider = metadata.getField(CAPMetadata.CONVERTER_PROVIDER);
+        Optional<String> converter = metadata.getField(CAPMetadata.CONVERTER_VERSION);
+        if (provider.isPresent() || converter.isPresent()) {
+            out.println(String.format("Generated by %s converter %s", provider.orElse("an unnamed"), converter.orElse("").trim()));
         }
+        metadata.getField(CAPMetadata.CREATION_TIME).ifPresent(time ->
+                out.println("Created " + time + metadata.getField(CAPMetadata.CREATED_BY).map(by -> " by " + by).orElse("")));
         out.println(String.format("Code size %d bytes (%d with debug)", getCode().length, getCode(true).length));
         out.println("SHA-256 " + HexUtils.bin2hex(getLoadFileDataHash("SHA-256")).toLowerCase());
         out.println("SHA-1   " + HexUtils.bin2hex(getLoadFileDataHash("SHA-1")).toLowerCase());
@@ -311,9 +265,9 @@ public final class CAPFile {
         return flags2strings(flags);
     }
 
-    public static List<String> flags2strings(byte flags) {
+    public static List<String> flags2strings(int flags) {
         ArrayList<String> result = new ArrayList<>();
-        // Table 6-3: CAP File Package Flags
+        // Table 6-3: CAP File Flags
         if ((flags & 0x01) == 0x01) {
             result.add("integers");
         }
@@ -322,6 +276,9 @@ public final class CAPFile {
         }
         if ((flags & 0x04) == 0x04) {
             result.add("applets");
+        }
+        if ((flags & 0x08) == 0x08) {
+            result.add("extended");
         }
         return result;
     }
@@ -332,6 +289,20 @@ public final class CAPFile {
 
     public Map<AID, String> getApplets() {
         return Collections.unmodifiableMap(applets);
+    }
+
+    // The parsed JAR manifest, if the CAP file carries one.
+    Manifest getManifest() {
+        return manifest;
+    }
+
+    // CAP file format version from the binary Header component (e.g. "2.1").
+    String getCapVersion() {
+        return cap_version;
+    }
+
+    public CAPMetadata getMetadata() {
+        return CAPMetadata.from(this);
     }
 
     // Guess the targeted JavaCard version based on imported package versions.
@@ -441,13 +412,57 @@ public final class CAPFile {
         }
     }
 
+    // No component carries the applet classes, only the build that called the converter knows them
+    public static void amendMetadata(Path cap, Map<AID, String> appletClasses) throws IOException {
+        CAPFile parsed = fromFile(cap);
+        Optional<LocalDateTime> epoch = ReproducibleZip.sourceDateEpoch();
+        CAPMetadata metadata = parsed.getMetadata().withAppletClasses(appletClasses);
+        Map<String, byte[]> entries = new LinkedHashMap<>(parsed.entries);
+        entries.put(MANIFEST, metadata.toManifest(epoch.orElse(null)));
+        // Rewritten as well, unless a class is missing and there is nothing better to write
+        if (!metadata.getApplets().isEmpty() && metadata.getApplets().stream().allMatch(a -> a.getClassName().isPresent())) {
+            entries.put(APPLET_XML, metadata.toAppletXml());
+        }
+        // Entries the CAP file did not have take the time of the ones it did
+        Map<String, LocalDateTime> times = epoch.isPresent() ? Collections.emptyMap() : entryTimes(cap);
+        ByteArrayOutputStream amended = new ByteArrayOutputStream();
+        try (ZipOutputStream out = new ZipOutputStream(amended)) {
+            for (Map.Entry<String, byte[]> entry : ReproducibleZip.leading(entries, MANIFEST).entrySet()) {
+                LocalDateTime time = epoch.orElseGet(() -> times.getOrDefault(entry.getKey(), buildTime()));
+                ReproducibleZip.entry(out, entry.getKey(), entry.getValue(), ZipEntry.DEFLATED, time);
+            }
+        }
+        Files.write(cap, amended.toByteArray());
+    }
+
+    public static void amendMetadata(Path cap) throws IOException {
+        amendMetadata(cap, Collections.emptyMap());
+    }
+
+    private static Map<String, LocalDateTime> entryTimes(Path zip) throws IOException {
+        Map<String, LocalDateTime> times = new HashMap<>();
+        try (ZipInputStream in = new ZipInputStream(Files.newInputStream(zip))) {
+            for (ZipEntry entry = in.getNextEntry(); entry != null; entry = in.getNextEntry()) {
+                times.put(entry.getName(), ReproducibleZip.timeOf(entry));
+            }
+        }
+        return times;
+    }
+
+    // A fixed time unless SOURCE_DATE_EPOCH says otherwise
+    private static LocalDateTime buildTime() {
+        return ReproducibleZip.sourceDateEpoch().orElse(ReproducibleZip.FIXED_TIME);
+    }
+
+    private static FileSystem openZip(Path path) throws IOException {
+        Map<String, String> env = new HashMap<>();
+        env.put("create", "false");
+        return FileSystems.newFileSystem(URI.create("jar:" + path.toUri()), env);
+    }
+
     // Remove compiled code from capfile
     public static void strip(Path cap) throws IOException {
-        Map<String, String> props = new HashMap<>();
-        props.put("create", "false");
-
-        URI zip_disk = URI.create("jar:" + cap.toUri());
-        try (FileSystem zipfs = FileSystems.newFileSystem(zip_disk, props)) {
+        try (FileSystem zipfs = openZip(cap)) {
             List<Path> toDelete = Files.walk(zipfs.getPath("/")).filter(p -> p.toString().endsWith(".class")).collect(Collectors.toList());
             Collections.sort(toDelete, Collections.reverseOrder(Comparator.comparingInt(o -> o.toString().length())));
             toDelete.stream().forEach(CAPFile::uncheckedDelete);
