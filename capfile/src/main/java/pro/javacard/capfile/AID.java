@@ -63,9 +63,9 @@ public final class AID {
         return sb.toString();
     }
 
-    // The //aid/<RID>/<PIX> URI form, split at the 5-byte RID
+    // The //aid/<RID>/<PIX> URI form, split at the 5-byte RID. Uppercase, as the converter writes it
     String toAidUri() {
-        String hex = toString().toLowerCase();
+        String hex = toString();
         int split = Math.min(10, hex.length());
         return AID_URI + hex.substring(0, split) + "/" + hex.substring(split);
     }

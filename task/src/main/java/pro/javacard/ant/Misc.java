@@ -68,7 +68,7 @@ final class Misc {
     static Path makeTemp(String sub) {
         try {
             if (System.getenv("ANT_JAVACARD_TMP") != null) {
-                Path tmp = Paths.get(System.getenv("ANT_JAVACARD_TMP"), sub);
+                Path tmp = Paths.get(System.getenv("ANT_JAVACARD_TMP"), sub).toAbsolutePath().normalize();
                 // NOTE: would like to make sure that the folder is cleaned, but tmp/imports is shared between
                 // all imports and would result in just final import files to survive.
                 Files.createDirectories(tmp);

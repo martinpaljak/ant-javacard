@@ -73,6 +73,12 @@ public class TestCAPMetadata {
         // A name past the manifest line limit folds and comes back whole
         String name = "com.example.a.very.long.package.name.that.does.not.fit.on.a.single.manifest.line";
         assertEquals(parse(new CAPMetadata(PACKAGE, name, "0.0", Collections.emptyList()).toManifest()).getName(), name);
+
+        // The //aid/ URI keeps the converter's uppercase hex, which the digit-only AIDs above cannot show
+        CAPMetadata lettered = new CAPMetadata(new AID("A000000151ABCD"), "com.example.lettered", "1.0",
+                Collections.singletonList(new CAPMetadata.Applet(new AID("A000000151ABCD01"), APPLET_CLASS)));
+        assertTrue(new String(lettered.toManifest(), StandardCharsets.UTF_8).contains("Classic-Package-AID: //aid/A000000151/ABCD"));
+        assertTrue(new String(lettered.toAppletXml(), StandardCharsets.UTF_8).contains("<applet-AID>//aid/A000000151/ABCD01</applet-AID>"));
     }
 
     @Test

@@ -408,7 +408,7 @@ public class JCCap extends Task {
                 log(String.format("%s %s", app.klass, HexUtils.bin2hex(app.aid)), Project.MSG_INFO);
             }
         }
-        if (output_exp != null) {
+        if (output_exp != null && output_jar == null) {
             // Last component of the package
             String ln = Misc.lastName(package_name);
             output_jar = Paths.get(output_exp, ln + ".jar").toString();
@@ -719,7 +719,7 @@ public class JCCap extends Task {
                 // Support import clauses with only jar or exp values
                 final Path f;
                 if (imp.exps != null) {
-                    f = Paths.get(imp.exps).toAbsolutePath();
+                    f = project.resolveFile(imp.exps).toPath();
                 } else {
                     try {
                         // Assume exp files in jar
