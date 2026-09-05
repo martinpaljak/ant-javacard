@@ -295,6 +295,12 @@
     <profiles>
         <profile>
             <id>check</id>
+            <activation>
+                <property>
+                    <name>env.CI</name>
+                    <value>true</value>
+                </property>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
