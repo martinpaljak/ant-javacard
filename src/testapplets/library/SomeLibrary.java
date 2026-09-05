@@ -14,6 +14,8 @@ public class SomeLibrary {
 		return b ? TRUE : FALSE;
 	}
 
+	// ALG_SECURE_RANDOM is the only algorithm available in all JavaCard versions
+	@SuppressWarnings("deprecation")
 	public static RandomData getRandom() {
 		return RandomData.getInstance(RandomData.ALG_SECURE_RANDOM);
 	}

@@ -199,6 +199,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgs>
+                        <arg>-Werror</arg>
+                        <arg>-Xlint:all</arg>
+                    </compilerArgs>
+                </configuration>
                 <executions>
                     <execution>
                         <id>default-compile</id>
@@ -209,8 +215,7 @@
                                 <exclude>module-info.java</exclude>
                             </excludes>
                             <compilerArgs combine.children="append">
-                                <arg>-Werror</arg>
-                                <arg>-Xlint:all</arg>
+                                <!-- release 8 is obsolete on JDK 21+ -->
                                 <arg>-Xlint:-options</arg>
                             </compilerArgs>
                         </configuration>
@@ -219,8 +224,9 @@
                         <!-- Run tests with 11 -->
                         <id>default-testCompile</id>
                         <configuration>
-                            <!-- compile everything to ensure module-info contains right entries -->
                             <release>11</release>
+                            <!-- tests are not part of the module -->
+                            <useModulePath>false</useModulePath>
                         </configuration>
                     </execution>
                     <execution>
