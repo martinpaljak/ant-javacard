@@ -10,12 +10,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.List;
 
 final class Misc {
-
-    static List<Path> temporary = new ArrayList<>();
 
     static int getCurrentJDKVersion() {
         String v = System.getProperty("java.version", "0.0.0");
@@ -65,7 +62,8 @@ final class Misc {
         return ln;
     }
 
-    static Path makeTemp(String sub) {
+    // Every folder made outside ANT_JAVACARD_TMP is recorded in the caller's list for cleanTemp
+    static Path makeTemp(String sub, List<Path> temporary) {
         try {
             if (System.getenv("ANT_JAVACARD_TMP") != null) {
                 Path tmp = Paths.get(System.getenv("ANT_JAVACARD_TMP"), sub).toAbsolutePath().normalize();
@@ -114,7 +112,7 @@ final class Misc {
         return name;
     }
 
-    static void cleanTemp() {
+    static void cleanTemp(List<Path> temporary) {
         // Do not clean temporary files if manually set temporary path is set. This is useful for debugging.
         if (System.getenv("ANT_JAVACARD_TMP") != null) {
             return;

@@ -32,7 +32,7 @@ public final class JavaCard extends Task {
     public void execute() {
         Thread cleanup = new Thread(() -> {
             log("Ctrl-C, cleaning up", Project.MSG_INFO);
-            Misc.cleanTemp();
+            packages.forEach(JCCap::cleanTemp);
         });
         Runtime.getRuntime().addShutdownHook(cleanup);
         String ver = JavaCard.class.getPackage().getImplementationVersion();

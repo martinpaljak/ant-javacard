@@ -157,7 +157,6 @@ public final class DummyMain {
         try {
             runcycle(argv);
         } catch (Throwable e) {
-            Misc.cleanTemp();
             System.err.println(String.format("Error: %s: %s", e.getClass().getSimpleName(), e.getMessage()));
             if (System.getenv("ANT_JAVACARD_DEBUG") != null) {
                 e.printStackTrace();

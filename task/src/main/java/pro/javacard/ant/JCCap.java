@@ -37,6 +37,8 @@ public class JCCap extends Task {
     static final String DEFAULT_CAP_NAME_TEMPLATE_LIB = "%n_%a_%v_%h_%J.cap";
 
     private final String master_jckit_path;
+    // Folders this <cap> made under the system temp, removed when it is done or interrupted
+    private final List<Path> temporary = new ArrayList<>();
     private JavaCardSDK jckit = null;
     private String classes_path = null;
     private String sources_path = null;
@@ -70,7 +72,11 @@ public class JCCap extends Task {
         if (Boolean.parseBoolean(System.getenv().getOrDefault(LOGHACK, "true"))) {
             // The kits ship a logging.properties in tools.jar installing a FileHandler to ~/java0.log.0
             try {
-                Path logconf = Misc.makeTemp("logging").resolve("logging.properties");
+                // Kept until JVM exit; the folder is registered first, deleteOnExit runs in reverse order
+                Path logdir = Files.createTempDirectory("jccpro");
+                logdir.toFile().deleteOnExit();
+                Path logconf = logdir.resolve("logging.properties");
+                logconf.toFile().deleteOnExit();
                 String conf = "handlers = java.util.logging.ConsoleHandler\n"
                         + "java.util.logging.SimpleFormatter.format=[ %4$s ] %5$s%6$s%n\n";
                 Files.write(logconf, conf.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -453,7 +459,7 @@ public class JCCap extends Task {
         if (!raw_sources.isEmpty()) {
             // Per-path includes/excludes via nested <sources> elements
             setTaskName("sources");
-            Path mergedDir = Misc.makeTemp("sources-" + runIdentifier());
+            Path mergedDir = Misc.makeTemp("sources-" + runIdentifier(), temporary);
             for (JCSources src : raw_sources) {
                 File srcDir = project.resolveFile(src.path);
                 FileSet fs = new FileSet();
@@ -525,7 +531,7 @@ public class JCCap extends Task {
             }
         } else {
             // else generate temporary folder
-            tmp = Misc.makeTemp("classes-" + runIdentifier());
+            tmp = Misc.makeTemp("classes-" + runIdentifier(), temporary);
             classes_path = tmp.toAbsolutePath().toString();
         }
 
@@ -709,7 +715,7 @@ public class JCCap extends Task {
             }
 
             // Create temporary folder and add to cleanup
-            Path applet_folder = Misc.makeTemp("applet-" + runIdentifier());
+            Path applet_folder = Misc.makeTemp("applet-" + runIdentifier(), temporary);
 
             // Construct exportpath
             Set<Path> exps = new TreeSet<>();
@@ -723,7 +729,7 @@ public class JCCap extends Task {
                 } else {
                     try {
                         // Assume exp files in jar
-                        f = Misc.makeTemp("imports-" + runIdentifier());
+                        f = Misc.makeTemp("imports-" + runIdentifier(), temporary);
                         OffCardVerifier.extractExps(project.resolveFile(imp.jar).toPath(), f);
                     } catch (IOException e) {
                         throw new BuildException("Can not extract EXP files from JAR", e);
@@ -867,8 +873,12 @@ public class JCCap extends Task {
                 throw new BuildException("Can not copy output CAP, EXP or JCA", e);
             }
         } finally {
-            Misc.cleanTemp();
+            cleanTemp();
         }
+    }
+
+    void cleanTemp() {
+        Misc.cleanTemp(temporary);
     }
 
     private String defaultCapTemplate() {
