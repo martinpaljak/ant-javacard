@@ -251,7 +251,7 @@ public class JCCap extends Task {
         SDKRelease release = build.sdk.getRelease();
         int jdk = Misc.getCurrentJDKVersion();
 
-        log("INFO: using JavaCard " + build.sdk.api().version() + " SDK in " + build.sdk.getRoot() + " with JDK " + jdk, Project.MSG_INFO);
+        log(String.format("INFO: using JavaCard SDK v%s in %s with JDK %d", release, build.sdk.getRoot(), jdk), Project.MSG_INFO);
 
         // Refuse before copying sources or making an output folder
         // See https://github.com/martinpaljak/ant-javacard/issues/79
@@ -299,8 +299,7 @@ public class JCCap extends Task {
         // Nudge towards the latest SDK in the appropriate family
         SDKRelease recommended = SDKRelease.V26_0.targets().contains(build.target.version()) ? SDKRelease.V26_0 : SDKRelease.V305u4;
         if (release != recommended) {
-            String sdkHint = recommended == SDKRelease.V26_0 ? "jc320v26.0_kit" : "jc305u4_kit";
-            log(String.format("WARN: using JavaCard SDK v%s instead of the recommended v%s (%s)", release, recommended, sdkHint), Project.MSG_WARN);
+            log(String.format("WARN: using JavaCard SDK v%s instead of the recommended v%s", release, recommended), Project.MSG_WARN);
         }
 
         build.verify = verify;
