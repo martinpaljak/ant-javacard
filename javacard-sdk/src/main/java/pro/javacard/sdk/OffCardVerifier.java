@@ -8,24 +8,23 @@ import pro.javacard.capfile.CAPFile;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.Handler;
 import java.util.stream.Collectors;
-
-import static pro.javacard.sdk.SDKVersion.*;
+import java.util.stream.Stream;
 
 public final class OffCardVerifier {
     private final JavaCardSDK sdk;
 
     public static OffCardVerifier withSDK(JavaCardSDK sdk) {
         // Only main method in 2.1 SDK
-        if (sdk.getVersion().isOneOf(V211, V212)) {
+        if (SDKRelease.NO_VERIFIER.contains(sdk.getRelease())) {
             throw new RuntimeException("Verification is supported with JavaCard SDK 2.2.1 or later");
         }
         return new OffCardVerifier(sdk);
@@ -35,42 +34,33 @@ public final class OffCardVerifier {
         this.sdk = sdk;
     }
 
-    // Verify a CAP file against a specific JavaCard target SDK and a set of EXP files
-    public void verifyAgainst(File f, JavaCardSDK target, Vector<File> exps) throws VerifierError, IOException {
+    public void verifyAgainst(File f, JavaCardAPI target, Vector<File> exps) throws VerifierError, IOException {
         List<Path> exports = new ArrayList<>(exps.stream().map(File::toPath).collect(Collectors.toList()));
-        exports.add(target.getExportDir());
+        target.exportDir().ifPresent(exports::add);
         verify(f.toPath(), exports);
-    }
-
-    public void verifyAgainst(Path f, JavaCardSDK target, List<Path> exps) throws VerifierError, IOException {
-        // Warn about recommended usage
-        if (target.getVersion().isOneOf(V304, V305, V310) && sdk.getVersion() != V320_25_0) {
-            System.err.println("NB! Please use JavaCard SDK 3.2.0 / 25.0 for verifying!");
-        } else {
-            if (!sdk.getRelease().equals("3.0.5u4")) {
-                System.err.println("NB! Please use JavaCard SDK 3.0.5u4 or later for verifying!");
-            }
-        }
-        List<Path> exports = new ArrayList<>(exps.stream().collect(Collectors.toList()));
-        exports.add(target.getExportDir());
-        verify(f, exports);
     }
 
     // Verify a given CAP file against a set of EXP files
     public void verify(Path f, List<Path> exps) throws VerifierError, IOException {
+        verify(f, exps, null);
+    }
+
+    // SDK messages go to the given handler
+    public void verify(Path f, List<Path> exps, Handler handler) throws VerifierError, IOException {
         Path tmp = Files.createTempDirectory("capfile");
-        try (InputStream in = Files.newInputStream(f)) {
+        SDKLogger.SDKLog capture = SDKLogger.capture(handler);
+        try (InputStream in = Files.newInputStream(f);
+             URLClassLoader loader = sdk.getClassLoader()) {
             CAPFile cap = CAPFile.fromStream(in);
 
             // Get verifier class
-            Class<?> verifier = Class.forName("com.sun.javacard.offcardverifier.Verifier", true, sdk.getClassLoader());
+            Class<?> verifier = Class.forName("com.sun.javacard.offcardverifier.Verifier", true, loader);
 
-            // Verifier takes a vector of files, so collect
             final Vector<File> expfiles = new Vector<>();
             for (Path e : exps) {
                 // collect all export files to a list
                 if (Files.isDirectory(e)) {
-                    expfiles.addAll(Files.walk(e.toRealPath()).filter(p -> p.toString().endsWith(".exp")).map(Path::toFile).collect(Collectors.toList()));
+                    expfiles.addAll(expFiles(e).stream().map(Path::toFile).collect(Collectors.toList()));
                 } else if (Files.isReadable(e)) {
                     if (e.toString().endsWith(".exp")) {
                         expfiles.add(e.toFile());
@@ -81,10 +71,8 @@ public final class OffCardVerifier {
             }
 
             String packagename = cap.getPackageName();
-            // XXX: calling this on SDK 25.0 would set the level from INFO to ALL, so manually revert it in finally
-            Level logger_before = Logger.getLogger("").getLevel();
             try (FileInputStream input = new FileInputStream(f.toFile())) {
-                // Kits up to 3.0.5u1 take the open stream, later ones take the file
+                // verifyCap takes a FileInputStream up to v3.0.5u1 and a File after that
                 try {
                     Method m = verifier.getMethod("verifyCap", File.class, String.class, Vector.class);
                     m.invoke(null, f.toFile(), packagename, expfiles);
@@ -93,31 +81,36 @@ public final class OffCardVerifier {
                     m.invoke(null, input, packagename, expfiles);
                 }
             } catch (InvocationTargetException e) {
-                throw new VerifierError(e.getTargetException().getMessage(), e.getTargetException());
+                Throwable t = e.getTargetException();
+                throw new VerifierError(t.getMessage() == null ? t.toString() : t.getMessage(), t);
             } catch (Exception e) {
                 throw new VerifierError("Verification failed: " + e.getMessage(), e);
-            } finally {
-                Level logger_now = Logger.getLogger("").getLevel();
-                if (!logger_before.equals(logger_now)) {
-                    System.err.println(String.format("Resetting root logger from %s back to %s", logger_now, logger_before));
-                    Logger.getLogger("").setLevel(logger_before);
-                }
             }
         } catch (ReflectiveOperationException | IOException e) {
             throw new RuntimeException("Could not run verifier: " + e.getMessage(), e);
         } finally {
+            capture.close();
             // Clean extracted exps
             rmminusrf(tmp);
         }
     }
 
-    private static void rmminusrf(Path path) {
-        try {
-            Files.walk(path).sorted(Comparator.reverseOrder()).forEach(CAPFile::uncheckedDelete);
+    public static void rmminusrf(Path path) {
+        try (Stream<Path> walk = Files.walk(path)) {
+            walk.sorted(Comparator.reverseOrder()).forEach(CAPFile::uncheckedDelete);
         } catch (FileNotFoundException | NoSuchFileException e) {
-            // Already gone - do nothing.
+            // Already gone
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static List<Path> expFiles(Path folder) throws IOException {
+        try (Stream<Path> walk = Files.walk(folder)) {
+            return walk.filter(Files::isRegularFile)
+                    .filter(p -> p.toString().toLowerCase().endsWith(".exp"))
+                    .sorted()
+                    .collect(Collectors.toList());
         }
     }
 
@@ -130,7 +123,6 @@ public final class OffCardVerifier {
         return p;
     }
 
-    // Extracts .exp files from a jarfile to given path (temp folder) and returns the list of .exp files there
     public static List<Path> extractExps(Path jarfilePath, Path out) throws IOException {
         List<Path> exps = new ArrayList<>();
         try (JarFile jarfile = new JarFile(jarfilePath.toFile())) {
@@ -145,8 +137,6 @@ public final class OffCardVerifier {
                     }
                     if (!Files.isDirectory(dir)) {
                         Files.createDirectories(dir);
-                        //      throw new IOException("Failed to create folder: " + f.getParentFile());
-                        // f = under(out, entry.getName());
                     }
                     try (InputStream is = jarfile.getInputStream(entry);
                          OutputStream fo = Files.newOutputStream(f)) {

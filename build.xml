@@ -18,6 +18,7 @@
             <sourcepath>
                 <pathelement path="reproducible-zip/src/main/java"/>
                 <pathelement path="capfile/src/main/java"/>
+                <pathelement path="javacard-sdk/src/main/java"/>
                 <pathelement path="task/src/main/java"/>
             </sourcepath>
             <classpath>

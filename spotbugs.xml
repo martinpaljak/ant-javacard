@@ -5,4 +5,9 @@
         <Class name="pro.javacard.capfile.CAPMetadata"/>
         <Bug pattern="VA_FORMAT_STRING_USES_NEWLINE"/>
     </Match>
+    <!-- JDK 24 permanently disables the SecurityManager (JEP 486) -->
+    <Match>
+        <Class name="pro.javacard.sdk.JavaCardSDK"/>
+        <Bug pattern="DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED"/>
+    </Match>
 </FindBugsFilter>

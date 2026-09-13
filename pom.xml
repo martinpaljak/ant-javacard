@@ -44,6 +44,7 @@
     <modules>
         <module>reproducible-zip</module>
         <module>capfile</module>
+        <module>javacard-sdk</module>
         <module>task</module>
     </modules>
     <dependencyManagement>

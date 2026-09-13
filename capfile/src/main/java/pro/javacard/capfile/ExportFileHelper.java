@@ -1,9 +1,7 @@
 // SPDX-FileCopyrightText: 2024 Martin Paljak <martin@martinpaljak.net>
 // SPDX-License-Identifier: MIT
 
-package pro.javacard.sdk;
-
-import pro.javacard.capfile.HexUtils;
+package pro.javacard.capfile;
 
 import java.io.DataInputStream;
 import java.io.IOException;

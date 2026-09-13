@@ -5,6 +5,7 @@ package pro.javacard.sdk;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import pro.javacard.capfile.ExportFileHelper;
 import pro.javacard.capfile.HexUtils;
 
 import java.io.ByteArrayInputStream;
@@ -31,62 +32,59 @@ public class TestExportFiles {
         int total = 0;
         int failures = 0;
 
-        try (Stream<Path> dirs = Files.list(sdksRoot())) {
-            List<Path> sdkDirs = dirs.filter(Files::isDirectory).sorted().collect(Collectors.toList());
-            for (Path dir : sdkDirs) {
-                Optional<JavaCardSDK> sdk = JavaCardSDK.detectSDK(dir);
-                Assert.assertTrue(sdk.isPresent(), "Failed to detect SDK in " + dir);
+        for (Path dir : TestSDKs.sdkFolders()) {
+            Optional<JavaCardSDK> sdk = JavaCardSDK.detectSDK(dir);
+            Assert.assertTrue(sdk.isPresent(), "Failed to detect SDK in " + dir);
 
-                List<Path> exportDirs = JavaCardSDK.getAllExportDirs(sdk.get().getVersion());
-                ArrayList<String> jarPrefixes = new ArrayList<String>();
+            List<Path> exportDirs = JavaCardSDK.getAllExportDirs(sdk.get().getRelease());
+            ArrayList<String> jarPrefixes = new ArrayList<String>();
 
-                for (Path exportDir : exportDirs) {
-                    Path fsDir = dir.resolve(exportDir);
-                    if (Files.isDirectory(fsDir)) {
-                        try (Stream<Path> walk = Files.walk(fsDir)) {
-                            List<Path> expFiles = walk.filter(p -> p.toString().endsWith(".exp"))
-                                    .filter(Files::isRegularFile)
-                                    .sorted()
-                                    .collect(Collectors.toList());
-                            for (Path exp : expFiles) {
-                                total++;
-                                try {
-                                    ExportFileHelper.PackageInfo pkg = ExportFileHelper.parsePackage(exp);
-                                    System.out.println(exp);
-                                    System.out.println("  " + pkg);
-                                } catch (Exception e) {
-                                    System.err.println(String.format("%s: FAILED - %s", exp, e.getMessage()));
-                                    failures++;
-                                }
+            for (Path exportDir : exportDirs) {
+                Path fsDir = dir.resolve(exportDir);
+                if (Files.isDirectory(fsDir)) {
+                    try (Stream<Path> walk = Files.walk(fsDir)) {
+                        List<Path> expFiles = walk.filter(p -> p.toString().endsWith(".exp"))
+                                .filter(Files::isRegularFile)
+                                .sorted()
+                                .collect(Collectors.toList());
+                        for (Path exp : expFiles) {
+                            total++;
+                            try {
+                                ExportFileHelper.PackageInfo pkg = ExportFileHelper.parsePackage(exp);
+                                System.out.println(exp);
+                                System.out.println("  " + pkg);
+                            } catch (Exception e) {
+                                System.err.println(String.format("%s: FAILED - %s", exp, e.getMessage()));
+                                failures++;
                             }
                         }
-                    } else {
-                        jarPrefixes.add(exportDir.toString() + "/");
                     }
+                } else {
+                    jarPrefixes.add(exportDir.toString() + "/");
                 }
+            }
 
-                if (!jarPrefixes.isEmpty()) {
-                    Path toolsJar = dir.resolve("lib").resolve("tools.jar");
-                    if (Files.exists(toolsJar)) {
-                        try (ZipFile zf = new ZipFile(toolsJar.toFile())) {
-                            Enumeration<? extends ZipEntry> entries = zf.entries();
-                            while (entries.hasMoreElements()) {
-                                ZipEntry entry = entries.nextElement();
-                                if (!entry.getName().endsWith(".exp")) {
-                                    continue;
-                                }
-                                if (jarPrefixes.stream().noneMatch(entry.getName()::startsWith)) {
-                                    continue;
-                                }
-                                total++;
-                                try {
-                                    ExportFileHelper.PackageInfo pkg = ExportFileHelper.parsePackage(zf.getInputStream(entry));
-                                    System.out.println(String.format("%s!%s", toolsJar, entry.getName()));
-                                    System.out.println("  " + pkg);
-                                } catch (Exception e) {
-                                    System.err.println(String.format("%s!%s: FAILED - %s", toolsJar, entry.getName(), e.getMessage()));
-                                    failures++;
-                                }
+            if (!jarPrefixes.isEmpty()) {
+                Path toolsJar = dir.resolve("lib").resolve("tools.jar");
+                if (Files.exists(toolsJar)) {
+                    try (ZipFile zf = new ZipFile(toolsJar.toFile())) {
+                        Enumeration<? extends ZipEntry> entries = zf.entries();
+                        while (entries.hasMoreElements()) {
+                            ZipEntry entry = entries.nextElement();
+                            if (!entry.getName().endsWith(".exp")) {
+                                continue;
+                            }
+                            if (jarPrefixes.stream().noneMatch(entry.getName()::startsWith)) {
+                                continue;
+                            }
+                            total++;
+                            try {
+                                ExportFileHelper.PackageInfo pkg = ExportFileHelper.parsePackage(zf.getInputStream(entry));
+                                System.out.println(String.format("%s!%s", toolsJar, entry.getName()));
+                                System.out.println("  " + pkg);
+                            } catch (Exception e) {
+                                System.err.println(String.format("%s!%s: FAILED - %s", toolsJar, entry.getName(), e.getMessage()));
+                                failures++;
                             }
                         }
                     }
@@ -141,7 +139,6 @@ public class TestExportFiles {
         Assert.assertEquals(v23sec.getMajor(), 1);
         Assert.assertEquals(v23sec.getMinor(), 7);
 
-        // Format 2.3 names the packages linked against, format 2.1 has no such table
         Assert.assertEquals(v23fw.getImports().size(), 1);
         Assert.assertEquals(v23fw.getImports().get(0).getName(), "java.lang");
         Assert.assertEquals(v23fw.getImports().get(0).getPackageVersion(), "1.0");
@@ -176,7 +173,7 @@ public class TestExportFiles {
             Assert.assertEquals(bdh.getAid(), HexUtils.hex2bin("A000000062020504"));
             Assert.assertEquals(bdh.getPackageVersion(), "1.0");
 
-            // preview-final mirrors preview in this kit
+            // preview-final mirrors preview in this SDK
             ExportFileHelper.PackageInfo secFinal = ExportFileHelper.parsePackage(
                     zf.getInputStream(zf.getEntry("api_export_files_preview-final/javacard/security/javacard/security.exp")));
             Assert.assertEquals(secFinal.getPackageVersion(), "1.9");
