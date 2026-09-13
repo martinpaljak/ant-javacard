@@ -3,54 +3,70 @@
 
 package pro.javacard.ant;
 
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.Task;
 import pro.javacard.capfile.CAPFile;
 import pro.javacard.capfile.HexUtils;
+import pro.javacard.sdk.OffCardVerifier;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.SimpleFormatter;
 
 final class Misc {
+
+    // Puts java.util.logging records of an in-process SDK tool into the ant log
+    static final class AntLog extends Handler {
+        // SDK log records carry a ResourceBundle key instead of the text
+        private final SimpleFormatter formatter = new SimpleFormatter();
+        private final Task task;
+        boolean failed = false;
+
+        AntLog(Task task) {
+            this.task = task;
+        }
+
+        @Override
+        public void publish(LogRecord record) {
+            if (record.getLevel().intValue() >= Level.SEVERE.intValue()) {
+                failed = true;
+            }
+            task.log(formatter.formatMessage(record), antLevel(record.getLevel()));
+        }
+
+        @Override
+        public void flush() {
+        }
+
+        @Override
+        public void close() {
+        }
+    }
+
+    private static int antLevel(Level level) {
+        if (level.intValue() >= Level.SEVERE.intValue()) {
+            return Project.MSG_ERR;
+        }
+        if (level.intValue() >= Level.WARNING.intValue()) {
+            return Project.MSG_WARN;
+        }
+        if (level.intValue() >= Level.INFO.intValue()) {
+            return Project.MSG_INFO;
+        }
+        return Project.MSG_VERBOSE;
+    }
 
     static int getCurrentJDKVersion() {
         String v = System.getProperty("java.version", "0.0.0");
         if (v.startsWith("1.8.")) {
             v = "8." + v.substring(4);
         }
-        int dot = v.indexOf(".");
-        return Integer.parseInt(v.substring(0, dot == -1 ? v.length() : dot));
-    }
-
-    // For cleaning up temporary files
-    static void rmminusrf(Path path) {
-        try {
-            Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                        throws IOException {
-                    Files.delete(file);
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException e)
-                        throws IOException {
-                    if (e == null) {
-                        Files.delete(dir);
-                        return FileVisitResult.CONTINUE;
-                    } else {
-                        // directory iteration failed
-                        throw e;
-                    }
-                }
-            });
-        } catch (FileNotFoundException | NoSuchFileException e) {
-            // Already gone - do nothing.
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        // An early access build reads 26-ea or 24-loom+1-15
+        return Integer.parseInt(v.split("\\D", 2)[0]);
     }
 
     // foo.bar.Baz -> Baz; Foo -> Foo
@@ -67,8 +83,8 @@ final class Misc {
         try {
             if (System.getenv("ANT_JAVACARD_TMP") != null) {
                 Path tmp = Paths.get(System.getenv("ANT_JAVACARD_TMP"), sub).toAbsolutePath().normalize();
-                // NOTE: would like to make sure that the folder is cleaned, but tmp/imports is shared between
-                // all imports and would result in just final import files to survive.
+                // Removes files an earlier run left in this folder
+                OffCardVerifier.rmminusrf(tmp);
                 Files.createDirectories(tmp);
                 return tmp;
             } else {
@@ -81,9 +97,9 @@ final class Misc {
         }
     }
 
-    static String commonName(CAPFile cap) {
+    static String commonName(CAPFile cap, String knownClass) {
         if (cap.getAppletAIDs().size() == 1 && !cap.getFlags().contains("exports")) {
-            String className = cap.getApplets().values().iterator().next();
+            String className = knownClass == null ? cap.getApplets().values().iterator().next() : knownClass;
             if (className != null) {
                 return lastName(className);
             }
@@ -95,8 +111,8 @@ final class Misc {
         return capFileName(cap, template, null);
     }
 
-    static String capFileName(CAPFile cap, String template, String commonNameOverride) {
-        String commonName = commonNameOverride == null ? commonName(cap) : lastName(commonNameOverride);
+    static String capFileName(CAPFile cap, String template, String knownClass) {
+        String commonName = commonName(cap, knownClass);
         String hash = HexUtils.bin2hex(cap.getLoadFileDataHash("SHA-256")).toLowerCase();
 
         String name = template;
@@ -113,7 +129,7 @@ final class Misc {
     }
 
     static void cleanTemp(List<Path> temporary) {
-        // Do not clean temporary files if manually set temporary path is set. This is useful for debugging.
+        // A manually set temporary path is kept for debugging
         if (System.getenv("ANT_JAVACARD_TMP") != null) {
             return;
         }
@@ -123,10 +139,9 @@ final class Misc {
             return;
         }
 
-        // Clean temporary files.
         for (Path f : temporary) {
             if (Files.exists(f)) {
-                rmminusrf(f);
+                OffCardVerifier.rmminusrf(f);
             }
         }
     }

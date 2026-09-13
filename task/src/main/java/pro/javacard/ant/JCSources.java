@@ -9,14 +9,17 @@ public class JCSources {
     String includes = null;
     String excludes = null;
 
+    @SuppressWarnings("unused")
     public void setPath(String msg) {
         path = msg;
     }
 
+    @SuppressWarnings("unused")
     public void setIncludes(String msg) {
         includes = msg;
     }
 
+    @SuppressWarnings("unused")
     public void setExcludes(String msg) {
         excludes = msg;
     }

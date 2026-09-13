@@ -14,10 +14,12 @@ public class JCApplet {
     public JCApplet() {
     }
 
+    @SuppressWarnings("unused")
     public void setClass(String msg) {
         klass = msg;
     }
 
+    @SuppressWarnings("unused")
     public void setAID(String msg) {
         try {
             aid = HexUtils.stringToBin(msg);

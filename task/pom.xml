@@ -25,6 +25,12 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>pro.javacard</groupId>
+            <artifactId>javacard-sdk</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <scope>test</scope>
@@ -37,10 +43,7 @@
     </dependencies>
     <build>
         <plugins>
-            <!-- Convert the test applets with the task just compiled, so the metadata
-                 tests read real converter output instead of checked-in binaries.
-                 jc320v26.0 is the one kit every JDK from 8 to 25 can drive, see
-                 tests-*.xml. -->
+            <!-- Converts the test applets for TestCAPMetadata -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -62,7 +65,7 @@
                                     </cap>
                                     <!-- A library CAP verifies only against its own export file. -->
                                     <cap sources="${basedir}/../src/testapplets/library" package="testapplets.library"
-                                         aid="010203040507" version="0.1" export="${project.build.directory}/exp"
+                                         aid="010203040507" version="1.0" export="${project.build.directory}/exp"
                                          output="${project.build.directory}/caps/library.cap"/>
                                 </javacard>
                             </target>

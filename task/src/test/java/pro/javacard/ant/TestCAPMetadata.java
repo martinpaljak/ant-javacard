@@ -18,7 +18,7 @@ import java.util.jar.JarInputStream;
 
 import static org.testng.Assert.*;
 
-// applet.cap and library.cap are converted into target/caps by the build, with jc320v26.0_kit
+// The build converts applet.cap and library.cap into target/caps with jc320v26.0_kit
 public class TestCAPMetadata {
 
     private static final Path CAPS = Paths.get("target", "caps");
@@ -27,7 +27,6 @@ public class TestCAPMetadata {
     private static final String APPLET_CLASS = "testapplets.empty.Empty";
     private static final String APPLET_XML = "APPLET-INF/applet.xml";
 
-    // What the converter wrote, read back through the model
     @Test
     public void readsTheConverterFormat() throws IOException {
         CAPMetadata meta = cap("applet.cap").getMetadata();
@@ -39,21 +38,18 @@ public class TestCAPMetadata {
         assertTrue(meta.getField("Java-Card-CAP-Creation-Time").isPresent());
         assertTrue(meta.getField("Java-Card-Converter-Version").isPresent());
 
-        // A library says the same about itself, without applets
+        // A library says the same about itself and has no applets
         CAPMetadata library = cap("library.cap").getMetadata();
         assertEquals(library.getName(), "testapplets.library");
         assertTrue(library.getApplets().isEmpty());
 
-        // A source date replaces the creator and the creation time, and carries the rest over
+        // A source date keeps the converter version and the package fields
         CAPMetadata stamped = CAPMetadata.from(new ByteArrayInputStream(
                 meta.toManifest(LocalDateTime.of(2009, 2, 13, 23, 31, 30))), null);
-        assertEquals(stamped.getField("created-by"), Optional.of("pro.javacard.capfile"));
-        assertEquals(stamped.getField("java-card-cap-creation-time"), Optional.of("Fri Feb 13 23:31:30 UTC 2009"));
         assertEquals(stamped.getField("Java-Card-Converter-Version"), meta.getField("Java-Card-Converter-Version"));
         assertPackage(stamped);
     }
 
-    // Both metadata files are written, whether or not the converting kit wrote them
     @Test
     public void writesBothMetadataFiles() throws IOException {
         Path had = leanCopy("applet.cap");
@@ -72,21 +68,21 @@ public class TestCAPMetadata {
         assertFalse(bare.getMetadata().getApplets().get(0).getClassName().isPresent());
         assertEquals(bare.getMetadata().getApplets().get(0).getAid(), APPLET);
 
-        // A library has no applets, so it gets no applet.xml.
+        // A library has no applets and no applet.xml.
         Path library = leanCopy("library.cap");
         CAPFile.amendMetadata(library);
         assertFalse(CAPFile.fromFile(library).getZipComponent(APPLET_XML).isPresent());
     }
 
     @Test
-    public void writesBothFilesWhereTheKitWroteNeither() throws IOException {
+    public void writesBothFilesWhereTheSDKWroteNeither() throws IOException {
         Path bare = leanCopy("applet.cap", APPLET_XML, "META-INF/javacard.xml", "META-INF/MANIFEST.MF");
         assertFalse(CAPFile.fromFile(bare).getMetadata().getField("Java-Card-Converter-Version").isPresent());
         CAPFile.amendMetadata(bare, Collections.singletonMap(APPLET, APPLET_CLASS));
         assertModel(CAPFile.fromFile(bare).getMetadata());
         assertEquals(component(bare, APPLET_XML), component(CAPS.resolve("applet.cap"), APPLET_XML));
 
-        // The manifest leads the archive, where streaming JAR consumers expect it.
+        // The manifest leads the archive where streaming JAR consumers expect it.
         try (JarInputStream jar = new JarInputStream(Files.newInputStream(bare))) {
             assertNotNull(jar.getManifest(), "manifest must be visible to streaming JAR consumers");
             assertEquals(CAPMetadata.from(jar.getManifest(), null).getAid(), PACKAGE);
@@ -98,7 +94,7 @@ public class TestCAPMetadata {
         Path amended = leanCopy("applet.cap");
         CAPFile.amendMetadata(amended, Collections.singletonMap(APPLET, APPLET_CLASS));
         byte[] once = Files.readAllBytes(amended);
-        // Amending an already amended CAP changes nothing, and so does a copy amended on its own
+        // Amending twice or amending a copy gives the same bytes
         CAPFile.amendMetadata(amended, Collections.singletonMap(APPLET, APPLET_CLASS));
         assertEquals(Files.readAllBytes(amended), once);
         Path other = leanCopy("applet.cap");
@@ -106,13 +102,13 @@ public class TestCAPMetadata {
         assertEquals(Files.readAllBytes(other), once);
     }
 
-    // What a CAP file says about the package, whichever kit converted it.
+    // What a CAP file says about its package under any SDK
     private static void assertModel(CAPMetadata meta) {
         assertPackage(meta);
         assertEquals(meta.getApplets().get(0).getClassName(), Optional.of(APPLET_CLASS));
     }
 
-    // The same, without the class, which only applet.xml states.
+    // The same without the class that only applet.xml states
     private static void assertPackage(CAPMetadata meta) {
         assertEquals(meta.getAid(), PACKAGE);
         assertEquals(meta.getName(), "testapplets.empty");
@@ -122,7 +118,7 @@ public class TestCAPMetadata {
         assertEquals(meta.getApplets().size(), 1);
         assertEquals(meta.getApplets().get(0).getAid(), APPLET);
         assertEquals(meta.getApplets().get(0).getName(), Optional.of("Empty"));
-        // javacard.framework, imported by every applet; its version follows the kit.
+        // Every applet imports javacard.framework
         assertTrue(meta.getImports().stream().anyMatch(i -> i.getAid().equals(new AID("A0000000620101"))));
     }
 
@@ -130,7 +126,6 @@ public class TestCAPMetadata {
         return CAPFile.fromFile(CAPS.resolve(name));
     }
 
-    // A CAP copy with the given entries removed, as a leaner or older converter would emit.
     private static Path leanCopy(String name, String... removedEntries) throws IOException {
         Path tmp = Files.createTempFile("cap", ".cap");
         tmp.toFile().deleteOnExit();

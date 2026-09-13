@@ -4,8 +4,8 @@
 package pro.javacard.ant;
 
 import pro.javacard.capfile.CAPFile;
+import pro.javacard.capfile.ExportFileHelper;
 import pro.javacard.capfile.HexUtils;
-import pro.javacard.sdk.ExportFileHelper;
 import pro.javacard.sdk.JavaCardSDK;
 import pro.javacard.sdk.OffCardVerifier;
 import pro.javacard.sdk.VerifierError;
@@ -143,8 +143,8 @@ public final class DummyMain {
 
                 cap.dump(System.out);
 
-                verifier.verifyAgainst(new File(capfile), target, exps);
-                System.out.println(String.format("Verified %s with SDK v%s against SDK v%s", capfile, sdk.getVersion(), target.getVersion()));
+                verifier.verifyAgainst(new File(capfile), target.api(), exps);
+                System.out.println(String.format("Verified %s with SDK v%s against JavaCard %s", capfile, sdk.getRelease(), target.api().version()));
                 return 0;
             } catch (VerifierError e) {
                 System.err.println("Verification failed: " + e.getMessage());
