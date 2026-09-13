@@ -5,7 +5,7 @@
     <packaging>pom</packaging>
     <groupId>pro.javacard</groupId>
     <artifactId>ant-javacard-package</artifactId>
-    <version>26.08.28-SNAPSHOT</version>
+    <version>26.09.07-SNAPSHOT</version>
     <description>Easy to use Ant task for building JavaCard applets</description>
     <name>ant-javacard package</name>
     <url>https://github.com/martinpaljak/ant-javacard</url>
@@ -14,7 +14,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- GH Actions fails sometimes on first try -->
         <maven.wagon.http.retryHandler.count>2</maven.wagon.http.retryHandler.count>
-        <project.build.outputTimestamp>2026-08-28T12:59:36Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2026-09-07T17:16:14Z</project.build.outputTimestamp>
     </properties>
     <repositories>
         <repository>
