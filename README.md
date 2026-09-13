@@ -12,7 +12,7 @@ Have a consistent and concise build declaration for JavaCard applets, no matter 
 
 ## Features
  * **[Do What I Mean](http://en.wikipedia.org/wiki/DWIM)**. You will [love it](#happy-users)!
- * **No dependencies**, no extra or unrelated downloads. Just **a ~85KB reproducible jar file**.
+ * **No dependencies**, no extra or unrelated downloads. Just **a ~96KB reproducible jar file**.
  * Supports **all available JavaCard SDK versions**: 2.1.1, 2.1.2, 2.2.1, 2.2.2, 3.0.3, 3.0.4, 3.0.5, 3.1.0 and 3.2.0
    * Get one from [oracle.com](https://www.oracle.com/java/technologies/javacard-sdk-downloads.html) or use the [handy Github repository](https://github.com/martinpaljak/oracle_javacard_sdks)
  * **Works on all platforms** with LTS Java 1.8+: Windows, OSX, Linux.
@@ -90,7 +90,7 @@ Details:
    * `jckit` attribute - path to the JavaCard SDK that is used if individual `cap` does not specify one. Optional if `cap` defines one, required otherwise.
  * `cap` tag - construct a CAP file
    * `jckit` attribute - path to the JavaCard SDK to be used. Optional if `javacard` defines one, required otherwise.
-   * `targetsdk` attribute - path to the target JavaCard SDK for this CAP, or a version supported by the kit with SDK v3.1 and v3.2: `"3.0.4"`, `"3.0.5"`, `"3.1.0"`, plus `"preview"` and `"preview-final"` with kit v26.0. Optional, value of `jckit` used by default. Allows to use a more recent converter to target older JavaCard platforms.
+   * `targetsdk` attribute - path to the target JavaCard SDK for this CAP, or a version name with SDK v3.1.0 and later: `"3.0.4"`, `"3.0.5"` and `"3.1.0"`, plus `"3.2.0"` with v24.0 and later, and `"preview"` and `"preview-final"` with v26.0. Optional, value of `jckit` used by default. Allows to use a more recent converter to target older JavaCard platforms.
    * `sources` attribute - path(s) to Java source code, to be compiled against the JavaCard SDK. Either `sources` or `classes` is required, unless `src/main/javacard` or `src/main/java` exists.
    * `sources2` attribute - additional sources to build per-platform applets. Optional, deprecated (use multiple paths for `sources`)
    * `classes` attribute - path to pre-compiled class files to be assembled into a CAP file. If both `classes` and `sources` are specified, compiled class files will be put to `classes` folder, which is created if missing.
@@ -104,7 +104,7 @@ Details:
    * `exportmap` attribute - if set to true, use pre-defined export file. Optional.
    * `jar` attribute - path where to save the generated archive JAR file. Optional.
    * `jca` attribute - path where to save the generated JavaCard Assembly (JCA) file. Optional.
-   * `verify` attribute - if set to false, disables verification of the resulting CAP file with offcardeverifier. Optional.
+   * `verify` attribute - if set to false, the converter does not verify the resulting CAP file with the off-card verifier. Optional.
    * `debug` attribute - if set to true, generates debug CAP components. Optional.
    * `strip` attribute - if set to true, removes class files from target CAP. Optional.
    * `ints` attribute - if set to true, enables support for 32 bit `int` type. Optional.
@@ -147,6 +147,10 @@ Following substitutions are available:
 - `ANT_JAVACARD_TMP` - path to the temporary folder to be used for building CAP files. This is not cleaned after use.
 - `ANT_JAVACARD_DEBUG` - if set, shows debug output.
 - [`SOURCE_DATE_EPOCH`](https://reproducible-builds.org/specs/source-date-epoch/) - seconds since the Unix epoch, used instead of the current time in the CAP. Use with `TZ=UTC`.
+
+## Known issues
+
+- The bytes that reach the card are identical on every JDK, but the `.cap` container is not: `META-INF/MANIFEST.MF` and the bundled class files vary with the JDK. See [Reproducibility notes](https://github.com/martinpaljak/ant-javacard/wiki/Reproducibility-notes).
 
 ## Maven dependency
 Releases are published to [`https://mvn.javacard.pro/public/`](https://mvn.javacard.pro/public/). To use it, add this to your `pom.xml`:
