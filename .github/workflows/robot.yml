@@ -6,9 +6,7 @@ on:
     branches:
       - master
       - next
-  pull_request:
-    branches:
-      - master
+      - wip
 
 concurrency:
   group: robot
