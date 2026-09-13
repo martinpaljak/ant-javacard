@@ -13,8 +13,7 @@ import java.util.Optional;
 
 import static org.testng.Assert.*;
 
-// Metadata for a simulated package, with no CAP file to read it off.
-// Metadata from real converter output is tested in the task module.
+// Metadata of a simulated package without a CAP file
 public class TestCAPMetadata {
 
     private static final AID PACKAGE = new AID("0102030405");
@@ -62,7 +61,7 @@ public class TestCAPMetadata {
         assertEquals(stamped.getField(CAPMetadata.CREATED_BY), Optional.of("pro.javacard.capfile"));
         assertEquals(stamped.getField("JAVA-CARD-CAP-CREATION-TIME"), Optional.of("Fri Feb 13 23:31:30 UTC 2009"));
 
-        // The class comes from applet.xml, which the manifest does not carry
+        // Only applet.xml carries the applet class
         assertFalse(read.getApplets().get(0).getClassName().isPresent());
         CAPMetadata both = CAPMetadata.from(new ByteArrayInputStream(meta.toManifest()),
                 new ByteArrayInputStream(meta.toAppletXml()));
@@ -74,7 +73,7 @@ public class TestCAPMetadata {
         String name = "com.example.a.very.long.package.name.that.does.not.fit.on.a.single.manifest.line";
         assertEquals(parse(new CAPMetadata(PACKAGE, name, "0.0", Collections.emptyList()).toManifest()).getName(), name);
 
-        // The //aid/ URI keeps the converter's uppercase hex, which the digit-only AIDs above cannot show
+        // The //aid/ URI keeps the converter's uppercase hex
         CAPMetadata lettered = new CAPMetadata(new AID("A000000151ABCD"), "com.example.lettered", "1.0",
                 Collections.singletonList(new CAPMetadata.Applet(new AID("A000000151ABCD01"), APPLET_CLASS)));
         assertTrue(new String(lettered.toManifest(), StandardCharsets.UTF_8).contains("Classic-Package-AID: //aid/A000000151/ABCD"));
@@ -86,7 +85,7 @@ public class TestCAPMetadata {
         CAPMetadata library = new CAPMetadata(PACKAGE, "com.example.lib", "1.0", Collections.emptyList());
         assertEquals(parse(library.toManifest()).getName(), "com.example.lib");
         assertTrue(parse(library.toManifest()).getApplets().isEmpty());
-        // A library gets no applet.xml, and neither does an applet whose class nobody named
+        // No applet.xml for a library or for an applet whose class nobody named
         assertThrows(IllegalStateException.class, library::toAppletXml);
         assertThrows(IllegalStateException.class, () -> new CAPMetadata(PACKAGE, "com.example.applet", "0.1",
                 Collections.singletonList(new CAPMetadata.Applet(APPLET, null))).toAppletXml());

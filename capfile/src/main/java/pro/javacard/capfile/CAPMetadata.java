@@ -13,6 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -20,17 +21,16 @@ import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-// The Java-Card-* manifest attributes and applet.xml, written by kits since 2.2.2 and 3.0.1
-// Reading takes the binary components as the authority
+// Java-Card-* manifest attributes and applet.xml with the binary components as the authority
 public final class CAPMetadata {
 
-    // Main attributes, in the order a converter writes them
+    // Main attributes in the order a converter writes them
     static final String CREATED_BY = "Created-By";
     static final String RUNTIME_DESCRIPTOR_VERSION = "Runtime-Descriptor-Version";
     static final String APPLICATION_TYPE = "Application-Type";
     static final String CLASSIC_PACKAGE_AID = "Classic-Package-AID";
     static final String SEALED = "Sealed";
-    // Package section, in the order a converter writes them
+    // Package section attributes in the order a converter writes them
     static final String CREATION_TIME = "Java-Card-CAP-Creation-Time";
     static final String CONVERTER_VERSION = "Java-Card-Converter-Version";
     static final String CONVERTER_PROVIDER = "Java-Card-Converter-Provider";
@@ -55,7 +55,7 @@ public final class CAPMetadata {
     // What this library names itself where it stamps the creation time
     private static final String GENERATOR = "pro.javacard.capfile";
 
-    // A converter writes it as java.util.Date does, in the machine's zone; a stamped time is UTC
+    // java.util.Date.toString() layout with the zone fixed to UTC
     private static final DateTimeFormatter CREATION_TIME_FORMAT =
             DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss 'UTC' yyyy", Locale.ROOT);
 
@@ -67,7 +67,7 @@ public final class CAPMetadata {
     private final Attributes carried;
 
     public CAPMetadata(AID aid, String name, String version, List<Applet> applets) {
-        this(aid, name, version, applets, Collections.<CAPPackage>emptyList(), new Attributes());
+        this(aid, name, version, applets, Collections.emptyList(), new Attributes());
     }
 
     private CAPMetadata(AID aid, String name, String version, List<Applet> applets, List<CAPPackage> imports,
@@ -134,12 +134,12 @@ public final class CAPMetadata {
         return imports;
     }
 
-    // The CAP file format version, from the binary Header component where there is one
+    // Header component version for a parsed CAP file and the manifest attribute otherwise
     public Optional<String> getCapFileVersion() {
         return getField(CAP_FILE_VERSION);
     }
 
-    // Any manifest attribute this does not model, by name, as the CAP file stated it
+    // Reads one of the CARRIED manifest attributes by name
     public Optional<String> getField(String name) {
         return Optional.ofNullable(carried.getValue(name));
     }
@@ -217,7 +217,6 @@ public final class CAPMetadata {
     private static Document appletXmlDocument(InputStream appletXml) throws IOException {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            // Not really a threat (intended for self-generated local files) but still nice to have
             factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             Document document = factory.newDocumentBuilder().parse(appletXml);
             document.getDocumentElement().normalize();
@@ -267,14 +266,15 @@ public final class CAPMetadata {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
+            // NOTE: JDK 8 and 11+ manifests differ in attribute order and line folding
             manifest.write(out);
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to write the manifest", e);
+            throw new UncheckedIOException(e);
         }
         return out.toByteArray();
     }
 
-    // The converter's own layout, down to the indentation of the wrapped attributes
+    // The converter's own layout down to the indentation of wrapped attributes
     private static final String APPLET_XML_HEAD = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             + "<applet-app xmlns=\"http://java.sun.com/xml/ns/javacard\"\n"
             + "       xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
@@ -314,7 +314,7 @@ public final class CAPMetadata {
         return applets;
     }
 
-    // A JavaCard package is a manifest section carrying a package AID, a file digest is not
+    // The single manifest section carrying Java-Card-Package-AID
     private static Attributes packageSection(Manifest manifest) {
         Attributes found = null;
         for (Attributes section : manifest.getEntries().values()) {
@@ -336,7 +336,7 @@ public final class CAPMetadata {
         return carried;
     }
 
-    // Attributes rejects a null value; an attribute the metadata does not carry is left out.
+    // Attributes.write emits a null value as the text null
     private static void put(Attributes attributes, String name, String value) {
         if (value != null) {
             attributes.putValue(name, value);
@@ -351,7 +351,7 @@ public final class CAPMetadata {
         return section == null ? new Attributes() : section;
     }
 
-    // foo.bar.Baz -> Baz, the applet name a converter writes
+    // A converter names the applet of class foo.bar.Baz as Baz
     private static String simpleName(String className) {
         return className == null ? null : className.substring(className.lastIndexOf('.') + 1);
     }

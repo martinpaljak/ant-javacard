@@ -47,7 +47,7 @@ public final class ExportFileHelper {
             this.major = major;
             this.minor = minor;
             this.library = library;
-            this.imports = Collections.unmodifiableList(new ArrayList<PackageInfo>(imports));
+            this.imports = Collections.unmodifiableList(new ArrayList<>(imports));
         }
 
         public ExportFileVersion getVersion() {
@@ -78,7 +78,7 @@ public final class ExportFileHelper {
             return library;
         }
 
-        // Only export file format 2.3 names imported packages, empty for the earlier formats
+        // Empty for export file formats before 2.3
         public List<PackageInfo> getImports() {
             return imports;
         }
@@ -120,8 +120,7 @@ public final class ExportFileHelper {
         // JCVM 5.6: constant_pool[]
         Object[] pool = new Object[cpCount];
 
-        // Store all CONSTANT_Package entries by index, since this_package
-        // tells us which one is the actual exported package
+        // this_package names which CONSTANT_Package entry is the exported one
         Map<Integer, int[]> pkgEntries = new HashMap<>(); // index -> [flags, nameIndex, minor, major]
         Map<Integer, byte[]> pkgAids = new HashMap<>();   // index -> aid
 
@@ -170,11 +169,11 @@ public final class ExportFileHelper {
 
         // JCVM 5.5: referenced_package_count (u1) and referenced_packages[] (u2 each),
         // both present since export file format 2.3
-        List<PackageInfo> imports = new ArrayList<PackageInfo>();
+        List<PackageInfo> imports = new ArrayList<>();
         if (version == ExportFileVersion.V23) {
             int referenced = dis.readUnsignedByte();
             for (int i = 0; i < referenced; i++) {
-                imports.add(packageAt(dis.readUnsignedShort(), version, pool, pkgEntries, pkgAids, Collections.<PackageInfo>emptyList()));
+                imports.add(packageAt(dis.readUnsignedShort(), version, pool, pkgEntries, pkgAids, Collections.emptyList()));
             }
         }
 
@@ -197,11 +196,31 @@ public final class ExportFileHelper {
 
         // JCVM 5.6.1: name_index -> CONSTANT_Utf8 with fully qualified package name using '/'
         String name = ((String) pool[nameIndex]).replace('/', '.');
+        if (!isPackageName(name)) {
+            throw new IllegalArgumentException("Invalid package name: " + name);
+        }
 
         // JCVM 5.6.1, Table 5-2: "If bit 0 of the flags item is set, this package is a library"
         boolean library = (pkg[0] & 0x01) != 0;
 
         return new PackageInfo(version, name, pkgAids.get(index), pkg[3], pkg[2], library, imports);
+    }
+
+    // Dotted Java identifiers only since the name becomes a folder path
+    private static boolean isPackageName(String name) {
+        for (String part : name.split("\\.", -1)) {
+            if (part.isEmpty() || !Character.isJavaIdentifierStart(part.charAt(0))) {
+                return false;
+            }
+            for (int i = 1; i < part.length(); i++) {
+                char c = part.charAt(i);
+                // isJavaIdentifierPart accepts ignorable control and format characters
+                if (!Character.isJavaIdentifierPart(c) || Character.isIdentifierIgnorable(c)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     // JCVM 5.5: "major version has the value 2", minor 1=v2.1, 2=v2.2, 3=v2.3

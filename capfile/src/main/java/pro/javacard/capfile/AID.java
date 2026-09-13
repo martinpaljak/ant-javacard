@@ -22,6 +22,10 @@ public final class AID {
         if ((length < 5) || (length > 16)) {
             throw new IllegalArgumentException("AID must be between 5 and 16 bytes: " + length);
         }
+        // Arrays.copyOfRange zero-pads past the end of the array
+        if ((offset < 0) || (offset + length > bytes.length)) {
+            throw new IllegalArgumentException(String.format("AID of %d bytes at offset %d is not within %d bytes", length, offset, bytes.length));
+        }
         this.bytes = Arrays.copyOfRange(bytes, offset, offset + length);
     }
 
@@ -51,7 +55,7 @@ public final class AID {
         return HexUtils.bin2hex(bytes);
     }
 
-    // The manifest 0x01:0x02:... form, also what the converter takes on its command line
+    // The manifest and converter command line form 0x01:0x02:...
     public String toColonHex() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < bytes.length; i++) {
@@ -63,11 +67,10 @@ public final class AID {
         return sb.toString();
     }
 
-    // The //aid/<RID>/<PIX> URI form, split at the 5-byte RID. Uppercase, as the converter writes it
+    // The //aid/<RID>/<PIX> URI form. The converter writes the hex in uppercase.
     String toAidUri() {
         String hex = toString();
-        int split = Math.min(10, hex.length());
-        return AID_URI + hex.substring(0, split) + "/" + hex.substring(split);
+        return AID_URI + hex.substring(0, 10) + "/" + hex.substring(10);
     }
 
     @Override
