@@ -11,8 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 
-// A signature fits in the archive comment; the signable payload is the archive with an empty one.
-// Nothing is mapped: a mapping outlives the handle and can block replacing the file.
+// A signature fits in the archive comment. The signable payload is the archive with an empty one.
 public final class ZipComment {
 
     private static final int EOCD_SIG = 0x06054b50;
@@ -45,7 +44,7 @@ public final class ZipComment {
         return out;
     }
 
-    // Comment and payload come from one handle, so a verifier sees one file
+    // Comment and payload are read through one open file handle
     public static Archive open(Path zip) throws IOException {
         return new Archive(zip);
     }
@@ -78,7 +77,7 @@ public final class ZipComment {
             return comment;
         }
 
-        // One payload at a time, read from the beginning. Closing it leaves the archive open.
+        // Reads one payload at a time from the beginning. Closing it leaves the archive open.
         public InputStream payload() throws IOException {
             ch.position(0);
             return new SequenceInputStream(new Head(Channels.newInputStream(ch), eocd + LEN_OFFSET),
@@ -91,7 +90,7 @@ public final class ZipComment {
         }
     }
 
-    // Rewrites the tail in place, which a mapping cannot do: it cannot change the length of a file
+    // Rewrites the tail in place
     public static void embed(Path zip, byte[] comment) throws IOException {
         try (FileChannel ch = FileChannel.open(zip, StandardOpenOption.READ, StandardOpenOption.WRITE)) {
             long eocd = eocd(ch, ch.size());
@@ -111,7 +110,7 @@ public final class ZipComment {
         return start + findEocd(tailOf(ch, start, size), start, size);
     }
 
-    // Offset of the end of central directory record in the buffer, searched from the end
+    // Offset of the end of central directory record in the buffer
     private static int findEocd(ByteBuffer f, long start, long size) {
         int min = (int) Math.max(0, size - EOCD_MIN - MAX_COMMENT - start);
         for (int i = f.limit() - EOCD_MIN; i >= min; i--) {
@@ -142,7 +141,7 @@ public final class ZipComment {
         return comment;
     }
 
-    // Everything from "start" to the end of the file, which is at most one comment record
+    // At most 65557 bytes from "start" to the end of the file
     private static ByteBuffer tailOf(FileChannel ch, long start, long size) throws IOException {
         ByteBuffer end = ByteBuffer.allocate((int) (size - start));
         while (end.hasRemaining()) {

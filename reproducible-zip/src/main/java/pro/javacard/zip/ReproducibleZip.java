@@ -23,13 +23,13 @@ public final class ReproducibleZip {
     // At the first DOS second java.util.zip attaches an extended timestamp read in the default zone
     public static final LocalDateTime FIXED_TIME = LocalDateTime.of(1980, 1, 1, 0, 0, 2);
 
-    // Past 2099 java.util.zip attaches that same extended timestamp
-    private static final LocalDateTime LATEST_TIME = LocalDateTime.of(2099, 12, 31, 23, 59, 58);
+    // A day below the 2097-11-30T00:00:00Z bound past which JDK 8 and 11 attach an extended timestamp
+    private static final LocalDateTime LATEST_TIME = LocalDateTime.of(2097, 11, 29, 0, 0, 0);
 
     // The entry a JAR's stream readers expect to lead the archive
     public static final String MANIFEST = "META-INF/MANIFEST.MF";
 
-    // ODF and ASiC want this stored first with no extra field, at an offset file(1) reads
+    // ODF and ASiC want this stored first with no extra field at the offset file(1) reads
     public static final String MIMETYPE = "mimetype";
 
     private static final String SOURCE_DATE_EPOCH = "SOURCE_DATE_EPOCH";
@@ -45,8 +45,7 @@ public final class ReproducibleZip {
         return seconds == null ? Optional.empty() : Optional.of(stamp(epochTime(seconds)));
     }
 
-    // https://reproducible-builds.org/specs/source-date-epoch/ wants the output of date +%s and
-    // a build that stops on anything else. Long.parseLong takes a sign and any Unicode digits.
+    // Output format of date +%s (https://reproducible-builds.org/specs/source-date-epoch/)
     static LocalDateTime epochTime(String seconds) {
         try {
             if (!seconds.matches("[0-9]+")) {
@@ -59,7 +58,7 @@ public final class ReproducibleZip {
     }
 
     public static <T> Map<String, T> leading(Map<String, T> entries, String... first) {
-        Map<String, T> ordered = new LinkedHashMap<String, T>();
+        Map<String, T> ordered = new LinkedHashMap<>();
         for (String name : first) {
             if (entries.containsKey(name)) {
                 ordered.put(name, entries.get(name));
@@ -71,23 +70,22 @@ public final class ReproducibleZip {
         return ordered;
     }
 
-    // Names sort by their characters, which past the Basic Multilingual Plane is not byte order
+    // UTF-16 order differs from UTF-8 byte order past U+FFFF
     public static <T> Map<String, T> sorted(Map<String, T> entries, String... first) {
-        return leading(new TreeMap<String, T>(entries), first);
+        return leading(new TreeMap<>(entries), first);
     }
 
-    // Order is part of the output: a map keeping none of its own gives different bytes per run
+    // Entries are written in the iteration order of the map
     public static void write(OutputStream out, Map<String, byte[]> entries, int method, LocalDateTime time) throws IOException {
         try (ZipOutputStream zos = new ZipOutputStream(out)) {
-            entries(zos, entries, method, stamp(time));
+            entries(zos, entries, method, time);
         }
     }
 
     public static void writeWithMimetype(OutputStream out, String mimetype, Map<String, byte[]> entries, int method, LocalDateTime time) throws IOException {
         try (ZipOutputStream zos = new ZipOutputStream(out)) {
-            LocalDateTime stamp = stamp(time);
-            entry(zos, MIMETYPE, mimetype.getBytes(StandardCharsets.US_ASCII), ZipEntry.STORED, stamp);
-            entries(zos, entries, method, stamp);
+            entry(zos, MIMETYPE, mimetype.getBytes(StandardCharsets.US_ASCII), ZipEntry.STORED, time);
+            entries(zos, entries, method, time);
         }
     }
 
@@ -108,7 +106,7 @@ public final class ReproducibleZip {
         out.closeEntry();
     }
 
-    // A stored entry is read twice, once for the crc and length its local header carries
+    // A stored file is read once more for the CRC its local header carries
     public static void entry(ZipOutputStream out, String name, Path file, int method, LocalDateTime time) throws IOException {
         ZipEntry entry = header(name, method, time);
         if (method == ZipEntry.STORED) {
@@ -134,7 +132,7 @@ public final class ReproducibleZip {
     private static ZipEntry header(String name, int method, LocalDateTime time) {
         ZipEntry entry = new ZipEntry(name);
         entry.setMethod(method);
-        // setTime() reads back through the default zone, so converting with that zone cancels out
+        // setTime() encodes the DOS time in the default zone
         entry.setTime(clamp(time).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
         return entry;
     }
@@ -149,7 +147,7 @@ public final class ReproducibleZip {
         }
     }
 
-    // getTime() decoded in the default zone, so reading it back there recovers what the archive holds
+    // getTime() decodes the DOS time in the default zone
     public static LocalDateTime timeOf(ZipEntry source) {
         long millis = source.getTime();
         if (millis == -1) {
@@ -162,7 +160,6 @@ public final class ReproducibleZip {
         return LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
     }
 
-    // The time to stamp entries with, said aloud when a zip cannot hold the one asked for
     private static LocalDateTime stamp(LocalDateTime time) {
         LocalDateTime held = clamp(time);
         if (!held.equals(time)) {

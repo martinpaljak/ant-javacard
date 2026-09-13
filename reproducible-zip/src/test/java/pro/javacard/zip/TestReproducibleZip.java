@@ -54,14 +54,14 @@ public class TestReproducibleZip {
         assertEquals(names(stored), new ArrayList<>(sample().keySet()));
         assertEquals(names(zip(ReproducibleZip.sorted(sample(), "u.exp"))), List.of("u.exp", ReproducibleZip.MANIFEST, "a.txt"));
         assertEquals(names(zip(ReproducibleZip.leading(sample(), "a.txt", "nope"))), List.of("a.txt", "u.exp", ReproducibleZip.MANIFEST));
-        // No extra field, and a stored entry carries its sizes in the local header
+        // Local file header offset 28: extra field length (APPNOTE 4.3.7)
         assertEquals((stored[28] & 0xFF) | ((stored[29] & 0xFF) << 8), 0);
-        // A container leads with the media type, uncompressed, at the offset file(1) reads
+        // A container leads with the uncompressed media type at the offset file(1) reads
         String mime = "application/vnd.etsi.asic-e+zip";
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ReproducibleZip.writeWithMimetype(bos, mime, sample(), ZipEntry.DEFLATED, ReproducibleZip.FIXED_TIME);
         assertEquals(new String(bos.toByteArray(), 38, mime.length(), StandardCharsets.US_ASCII), mime);
-        // The media type is an entry like any other, so naming it twice is a duplicate
+        // A mimetype key among the entries is a duplicate entry
         assertThrows(ZipException.class, () -> ReproducibleZip.writeWithMimetype(new ByteArrayOutputStream(), mime,
                 Collections.singletonMap(ReproducibleZip.MIMETYPE, new byte[0]), ZipEntry.DEFLATED, ReproducibleZip.FIXED_TIME));
     }
@@ -90,7 +90,7 @@ public class TestReproducibleZip {
         byte[] comment = "an armored signature".getBytes(StandardCharsets.US_ASCII);
         byte[] signed = ZipComment.embed(zip, comment);
         assertEquals(ZipComment.comment(signed), comment);
-        // Everything before the comment is left alone, and a second comment replaces the first
+        // The payload is the archive without its comment
         assertEquals(ZipComment.payload(signed), zip);
         Path f = Files.createTempFile("zipcomment", ".zip");
         f.toFile().deleteOnExit();
