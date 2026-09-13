@@ -1,53 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="test" name="ant-javacard tests">
     <import file="kits.xml"/>
+    <import file="tests-imports.xml"/>
     <!-- Build test applets -->
-    <target name="test" depends="jcpro,test-library-user,test-multiapp,test-no-output,test-sdks,test-stringdef,test-targetsdk,test-oldcross,test-exp-version"/>
+    <target name="test" depends="jcpro,test-library-user,test-multiapp,test-no-output,test-sdks,test-stringdef,test-targetsdk,test-oldcross,test-exp-version,test-imports,test-targets"/>
     <!-- Cross-verify matrix: one smoke test per SDKVersion supported on JDK 8 -->
     <target name="test-sdks">
         <javacard>
-            <cap jckit="${JC211}" sources="src/testapplets/empty" verify="false">
+            <cap jckit="${SDK2.1.1}" sources="src/testapplets/empty" verify="false">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC212}" sources="src/testapplets/empty" verify="false">
+            <cap jckit="${SDK2.1.2}" sources="src/testapplets/empty" verify="false">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC221}" sources="src/testapplets/empty">
+            <cap jckit="${SDK2.2.1}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC222}" sources="src/testapplets/empty">
+            <cap jckit="${SDK2.2.2}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC303}" sources="src/testapplets/empty">
+            <cap jckit="${SDK3.0.3}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC304}" sources="src/testapplets/empty">
+            <cap jckit="${SDK3.0.4}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC305}" sources="src/testapplets/empty">
+            <cap jckit="${SDK3.0.5u4}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC310}" sources="src/testapplets/empty">
+            <cap jckit="${SDK3.1.0}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC320}" sources="src/testapplets/empty">
+            <cap jckit="${SDK24.0}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <!-- JC 3.2.0 u1 (24.1) - tools.jar is class 55, needs JDK-11+ to run; skipped on JDK-8 -->
-            <cap jckit="${JC320_2}" sources="src/testapplets/empty">
+            <!-- Skipped: v24.1 tools need JDK 11 or later -->
+            <cap jckit="${SDK25.0}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC320_3}" sources="src/testapplets/empty">
+            <cap jckit="${SDK25.1}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC320_4}" sources="src/testapplets/empty">
+            <cap jckit="${SDK26.0}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap jckit="${SDK3.0.4}" sources="src/testapplets/integer" ints="true">
+                <applet class="testapplets.integer.EmptyInt" aid="0102030405060708"/>
             </cap>
         </javacard>
     </target>
     <!-- Output file generation -->
     <target name="test-no-output" depends="jcpro">
-        <javacard jckit="${JC304}">
+        <javacard jckit="${SDK3.0.4}">
             <cap sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
@@ -55,20 +59,25 @@
     </target>
     <!-- Library -->
     <target name="test-library-old" depends="jcpro">
-        <javacard jckit="${JC305}">
-            <cap targetsdk="${JC222}" sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" export="testlib" version="0.127"/>
+        <javacard jckit="${SDK3.0.5u4}">
+            <cap targetsdk="${SDK2.2.2}" sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" export="testlib" version="127.0"/>
         </javacard>
     </target>
     <!-- Library -->
     <target name="test-library" depends="jcpro,test-library-old">
-        <javacard jckit="${JC310}">
-            <cap targetsdk="3.0.4" sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" export="testlib" version="0.127"/>
+        <javacard jckit="${SDK3.1.0}">
+            <cap targetsdk="3.0.4" sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" export="testlib" version="127.0"/>
         </javacard>
     </target>
     <!-- JC 2.2.2 with 3.0.4 library -->
     <target name="test-library-user" depends="jcpro,test-library">
         <javacard>
-            <cap jckit="${JC222}" sources="src/testapplets/libraryuser">
+            <cap jckit="${SDK2.2.2}" sources="src/testapplets/libraryuser">
+                <applet class="testapplets.libraryuser.LibraryUser" aid="0102030405060708"/>
+                <import jar="testlib/library.jar"/>
+            </cap>
+            <!-- The v3.0.x converters generate proxy classes for the shareable interface unless told not to -->
+            <cap jckit="${SDK3.0.5u4}" sources="src/testapplets/libraryuser">
                 <applet class="testapplets.libraryuser.LibraryUser" aid="0102030405060708"/>
                 <import jar="testlib/library.jar"/>
             </cap>
@@ -77,7 +86,7 @@
     <!-- JC 3.0.4 multiapp -->
     <target name="test-multiapp" depends="jcpro">
         <javacard>
-            <cap jckit="${JC303}" output="Multiapp.cap" sources="src/testapplets/multiapp" aid="010203040506">
+            <cap jckit="${SDK3.0.3}" output="Multiapp.cap" sources="src/testapplets/multiapp" aid="010203040506">
                 <applet class="testapplets.multiapp.First" aid="01020304050607"/>
                 <applet class="testapplets.multiapp.Second" aid="0102030405060708"/>
                 <import jar="testlib/library.jar"/>
@@ -87,7 +96,7 @@
     <!-- Stringdefs -->
     <target name="test-stringdef" depends="jcpro">
         <javacard>
-            <cap jckit="${JC304}" output="StringDefs.cap" sources="src/testapplets/stringdefs" aid="010203040506">
+            <cap jckit="${SDK3.0.4}" output="StringDefs.cap" sources="src/testapplets/stringdefs" aid="010203040506">
                 <applet class="testapplets.stringdefs.Empty"/>
             </cap>
         </javacard>
@@ -95,30 +104,22 @@
     <!-- targetsdk -->
     <target name="test-targetsdk" depends="jcpro">
         <javacard>
-            <cap jckit="${JC305}" targetsdk="${JC221}" sources="src/testapplets/empty" aid="010203040506">
-                <applet class="testapplets.empty.Empty"/>
-            </cap>
-        </javacard>
-    </target>
-    <!-- javaversion -->
-    <target name="test-javaversion" depends="jcpro">
-        <javacard>
-            <cap jckit="${JC304}" javaversion="1.6" sources="src/testapplets/empty" aid="010203040506">
+            <cap jckit="${SDK3.0.5u4}" targetsdk="${SDK2.2.1}" sources="src/testapplets/empty" aid="010203040506">
                 <applet class="testapplets.empty.Empty"/>
             </cap>
         </javacard>
     </target>
     <!-- Cross-compile against old SDK -->
     <target name="test-oldcross" depends="jcpro">
-        <javacard jckit="${JC305}">
+        <javacard jckit="${SDK3.0.5u4}">
             <!-- Verification is supported for 2.2.1 and upwards-->
-            <cap targetsdk="${JC211}" sources="src/testapplets/empty" verify="false">
+            <cap targetsdk="${SDK2.1.1}" sources="src/testapplets/empty" verify="false">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
         </javacard>
     </target>
     <target name="test-exp-version" depends="jcpro">
-        <javacard jckit="${JC310}">
+        <javacard jckit="${SDK3.1.0}">
             <cap targetsdk="3.1.0" sources="src/testapplets/empty" verify="true">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
@@ -128,7 +129,62 @@
             <cap targetsdk="3.0.4" sources="src/testapplets/empty" verify="true">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <!-- Verification with 3.1.0 is not supported for 3.0.1 and downwards, even if conversion can work -->
+        </javacard>
+    </target>
+    <!-- Named targetsdk versions of the multi-target SDKs -->
+    <target name="test-targets" depends="jcpro">
+        <javacard jckit="${SDK24.0}">
+            <cap targetsdk="3.0.4" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.0.5" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.1.0" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+        </javacard>
+        <javacard jckit="${SDK25.0}">
+            <cap targetsdk="3.0.4" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.0.5" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.1.0" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.2.0" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+        </javacard>
+        <javacard jckit="${SDK25.1}">
+            <cap targetsdk="3.0.4" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.0.5" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.1.0" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.2.0" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+        </javacard>
+        <javacard jckit="${SDK26.0}">
+            <cap targetsdk="3.0.4" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.0.5" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.1.0" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.2.0" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
         </javacard>
     </target>
 </project>

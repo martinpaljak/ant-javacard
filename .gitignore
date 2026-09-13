@@ -11,6 +11,8 @@
 /target
 /build
 /testlib
+/testimports
+/testfast
 /wiki
 hs_err_pid*
 pom.xml.versionsBackup

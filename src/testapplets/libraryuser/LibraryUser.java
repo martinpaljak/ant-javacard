@@ -3,10 +3,13 @@
 
 package testapplets.libraryuser;
 
+import javacard.framework.AID;
 import javacard.framework.APDU;
 import javacard.framework.Applet;
 import javacard.framework.ISOException;
+import javacard.framework.JCSystem;
 import testapplets.library.SomeLibrary;
+import testapplets.library.SomeService;
 
 public class LibraryUser extends Applet {
 
@@ -22,5 +25,13 @@ public class LibraryUser extends Applet {
 
     public void process(APDU arg0) throws ISOException {
         SomeLibrary.booleantest(true);
+        byte[] buffer = arg0.getBuffer();
+        AID provider = JCSystem.lookupAID(buffer, (short) 0, (byte) 5);
+        if (provider != null) {
+            SomeService service = (SomeService) JCSystem.getAppletShareableInterfaceObject(provider, (byte) 0);
+            if (service != null) {
+                buffer[0] = (byte) service.ping(value);
+            }
+        }
     }
 }

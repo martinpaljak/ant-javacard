@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." name="ant-javacard fast tests">
+    <import file="kits.xml"/>
+
+    <!-- v26.0 and v3.0.5u4 in place of the full test matrix -->
+    <target name="fast" depends="jcpro,fast-mkdir,fast-latest,fast-legacy,fast-imports"/>
+
+    <target name="fast-mkdir">
+        <mkdir dir="testfast"/>
+    </target>
+
+    <!-- In-process conversion of v26.0 -->
+    <target name="fast-latest" depends="jcpro,fast-mkdir">
+        <javacard jckit="${SDK26.0}">
+            <cap sources="src/testapplets/empty" output="testfast/latest.cap">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.0.4" sources="src/testapplets/empty" output="testfast/latest-target304.cap">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+        </javacard>
+    </target>
+
+    <!-- The legacy setup the README recommends: v3.0.5u4 building for a v2.2.2 card -->
+    <target name="fast-legacy" depends="jcpro,fast-mkdir">
+        <javacard jckit="${SDK3.0.5u4}">
+            <cap sources="src/testapplets/empty" output="testfast/legacy.cap">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="${SDK2.2.2}" sources="src/testapplets/empty" output="testfast/legacy-target222.cap">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+        </javacard>
+    </target>
+
+    <!-- A library and its user through the export tree -->
+    <target name="fast-imports" depends="jcpro,fast-mkdir">
+        <delete dir="testfast/exps"/>
+        <javacard jckit="${SDK26.0}">
+            <cap sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" version="1.0"
+                 export="testfast/exps" jar="testfast/library.jar" output="testfast/library.cap"/>
+            <cap sources="src/testapplets/libraryuser" aid="0102030405" output="testfast/user.cap">
+                <applet class="testapplets.libraryuser.LibraryUser" aid="0102030405060708"/>
+                <import jar="testfast/library.jar"/>
+            </cap>
+        </javacard>
+    </target>
+</project>

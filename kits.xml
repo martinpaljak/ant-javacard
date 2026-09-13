@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." name="kit defs">
     <!-- Some handy shorthands -->
-    <property name="JC211" value="sdks/jc211_kit"/>
-    <property name="JC212" value="sdks/jc212_kit"/>
-    <property name="JC221" value="sdks/jc221_kit"/>
-    <property name="JC222" value="sdks/jc222_kit"/>
-    <property name="JC303" value="sdks/jc303_kit"/>
-    <property name="JC304" value="sdks/jc304_kit"/>
-    <property name="JC305_1" value="sdks/jc305u1_kit"/>
-    <property name="JC305_2" value="sdks/jc305u2_kit"/>
-    <property name="JC305_3" value="sdks/jc305u3_kit"/>
-    <property name="JC305" value="sdks/jc305u4_kit"/>
-    <property name="JC310" value="sdks/jc310r20210706_kit"/>
-    <property name="JC320" value="sdks/jc320v24.0_kit"/>
-    <property name="JC320_1" value="sdks/jc320v24.1_kit"/>
-    <property name="JC320_2" value="sdks/jc320v25.0_kit"/>
-    <property name="JC320_3" value="sdks/jc320v25.1_kit"/>
-    <property name="JC320_4" value="sdks/jc320v26.0_kit"/>
+    <property name="SDK2.1.1"   value="sdks/jc211_kit"/>
+    <property name="SDK2.1.2"   value="sdks/jc212_kit"/>
+    <property name="SDK2.2.1"   value="sdks/jc221_kit"/>
+    <property name="SDK2.2.2"   value="sdks/jc222_kit"/>
+    <property name="SDK3.0.3"   value="sdks/jc303_kit"/>
+    <property name="SDK3.0.4"   value="sdks/jc304_kit"/>
+    <property name="SDK3.0.5u1" value="sdks/jc305u1_kit"/>
+    <property name="SDK3.0.5u2" value="sdks/jc305u2_kit"/>
+    <property name="SDK3.0.5u3" value="sdks/jc305u3_kit"/>
+    <property name="SDK3.0.5u4" value="sdks/jc305u4_kit"/>
+    <property name="SDK3.1.0"   value="sdks/jc310r20210706_kit"/>
+    <property name="SDK24.0"    value="sdks/jc320v24.0_kit"/>
+    <property name="SDK24.1"    value="sdks/jc320v24.1_kit"/>
+    <property name="SDK25.0"    value="sdks/jc320v25.0_kit"/>
+    <property name="SDK25.1"    value="sdks/jc320v25.1_kit"/>
+    <property name="SDK26.0"    value="sdks/jc320v26.0_kit"/>
 </project>    

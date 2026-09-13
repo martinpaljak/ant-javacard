@@ -17,6 +17,7 @@ path = [
     "**/spotbugs.xml",
     "tests.xml",
     "tests-fail.xml",
+    "tests-imports.xml",
     "tests-1.8.xml",
     "tests-11.xml",
     "tests-17.xml",

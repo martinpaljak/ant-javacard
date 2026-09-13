@@ -1,34 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="test" name="ant-javacard tests">
     <import file="kits.xml"/>
+    <import file="tests-imports.xml"/>
 
     <!-- Build test applets -->
-    <target name="test" depends="jcpro,test-sdks"/>
+    <target name="test" depends="jcpro,test-sdks,test-imports,test-targets"/>
 
     <!-- Cross-verify matrix: one smoke test per SDKVersion supported on JDK 17 -->
     <target name="test-sdks">
         <javacard>
-            <!-- JC 2.1.1 / 2.1.2 / 2.2.1 / 2.2.2 - JDK-17 minimum target is 1.7; 2.x converters reject anything above 1.5 -->
-            <!-- JC 3.0.1 / 3.0.4 - converters accept up to class 50 (1.6); JDK-17 minimum is 1.7, skipped -->
-            <cap jckit="${JC305}" sources="src/testapplets/empty">
+            <!-- Skipped: v2.1.1 to v2.2.2 converters take class files up to 1.5 and JDK 17 writes 1.7 at minimum -->
+            <!-- Skipped: v3.0.3 and v3.0.4 converters take class files up to 1.6 and JDK 17 writes 1.7 at minimum -->
+            <cap jckit="${SDK3.0.5u4}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC310}" sources="src/testapplets/empty">
+            <cap jckit="${SDK3.1.0}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC320}" sources="src/testapplets/empty">
+            <cap jckit="${SDK24.0}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC320_1}" sources="src/testapplets/empty">
+            <cap jckit="${SDK24.1}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC320_2}" sources="src/testapplets/empty">
+            <cap jckit="${SDK25.0}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC320_3}" sources="src/testapplets/empty">
+            <cap jckit="${SDK25.1}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
-            <cap jckit="${JC320_4}" sources="src/testapplets/empty">
+            <cap jckit="${SDK26.0}" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+        </javacard>
+    </target>
+    <!-- Named targetsdk versions of the multi-target SDKs -->
+    <target name="test-targets" depends="jcpro">
+        <javacard jckit="${SDK3.1.0}">
+            <cap targetsdk="3.0.4" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.0.5" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+        </javacard>
+        <javacard jckit="${SDK24.0}">
+            <cap targetsdk="3.0.4" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.0.5" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.1.0" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+        </javacard>
+        <javacard jckit="${SDK24.1}">
+            <cap targetsdk="3.0.4" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.0.5" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.1.0" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.2.0" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+        </javacard>
+        <javacard jckit="${SDK25.0}">
+            <cap targetsdk="3.0.4" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.0.5" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.1.0" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.2.0" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+        </javacard>
+        <javacard jckit="${SDK25.1}">
+            <cap targetsdk="3.0.4" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.0.5" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.1.0" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.2.0" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+        </javacard>
+        <javacard jckit="${SDK26.0}">
+            <cap targetsdk="3.0.4" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.0.5" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.1.0" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.2.0" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
         </javacard>

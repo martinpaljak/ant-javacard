@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." name="ant-javacard import tests">
+    <import file="kits.xml"/>
+
+    <target name="test-imports" depends="test-imports-jar,test-imports-jaronly,test-imports-many,test-imports-samedir,test-imports-flat,test-imports-identical,test-imports-exportmap"/>
+
+    <target name="test-imports-library" depends="jcpro">
+        <delete dir="testimports"/>
+        <mkdir dir="testimports"/>
+        <javacard jckit="${SDK26.0}">
+            <cap sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" version="1.0"
+                 export="testimports/exps" jar="testimports/library.jar" output="testimports/library.cap"/>
+            <cap sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" version="2.0"
+                 export="testimports/exps2" output="testimports/library2.cap"/>
+            <cap sources="src/testapplets/otherlibrary" package="testapplets.otherlibrary" aid="01020304050608" version="1.0"
+                 export="testimports/other" jar="testimports/other.jar" output="testimports/other.cap"/>
+            <cap sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" version="1.0"
+                 jar="testimports/library-jaronly.jar" output="testimports/library-jaronly.cap"/>
+        </javacard>
+        <!-- .exp files in a folder that is not a package tree -->
+        <copy file="testimports/exps/testapplets/library/javacard/library.exp" todir="testimports/flat"/>
+    </target>
+
+    <!-- Export files inside the imported JAR -->
+    <target name="test-imports-jar" depends="test-imports-library">
+        <javacard jckit="${SDK26.0}">
+            <cap sources="src/testapplets/libraryuser" aid="0102030405" output="testimports/user-jar.cap">
+                <applet class="testapplets.libraryuser.LibraryUser" aid="0102030405060708"/>
+                <import jar="testimports/library.jar"/>
+            </cap>
+        </javacard>
+    </target>
+
+    <!-- Export file inside a JAR built without an "export" folder -->
+    <target name="test-imports-jaronly" depends="test-imports-library">
+        <javacard jckit="${SDK26.0}">
+            <cap sources="src/testapplets/libraryuser" aid="0102030405" output="testimports/user-jaronly.cap">
+                <applet class="testapplets.libraryuser.LibraryUser" aid="0102030405060708"/>
+                <import jar="testimports/library-jaronly.jar"/>
+            </cap>
+        </javacard>
+    </target>
+
+    <!-- Different packages imported in both declaration orders -->
+    <target name="test-imports-many" depends="test-imports-library">
+        <javacard jckit="${SDK26.0}">
+            <cap sources="src/testapplets/libraryuser" aid="0102030405" output="testimports/user-many.cap">
+                <applet class="testapplets.libraryuser.LibraryUser" aid="0102030405060708"/>
+                <import jar="testimports/library.jar"/>
+                <import exps="testimports/other"/>
+            </cap>
+            <cap sources="src/testapplets/libraryuser" aid="0102030405" output="testimports/user-many-reversed.cap">
+                <applet class="testapplets.libraryuser.LibraryUser" aid="0102030405060708"/>
+                <import exps="testimports/other"/>
+                <import jar="testimports/library.jar"/>
+            </cap>
+        </javacard>
+    </target>
+
+    <!-- Issue #24: two imports with the same "exps" folder and their own JARs -->
+    <target name="test-imports-samedir" depends="test-imports-library">
+        <javacard jckit="${SDK26.0}">
+            <cap sources="src/testapplets/libraryuser" aid="0102030405" output="testimports/user-samedir.cap">
+                <applet class="testapplets.libraryuser.LibraryUser" aid="0102030405060708"/>
+                <import exps="testimports/exps" jar="testimports/library.jar"/>
+                <import exps="testimports/exps" jar="testimports/other.jar"/>
+            </cap>
+        </javacard>
+    </target>
+
+    <!-- Two folders offer the same package as byte-identical files -->
+    <target name="test-imports-identical" depends="test-imports-library">
+        <javacard jckit="${SDK26.0}">
+            <cap sources="src/testapplets/libraryuser" aid="0102030405" output="testimports/user-identical.cap">
+                <applet class="testapplets.libraryuser.LibraryUser" aid="0102030405060708"/>
+                <import exps="testimports/exps" jar="testimports/library.jar"/>
+                <import exps="testimports/flat"/>
+            </cap>
+        </javacard>
+    </target>
+
+    <!-- Issue #8: the "exps" folder is used as given regardless of layout -->
+    <target name="test-imports-flat" depends="test-imports-library">
+        <javacard jckit="${SDK26.0}">
+            <cap sources="src/testapplets/libraryuser" aid="0102030405" output="testimports/user-flat.cap">
+                <applet class="testapplets.libraryuser.LibraryUser" aid="0102030405060708"/>
+                <import exps="testimports/flat" jar="testimports/library.jar"/>
+            </cap>
+        </javacard>
+    </target>
+
+    <!-- A minor version upgrade takes the token mapping from the export file of the previous version -->
+    <target name="test-imports-exportmap" depends="test-imports-library">
+        <javacard jckit="${SDK26.0}">
+            <cap sources="src/testapplets/library" package="testapplets.library" aid="01020304050607" version="1.1"
+                 exportmap="true" export="testimports/exps-upgrade" output="testimports/library-upgrade.cap">
+                <import exps="testimports/exps"/>
+            </cap>
+        </javacard>
+    </target>
+</project>
