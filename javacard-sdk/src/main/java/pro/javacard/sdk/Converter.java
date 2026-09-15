@@ -182,6 +182,10 @@ public final class Converter {
             conversion.invoke(null, new Object[]{args.toArray(new String[0]), null});
         } finally {
             capture.close();
+            // XXX: Windows can not delete the class files the converter leaves open
+            if (System.getProperty("os.name", "").startsWith("Windows")) {
+                System.gc();
+            }
         }
     }
 }

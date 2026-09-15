@@ -69,3 +69,20 @@ jobs:
           fail_on_unmatched_files: true
           body: "Release ${{ github.ref_name }}, `${{ env.JARSUM }}` (built with JDK-17)"
           prerelease: true # manually promoted
+
+  windows:
+    runs-on: windows-2025
+    name: Windows
+    steps:
+      - name: Checkout with submodules
+        uses: actions/checkout@v7
+        with:
+          submodules: true
+      - name: Setup java
+        uses: actions/setup-java@v6
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+      - name: Build and test
+        run: .\mvnw.cmd -B -U

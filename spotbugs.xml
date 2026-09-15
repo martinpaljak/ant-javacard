@@ -10,4 +10,9 @@
         <Class name="pro.javacard.sdk.JavaCardSDK"/>
         <Bug pattern="DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED"/>
     </Match>
+    <Match>
+        <Class name="pro.javacard.sdk.Converter"/>
+        <Method name="convert"/>
+        <Bug pattern="DM_GC"/>
+    </Match>
 </FindBugsFilter>
