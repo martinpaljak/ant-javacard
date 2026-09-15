@@ -67,6 +67,7 @@
     <target name="dist" depends="jcpro,git">
         <!-- Have the modification timestamp from last git commit -->
         <jar destfile="ant-javacard.jar" level="9" basedir="build" modificationtime="${repository.timestamp}">
+            <fileset dir="capfile/src/main/resources"/>
             <manifest>
                 <!-- It is possible to execute ant-javacard.jar... -->
                 <attribute name="Main-Class" value="pro.javacard.ant.DummyMain"/>

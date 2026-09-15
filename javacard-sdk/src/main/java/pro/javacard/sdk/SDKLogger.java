@@ -69,7 +69,7 @@ public final class SDKLogger {
         private final boolean parenthandlers;
         private final Level sdklevel;
 
-        private SDKLog(Handler handler) {
+        SDKLog(Handler handler) {
             SDK_LOCK.lock();
             this.handler = handler;
             this.parenthandlers = SDK_LOGGER.getUseParentHandlers();
