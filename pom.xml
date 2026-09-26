@@ -323,10 +323,14 @@
         <profile>
             <id>check</id>
             <activation>
+                <jdk>25</jdk>
                 <property>
                     <name>env.CI</name>
                     <value>true</value>
                 </property>
+                <file>
+                    <exists>${basedir}/src/main/java</exists>
+                </file>
             </activation>
             <build>
                 <plugins>
@@ -335,9 +339,8 @@
                         <artifactId>rewrite-maven-plugin</artifactId>
                         <executions>
                             <execution>
-                                <phase>process-sources</phase>
                                 <goals>
-                                    <goal>dryRun</goal>
+                                    <goal>dryRunNoFork</goal>
                                 </goals>
                                 <configuration>
                                     <failOnDryRunResults>true</failOnDryRunResults>
@@ -357,6 +360,22 @@
                             </execution>
                         </executions>
                     </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>coverage</id>
+            <activation>
+                <property>
+                    <name>env.CI</name>
+                    <value>true</value>
+                </property>
+                <file>
+                    <exists>${basedir}/src/main/java</exists>
+                </file>
+            </activation>
+            <build>
+                <plugins>
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
@@ -375,7 +394,7 @@
                                 </goals>
                                 <configuration>
                                     <excludes>
-                                        <exclude>META-INF/versions/**</exclude>
+                                        <exclude>pro/javacard/zip/ZIPEntryTime.class</exclude>
                                     </excludes>
                                 </configuration>
                             </execution>
@@ -395,7 +414,7 @@
                             <execution>
                                 <phase>process-sources</phase>
                                 <goals>
-                                    <goal>run</goal>
+                                    <goal>runNoFork</goal>
                                 </goals>
                             </execution>
                         </executions>

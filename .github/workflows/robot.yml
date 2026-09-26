@@ -39,7 +39,7 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: temurin
-          cache: maven
+          cache: ${{ matrix.java != 8 && 'maven' || '' }} # nothing to cache without Maven
       - name: Set up publishing
         if: env.PUBLISH == 'true'
         uses: martinpaljak/maven-ssh-deploy@v2
@@ -48,15 +48,16 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           fingerprint: SHA256:auiF3nHWvDmvq2stDl+QEECCqMcDp+FY1/bDRnvxpRw
       - name: Build and deploy
-        if: matrix.java != 8
+        if: matrix.java != 8 # Maven build requires JDK 11+
         run: ./mvnw -B -U deploy -Dmaven.deploy.skip=${{ env.PUBLISH != 'true' }}
       - name: Run ANT tests
-        run: ant test ${{ matrix.java != 8 && 'dist' || '' }}
+        if: matrix.java == 8
+        run: ant test
       - name: Get SHA-256 of ant-javacard.jar
         if: matrix.java != 8
         run: echo "JARSUM=$(shasum -a 256 --tag ant-javacard.jar)" >> "$GITHUB_ENV"
       - name: Upload
-        if: matrix.java == '17'
+        if: matrix.java == '17' # release jar is built with JDK 17
         uses: actions/upload-artifact@v7
         with:
           path: ant-javacard.jar
