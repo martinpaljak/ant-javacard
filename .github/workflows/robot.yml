@@ -56,11 +56,11 @@ jobs:
         if: matrix.java != 8
         run: echo "JARSUM=$(shasum -a 256 --tag ant-javacard.jar)" >> "$GITHUB_ENV"
       - name: Upload
-        if: env.PUBLISH == 'true'
+        if: matrix.java == '17'
         uses: actions/upload-artifact@v7
         with:
-          name: ant-javacard.jar
           path: ant-javacard.jar
+          archive: false
       - name: Release
         if: env.RELEASE == 'true'
         uses: softprops/action-gh-release@v3.0.3
