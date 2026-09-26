@@ -34,8 +34,12 @@ public class TestReproducibleZip {
     }
 
     private static byte[] zip(Map<String, byte[]> entries) throws IOException {
+        return zip(entries, ReproducibleZip.FIXED_TIME);
+    }
+
+    private static byte[] zip(Map<String, byte[]> entries, LocalDateTime time) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ReproducibleZip.write(bos, entries, ZipEntry.STORED, ReproducibleZip.FIXED_TIME);
+        ReproducibleZip.write(bos, entries, ZipEntry.STORED, time);
         return bos.toByteArray();
     }
 
@@ -82,6 +86,16 @@ public class TestReproducibleZip {
         assertEquals(ReproducibleZip.timeOf(zis.getNextEntry()), stamp);
         assertEquals(ReproducibleZip.timeOf(zis.getNextEntry()), ReproducibleZip.FIXED_TIME);
         assertEquals(ReproducibleZip.epochTime("1234567890"), LocalDateTime.of(2009, 2, 13, 23, 31, 30));
+        TimeZone zone = TimeZone.getDefault();
+        try {
+            TimeZone.setDefault(TimeZone.getTimeZone("Europe/Tallinn"));
+            LocalDateTime gap = LocalDateTime.of(2021, 3, 28, 3, 30);
+            byte[] gapped = zip(Collections.singletonMap("x", DATA), gap);
+            assertEquals(ReproducibleZip.timeOf(new ZipInputStream(new ByteArrayInputStream(gapped)).getNextEntry()), gap);
+            assertEquals(Arrays.copyOfRange(gapped, 10, 14), new byte[]{(byte) 0xC0, 0x1B, 0x7C, 0x52});
+        } finally {
+            TimeZone.setDefault(zone);
+        }
     }
 
     @Test

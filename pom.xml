@@ -172,6 +172,19 @@
             </extension>
         </extensions>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.4.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- Minimum Maven version. Not really relevant with wrapper -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -242,6 +255,19 @@
                             <includes>
                                 <include>module-info.java</include>
                             </includes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>java11-compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <release>11</release>
+                            <compileSourceRoots>
+                                <compileSourceRoot>${project.basedir}/src/main/java11</compileSourceRoot>
+                            </compileSourceRoots>
+                            <multiReleaseOutput>true</multiReleaseOutput>
                         </configuration>
                     </execution>
                 </executions>
@@ -348,6 +374,11 @@
                                 <goals>
                                     <goal>report</goal>
                                 </goals>
+                                <configuration>
+                                    <excludes>
+                                        <exclude>META-INF/versions/**</exclude>
+                                    </excludes>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>

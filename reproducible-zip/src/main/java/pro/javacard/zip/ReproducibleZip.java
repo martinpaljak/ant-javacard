@@ -132,8 +132,7 @@ public final class ReproducibleZip {
     private static ZipEntry header(String name, int method, LocalDateTime time) {
         ZipEntry entry = new ZipEntry(name);
         entry.setMethod(method);
-        // setTime() encodes the DOS time in the default zone
-        entry.setTime(clamp(time).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+        ZIPEntryTime.set(entry, clamp(time));
         return entry;
     }
 
@@ -147,13 +146,8 @@ public final class ReproducibleZip {
         }
     }
 
-    // getTime() decodes the DOS time in the default zone
     public static LocalDateTime timeOf(ZipEntry source) {
-        long millis = source.getTime();
-        if (millis == -1) {
-            return FIXED_TIME;
-        }
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault());
+        return source.getTime() == -1 ? FIXED_TIME : ZIPEntryTime.get(source);
     }
 
     public static LocalDateTime timeOf(Instant instant) {

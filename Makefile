@@ -1,5 +1,5 @@
-TZ = UTC # same as Github
-export TZ
+export TZ := UTC
+export LC_ALL := C.UTF-8
 SHELL := /bin/bash
 JDK := zulu
 JAVA8 := /Library/Java/JavaVirtualMachines/$(JDK)-8.jdk/Contents/Home
@@ -18,9 +18,6 @@ dist: reportjava
 
 reportjava:
 	@echo using java $(shell java -version 2>&1 | grep version) from \"$(JAVA_HOME)\"
-
-jar:
-	JAVA_HOME=$(JAVA8) ant clean dist
 
 cap:
 	# run maven with JDK21

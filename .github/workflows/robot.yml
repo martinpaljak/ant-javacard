@@ -51,8 +51,9 @@ jobs:
         if: matrix.java != 8
         run: ./mvnw -B -U deploy -Dmaven.deploy.skip=${{ env.PUBLISH != 'true' }}
       - name: Run ANT tests
-        run: ant test dist
+        run: ant test ${{ matrix.java != 8 && 'dist' || '' }}
       - name: Get SHA-256 of ant-javacard.jar
+        if: matrix.java != 8
         run: echo "JARSUM=$(shasum -a 256 --tag ant-javacard.jar)" >> "$GITHUB_ENV"
       - name: Upload
         if: env.PUBLISH == 'true'

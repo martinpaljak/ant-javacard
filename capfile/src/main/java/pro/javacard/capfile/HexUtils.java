@@ -23,7 +23,7 @@ public class HexUtils {
     }
 
     public static byte[] decodeHexString_imp(String str) {
-        char data[] = str.toCharArray();
+        char[] data = str.toCharArray();
         final int len = data.length;
         if ((len & 0x01) != 0) {
             throw new IllegalArgumentException("Odd number of characters: " + str);
