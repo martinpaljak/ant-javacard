@@ -39,7 +39,15 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: temurin
-          cache: ${{ matrix.java != 8 && 'maven' || '' }} # nothing to cache without Maven
+      - name: Maven cache
+        if: matrix.java != 8
+        uses: actions/cache@v6
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.m2/wrapper
+          key: maven-java${{ matrix.java }}-${{ hashFiles('**/pom.xml', '.mvn/**') }}
+          restore-keys: maven-java${{ matrix.java }}-
       - name: Set up publishing
         if: env.PUBLISH == 'true'
         uses: martinpaljak/maven-ssh-deploy@v2
