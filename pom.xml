@@ -5,16 +5,12 @@
     <packaging>pom</packaging>
     <groupId>pro.javacard</groupId>
     <artifactId>ant-javacard-package</artifactId>
-    <version>26.09.07-SNAPSHOT</version>
+    <version>26.10.28-SNAPSHOT</version>
     <description>Easy to use Ant task for building JavaCard applets</description>
     <name>ant-javacard package</name>
     <url>https://github.com/martinpaljak/ant-javacard</url>
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <!-- GH Actions fails sometimes on first try -->
-        <maven.wagon.http.retryHandler.count>2</maven.wagon.http.retryHandler.count>
-        <project.build.outputTimestamp>2026-09-07T17:16:14Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2026-10-28T14:44:39Z</project.build.outputTimestamp>
     </properties>
     <repositories>
         <repository>
@@ -102,7 +98,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.6.0</version>
+                    <version>3.6.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -151,7 +147,7 @@
                 <plugin>
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-maven-plugin</artifactId>
-                    <version>4.10.4.1</version>
+                    <version>4.10.5.0</version>
                     <configuration>
                         <excludeFilterFile>spotbugs.xml</excludeFilterFile>
                     </configuration>
@@ -159,7 +155,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.15</version>
+                    <version>0.8.16</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -201,7 +197,7 @@
                                     <message>Project requires JDK 11+</message>
                                 </requireJavaVersion>
                                 <requireMavenVersion>
-                                    <version>[3.9.16,)</version>
+                                    <version>[3.10.0,)</version>
                                 </requireMavenVersion>
                                 <requirePluginVersions/>
                             </rules>
