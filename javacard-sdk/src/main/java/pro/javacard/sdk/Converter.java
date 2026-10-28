@@ -174,14 +174,14 @@ public final class Converter {
     }
 
     // A fresh classloader per run resets the static error counters of the converter
+    @SuppressWarnings("try")
     public void convert(List<String> args, Handler handler) throws IOException, ReflectiveOperationException {
-        SDKLogger.SDKLog capture = SDKLogger.capture(handler);
-        try (URLClassLoader loader = sdk.getClassLoader()) {
+        try (SDKLogger.SDKLog capture = SDKLogger.capture(handler);
+             URLClassLoader loader = sdk.getClassLoader()) {
             Class<?> harness = Class.forName("com.sun.javacard.converter.ConverterHarness", true, loader);
             Method conversion = harness.getMethod("startConversion", String[].class, Hashtable.class);
             conversion.invoke(null, new Object[]{args.toArray(new String[0]), null});
         } finally {
-            capture.close();
             // XXX: Windows can not delete the class files the converter leaves open
             if (System.getProperty("os.name", "").startsWith("Windows")) {
                 System.gc();

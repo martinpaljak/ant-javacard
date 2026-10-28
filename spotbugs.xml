@@ -15,4 +15,8 @@
         <Method name="convert"/>
         <Bug pattern="DM_GC"/>
     </Match>
+    <Match>
+        <Class name="pro.javacard.sdk.SDKLogger$SDKLog"/>
+        <Bug pattern="UL_UNRELEASED_LOCK"/>
+    </Match>
 </FindBugsFilter>

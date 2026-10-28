@@ -46,10 +46,11 @@ public final class OffCardVerifier {
     }
 
     // SDK messages go to the given handler
+    @SuppressWarnings("try")
     public void verify(Path f, List<Path> exps, Handler handler) throws VerifierError, IOException {
         Path tmp = Files.createTempDirectory("capfile");
-        SDKLogger.SDKLog capture = SDKLogger.capture(handler);
-        try (InputStream in = Files.newInputStream(f);
+        try (SDKLogger.SDKLog capture = SDKLogger.capture(handler);
+             InputStream in = Files.newInputStream(f);
              URLClassLoader loader = sdk.getClassLoader()) {
             CAPFile cap = CAPFile.fromStream(in);
 
@@ -89,7 +90,6 @@ public final class OffCardVerifier {
         } catch (ReflectiveOperationException | IOException e) {
             throw new RuntimeException("Could not run verifier: " + e.getMessage(), e);
         } finally {
-            capture.close();
             // Clean extracted exps
             rmminusrf(tmp);
         }
