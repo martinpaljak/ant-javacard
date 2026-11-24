@@ -73,7 +73,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>3.6.3</version>
+                    <version>3.7.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -197,7 +197,7 @@
                                     <message>Project requires JDK 11+</message>
                                 </requireJavaVersion>
                                 <requireMavenVersion>
-                                    <version>[3.10.0,)</version>
+                                    <version>[3.10.2,)</version>
                                 </requireMavenVersion>
                                 <requirePluginVersions/>
                             </rules>

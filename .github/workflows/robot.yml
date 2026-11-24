@@ -72,7 +72,7 @@ jobs:
           archive: false
       - name: Release
         if: env.RELEASE == 'true'
-        uses: softprops/action-gh-release@v3.0.3
+        uses: softprops/action-gh-release@v3.0.4
         with:
           files: |
             ant-javacard.jar
