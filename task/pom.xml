@@ -58,7 +58,7 @@
                             <target>
                                 <mkdir dir="${project.build.directory}/caps"/>
                                 <taskdef name="javacard" classname="pro.javacard.ant.JavaCard" classpathref="maven.test.classpath"/>
-                                <javacard jckit="${basedir}/../sdks/jc320v26.0_kit">
+                                <javacard jckit="${basedir}/../sdks/jc320v26.1_kit">
                                     <cap sources="${basedir}/../src/testapplets/empty" aid="010203040506" version="1.0"
                                          output="${project.build.directory}/caps/applet.cap">
                                         <applet class="testapplets.empty.Empty" aid="01020304050601"/>

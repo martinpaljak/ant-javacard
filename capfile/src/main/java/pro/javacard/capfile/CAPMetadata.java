@@ -48,7 +48,7 @@ public final class CAPMetadata {
     private static final String[] CARRIED = {CREATED_BY, RUNTIME_DESCRIPTOR_VERSION, APPLICATION_TYPE, SEALED,
             CREATION_TIME, CONVERTER_VERSION, CONVERTER_PROVIDER, CAP_FILE_VERSION, INTEGER_SUPPORT};
 
-    // The descriptor format version, not the target: converters from 3.0.1 to 26.0 all write 3.0
+    // The descriptor format version, not the target: converters from 3.0.1 to 26.1 all write 3.0
     private static final String DESCRIPTOR_VERSION = "3.0";
     private static final String CLASSIC_APPLET = "classic-applet";
 

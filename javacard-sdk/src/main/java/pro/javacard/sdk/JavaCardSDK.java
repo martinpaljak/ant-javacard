@@ -101,6 +101,8 @@ public final class JavaCardSDK {
                     return SDKRelease.V25_1;
                 case "26.0":
                     return SDKRelease.V26_0;
+                case "26.1":
+                    return SDKRelease.V26_1;
                 default:
                     throw new IllegalArgumentException(String.format("Unsupported JavaCard SDK in %s (converter.version %s): upgrade ant-javacard or use a supported SDK", root, ver));
             }

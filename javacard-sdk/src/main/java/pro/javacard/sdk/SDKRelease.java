@@ -28,7 +28,8 @@ public enum SDKRelease {
     V24_1("24.1", APIVersion.V320, 51, 55, APIVersion.V304, APIVersion.V320),
     V25_0("25.0", APIVersion.V320, 54, 52, APIVersion.V304, APIVersion.V320),
     V25_1("25.1", APIVersion.V320, 54, 52, APIVersion.V304, APIVersion.V320),
-    V26_0("26.0", APIVersion.V320, 54, 52, APIVersion.V304, APIVersion.PREVIEW_FINAL);
+    V26_0("26.0", APIVersion.V320, 54, 52, APIVersion.V304, APIVersion.PREVIEW_FINAL),
+    V26_1("26.1", APIVersion.V320, 54, 52, APIVersion.V304, APIVersion.PREVIEW_FINAL);
     // @formatter:on
 
     // No v2.1.X SDK has a verifier with verifyCap
@@ -39,6 +40,9 @@ public enum SDKRelease {
 
     // Their tools.jar logging.properties adds a FileHandler writing ~/java0.log.0
     public static final Set<SDKRelease> LOGS_TO_FILE = EnumSet.range(V301, V24_1);
+
+    // Their tools are free of System.exit calls on the conversion path, so they can run inside Ant
+    public static final Set<SDKRelease> IN_PROCESS = EnumSet.range(V26_0, V26_1);
 
     // Their converter needs jc.home to generate and compile SIO proxy classes
     public static final Set<SDKRelease> GENERATES_SIO_PROXIES = EnumSet.range(V301, V305u4);

@@ -64,7 +64,8 @@ public class TestSDKs {
             Map.entry("jc320v24.1_kit", SDKRelease.V24_1),
             Map.entry("jc320v25.0_kit", SDKRelease.V25_0),
             Map.entry("jc320v25.1_kit", SDKRelease.V25_1),
-            Map.entry("jc320v26.0_kit", SDKRelease.V26_0));
+            Map.entry("jc320v26.0_kit", SDKRelease.V26_0),
+            Map.entry("jc320v26.1_kit", SDKRelease.V26_1));
 
     @Test
     public void testDetection() throws Exception {
@@ -75,8 +76,8 @@ public class TestSDKs {
         }
         Assert.assertEquals(sdkFolders().size(), EXPECTED.size(), "sdks/ and the table above have diverged");
 
-        Assert.assertEquals(sdk("jc320v26.0_kit").api(APIVersion.PREVIEW).get().version(), APIVersion.PREVIEW);
-        Assert.assertEquals(sdk("jc320v26.0_kit").api(APIVersion.PREVIEW).get().sdk().getRelease(), SDKRelease.V26_0);
+        Assert.assertEquals(sdk("jc320v26.1_kit").api(APIVersion.PREVIEW).get().version(), APIVersion.PREVIEW);
+        Assert.assertEquals(sdk("jc320v26.1_kit").api(APIVersion.PREVIEW).get().sdk().getRelease(), SDKRelease.V26_1);
 
         Assert.assertTrue(APIVersion.V320.equalOrNewer(APIVersion.V211));
         Assert.assertFalse(APIVersion.V211.equalOrNewer(APIVersion.V222));

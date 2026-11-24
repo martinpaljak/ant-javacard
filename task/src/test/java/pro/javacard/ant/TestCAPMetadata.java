@@ -18,7 +18,7 @@ import java.util.jar.JarInputStream;
 
 import static org.testng.Assert.*;
 
-// The build converts applet.cap and library.cap into target/caps with jc320v26.0_kit
+// The build converts applet.cap and library.cap into target/caps with jc320v26.1_kit
 public class TestCAPMetadata {
 
     private static final Path CAPS = Paths.get("target", "caps");

@@ -19,12 +19,15 @@
             <cap jckit="${SDK26.0}" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>
+            <cap jckit="${SDK26.1}" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
         </javacard>
     </target>
     <!-- Nested sources with per-path includes/excludes -->
     <target name="test-nested-sources" depends="jcpro">
         <javacard>
-            <cap jckit="${SDK26.0}" aid="010203040506">
+            <cap jckit="${SDK26.1}" aid="010203040506">
                 <applet class="testapplets.empty.Empty"/>
                 <sources path="src/testapplets/empty"/>
             </cap>
@@ -61,6 +64,20 @@
             </cap>
         </javacard>
         <javacard jckit="${SDK26.0}">
+            <cap targetsdk="3.0.4" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.0.5" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.1.0" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+            <cap targetsdk="3.2.0" sources="src/testapplets/empty">
+                <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
+            </cap>
+        </javacard>
+        <javacard jckit="${SDK26.1}">
             <cap targetsdk="3.0.4" sources="src/testapplets/empty">
                 <applet class="testapplets.empty.Empty" aid="0102030405060708"/>
             </cap>

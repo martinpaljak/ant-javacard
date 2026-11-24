@@ -297,7 +297,7 @@ public class JCCap extends Task {
         }
 
         // Nudge towards the latest SDK in the appropriate family
-        SDKRelease recommended = SDKRelease.V26_0.targets().contains(build.target.version()) ? SDKRelease.V26_0 : SDKRelease.V305u4;
+        SDKRelease recommended = SDKRelease.V26_1.targets().contains(build.target.version()) ? SDKRelease.V26_1 : SDKRelease.V305u4;
         if (release != recommended) {
             log(String.format("WARN: using JavaCard SDK v%s instead of the recommended v%s", release, recommended), Project.MSG_WARN);
         }
@@ -692,8 +692,7 @@ public class JCCap extends Task {
 
         List<String> args = converter.arguments(build.pkg);
 
-        // Only the v26.0 tools are free of System.exit calls
-        if (!fork && SDKLogger.loggingConfig().isPresent() && build.sdk.getRelease() == SDKRelease.V26_0) {
+        if (!fork && SDKLogger.loggingConfig().isPresent() && SDKRelease.IN_PROCESS.contains(build.sdk.getRelease())) {
             convertInProcess(converter, args);
         } else {
             convertForked(build, converter, args);

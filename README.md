@@ -62,7 +62,7 @@ target:
 Based on the [JavaCard SDK and JDK version compatibility matrix](https://github.com/martinpaljak/ant-javacard/wiki/JavaCard-SDK-and-JDK-version-compatibility).
 - Targeting JC 3.0.4 or later (modern JavaCard-s)
   - Use JDK 25 (don't forget to set `$JAVA_HOME`)
-  - Use the latest JavaCard SDK (`jckit="sdks/jc320v26.0_kit"`) with right target (`targetsdk="3.x.y"`)
+  - Use the latest JavaCard SDK (`jckit="sdks/jc320v26.1_kit"`) with right target (`targetsdk="3.x.y"`)
 - Targeting JC 2.2.x or 3.0.1 (older JavaCard-s)
   - Use JDK 17 (don't forget to set `$JAVA_HOME`)
   - Use JavaCard SDK 3.0.5u4 (`jckit="sdks/jc305u4_kit"`) with right target (`targetsdk="sdks/jc222_kit"`)
@@ -90,7 +90,7 @@ Details:
    * `jckit` attribute - path to the JavaCard SDK that is used if individual `cap` does not specify one. Optional if `cap` defines one, required otherwise.
  * `cap` tag - construct a CAP file
    * `jckit` attribute - path to the JavaCard SDK to be used. Optional if `javacard` defines one, required otherwise.
-   * `targetsdk` attribute - path to the target JavaCard SDK for this CAP, or a version name with SDK v3.1.0 and later: `"3.0.4"`, `"3.0.5"` and `"3.1.0"`, plus `"3.2.0"` with v24.0 and later, and `"preview"` and `"preview-final"` with v26.0. Optional, value of `jckit` used by default. Allows to use a more recent converter to target older JavaCard platforms.
+   * `targetsdk` attribute - path to the target JavaCard SDK for this CAP, or a version name with SDK v3.1.0 and later: `"3.0.4"`, `"3.0.5"` and `"3.1.0"`, plus `"3.2.0"` with v24.0 and later, and `"preview"` and `"preview-final"` with v26.0 and later. Optional, value of `jckit` used by default. Allows to use a more recent converter to target older JavaCard platforms.
    * `sources` attribute - path(s) to Java source code, to be compiled against the JavaCard SDK. Either `sources` or `classes` is required, unless `src/main/javacard` or `src/main/java` exists.
    * `sources2` attribute - additional sources to build per-platform applets. Optional, deprecated (use multiple paths for `sources`)
    * `classes` attribute - path to pre-compiled class files to be assembled into a CAP file. If both `classes` and `sources` are specified, compiled class files will be put to `classes` folder, which is created if missing.

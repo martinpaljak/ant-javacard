@@ -22,7 +22,7 @@ public class TestBuild {
         project.setBaseDir(Paths.get(System.getProperty("user.dir")).getParent().toFile());
         JCCap cap = new JCCap(null);
         cap.setProject(project);
-        cap.setJCKit("sdks/jc320v26.0_kit");
+        cap.setJCKit("sdks/jc320v26.1_kit");
         return cap;
     }
 
@@ -109,10 +109,10 @@ public class TestBuild {
 
     @Test
     public void compilesForTheConverterAndTheJDK() {
-        // v26.0 eats up to class file 54 (Java 10)
-        assertEquals(SDKRelease.V26_0.javacTarget(8), "1.8");
-        assertEquals(SDKRelease.V26_0.javacTarget(11), "10");
-        assertEquals(SDKRelease.V26_0.javacTarget(25), "10");
+        // v26.1 eats up to class file 54 (Java 10)
+        assertEquals(SDKRelease.V26_1.javacTarget(8), "1.8");
+        assertEquals(SDKRelease.V26_1.javacTarget(11), "10");
+        assertEquals(SDKRelease.V26_1.javacTarget(25), "10");
         // Older converters cap below every JDK that runs them
         assertEquals(SDKRelease.V24_1.javacTarget(17), "1.7");
         assertEquals(SDKRelease.V222.javacTarget(8), "1.5");

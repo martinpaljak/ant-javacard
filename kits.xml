@@ -17,4 +17,5 @@
     <property name="SDK25.0"    value="sdks/jc320v25.0_kit"/>
     <property name="SDK25.1"    value="sdks/jc320v25.1_kit"/>
     <property name="SDK26.0"    value="sdks/jc320v26.0_kit"/>
+    <property name="SDK26.1"    value="sdks/jc320v26.1_kit"/>
 </project>    

@@ -15,10 +15,10 @@
         </javacard>
     </target>
 
-    <!-- A conversion error from the in-process converter of v26.0 -->
+    <!-- A conversion error from the in-process converter of v26.1 -->
     <target name="fail-inprocess" depends="jcpro">
         <javacard>
-            <cap jckit="${SDK26.0}" sources="src/testapplets/fail" ints="false">
+            <cap jckit="${SDK26.1}" sources="src/testapplets/fail" ints="false">
                 <applet class="testapplets.fail.Fail" aid="0102030405060708"/>
             </cap>
         </javacard>
@@ -27,7 +27,7 @@
     <!-- Two folders offering testapplets.library in versions 1.0 and 2.0 -->
     <target name="fail-imports-collision" depends="test-imports-library">
         <javacard>
-            <cap jckit="${SDK26.0}" sources="src/testapplets/libraryuser" aid="0102030405" output="testimports/user-collision.cap">
+            <cap jckit="${SDK26.1}" sources="src/testapplets/libraryuser" aid="0102030405" output="testimports/user-collision.cap">
                 <applet class="testapplets.libraryuser.LibraryUser" aid="0102030405060708"/>
                 <import exps="testimports/exps" jar="testimports/library.jar"/>
                 <import exps="testimports/exps2"/>
